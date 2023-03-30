@@ -25,7 +25,7 @@ enum Square (A1, A2, ..., H8)
 
 - [x] BitBoard representation
 - [] Move generation
-- - [] Move generation for leap pieces (knight, king)
+- - [x] Move generation for leap pieces (knight, king)
 - - [] Move generation for sliding pieces (bishop, rook, queen)
 - - [] Move generation for pawns (double move, capture, and promotion)
 - - [] Move generation for castling and en passant
