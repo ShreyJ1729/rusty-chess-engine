@@ -32,7 +32,13 @@ impl Bitboard {
     pub fn is_set(&self, index: usize) -> bool {
         self.bits & (1 << index) != 0
     }
+
+    pub fn count(&self) -> u32 {
+        self.bits.count_ones()
+    }
 }
+
+// Bitwise operators
 
 impl std::ops::BitOr for Bitboard {
     type Output = Bitboard;
@@ -41,6 +47,22 @@ impl std::ops::BitOr for Bitboard {
         Bitboard {
             bits: self.bits | rhs.bits,
         }
+    }
+}
+
+impl std::ops::BitAnd for Bitboard {
+    type Output = Bitboard;
+
+    fn bitand(self, rhs: Bitboard) -> Bitboard {
+        Bitboard {
+            bits: self.bits & rhs.bits,
+        }
+    }
+}
+
+impl Default for Bitboard {
+    fn default() -> Self {
+        Self::new(None)
     }
 }
 
@@ -71,11 +93,5 @@ impl Display for Bitboard {
         writeln!(f, "  a b c d e f g h")?;
 
         Ok(())
-    }
-}
-
-impl Default for Bitboard {
-    fn default() -> Self {
-        Self::new(None)
     }
 }

@@ -49,7 +49,6 @@ impl MoveGenerator<'_> {
     }
 
     pub fn bits_to_move(&self, source: u64, target: u64, piece: PIECE, color: COLOR) -> Move {
-        let source_square = u64_to_square(source);
         let target_square = u64_to_square(target);
         match piece {
             PIECE::WhitePawn => {
@@ -94,6 +93,8 @@ impl MoveGenerator<'_> {
             west(source),
             north_west(source),
         ];
+
+        // remove all None values from targets and then convert from bits to move using bits_to_move
 
         let moves = targets
             .into_iter()

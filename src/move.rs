@@ -17,7 +17,7 @@ impl Move {
         Move {
             source,
             target,
-            promotion: None,
+            promotion,
         }
     }
 }
