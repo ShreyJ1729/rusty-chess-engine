@@ -6,11 +6,8 @@ pub struct Bitboard {
 }
 
 impl Bitboard {
-    pub fn new(bits: Option<u64>) -> Bitboard {
-        match bits {
-            Some(bits) => Bitboard { bits },
-            None => Bitboard { bits: 0 },
-        }
+    pub fn new(bits: u64) -> Bitboard {
+        Bitboard { bits }
     }
 
     pub fn set(&mut self, index: usize) {
@@ -33,6 +30,10 @@ impl Bitboard {
         self.bits & (1 << index) != 0
     }
 
+    pub fn is_set_bits(&self, bits: u64) -> bool {
+        self.bits & bits != 0
+    }
+
     pub fn count(&self) -> u32 {
         self.bits.count_ones()
     }
@@ -50,6 +51,16 @@ impl std::ops::BitOr for Bitboard {
     }
 }
 
+impl std::ops::BitXor for Bitboard {
+    type Output = Bitboard;
+
+    fn bitxor(self, rhs: Bitboard) -> Bitboard {
+        Bitboard {
+            bits: self.bits ^ rhs.bits,
+        }
+    }
+}
+
 impl std::ops::BitAnd for Bitboard {
     type Output = Bitboard;
 
@@ -60,9 +71,27 @@ impl std::ops::BitAnd for Bitboard {
     }
 }
 
+impl std::ops::BitOrAssign for Bitboard {
+    fn bitor_assign(&mut self, rhs: Bitboard) {
+        self.bits |= rhs.bits;
+    }
+}
+
+impl std::ops::BitXorAssign for Bitboard {
+    fn bitxor_assign(&mut self, rhs: Bitboard) {
+        self.bits ^= rhs.bits;
+    }
+}
+
+impl std::ops::BitAndAssign for Bitboard {
+    fn bitand_assign(&mut self, rhs: Bitboard) {
+        self.bits &= rhs.bits;
+    }
+}
+
 impl Default for Bitboard {
     fn default() -> Self {
-        Self::new(None)
+        Self::new(0)
     }
 }
 

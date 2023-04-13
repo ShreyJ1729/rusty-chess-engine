@@ -28,7 +28,7 @@ pub fn bits_to_index(bits: u64) -> usize {
     bits.trailing_zeros() as usize
 }
 
-pub fn u64_to_square(bits: u64) -> SQUARE {
+pub fn bits_to_square(bits: u64) -> SQUARE {
     assert_eq!(bits.count_ones(), 1);
     SQUARE::from(bits.trailing_zeros() as usize)
 }
@@ -36,7 +36,7 @@ pub fn u64_to_square(bits: u64) -> SQUARE {
 pub fn north(bits: u64) -> Option<u64> {
     ternary!(
         bits & RANK::Rank8.bits() == 0,
-        Some(bits << DIRECTION::NORTH.bits()),
+        Some(bits << DIRECTION::UpDown.bits()),
         None
     )
 }
@@ -44,7 +44,7 @@ pub fn north(bits: u64) -> Option<u64> {
 pub fn south(bits: u64) -> Option<u64> {
     ternary!(
         bits & RANK::Rank1.bits() == 0,
-        Some(bits >> DIRECTION::SOUTH.bits()),
+        Some(bits >> DIRECTION::UpDown.bits()),
         None
     )
 }
@@ -52,7 +52,7 @@ pub fn south(bits: u64) -> Option<u64> {
 pub fn east(bits: u64) -> Option<u64> {
     ternary!(
         bits & FILE::FileH.bits() == 0,
-        Some(bits << DIRECTION::EAST.bits()),
+        Some(bits << DIRECTION::LeftRight.bits()),
         None
     )
 }
@@ -60,7 +60,7 @@ pub fn east(bits: u64) -> Option<u64> {
 pub fn west(bits: u64) -> Option<u64> {
     ternary!(
         bits & FILE::FileA.bits() == 0,
-        Some(bits >> DIRECTION::WEST.bits()),
+        Some(bits >> DIRECTION::LeftRight.bits()),
         None
     )
 }

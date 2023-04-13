@@ -27,8 +27,8 @@ impl Display for Move {
         write!(
             f,
             "{}->{}",
-            u64_to_square(self.source),
-            u64_to_square(self.target)
+            bits_to_square(self.source),
+            bits_to_square(self.target)
         )
     }
 }

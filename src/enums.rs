@@ -155,14 +155,14 @@ impl PieceType {
     }
 }
 
-#[derive(Debug, Display, Clone, Copy, PartialEq)]
+#[derive(Debug, Display, Clone, Copy, PartialEq, EnumIter)]
 pub enum COLOR {
-    BLACK = 0,
-    WHITE = 1,
+    WHITE = 0,
+    BLACK = 1,
 }
 
 // ranks and files are defined in the following way so that rank * 8 + file = square
-#[derive(Debug, Display, Clone, Copy, EnumIter, PartialEq)]
+#[derive(Debug, Display, Clone, Copy, EnumIter, PartialEq, PartialOrd)]
 pub enum RANK {
     Rank1 = 0,
     Rank2 = 1,
@@ -189,7 +189,7 @@ impl RANK {
     }
 }
 
-#[derive(Debug, Display, EnumIter, PartialEq)]
+#[derive(Debug, Display, Clone, Copy, EnumIter, PartialEq, PartialOrd)]
 pub enum FILE {
     FileA = 0,
     FileB = 1,
@@ -204,9 +204,9 @@ pub enum FILE {
 impl FILE {
     pub fn bits(&self) -> u64 {
         match self {
-            FILE::FileA => 0x0101010101010101,
-            FILE::FileB => 0x0202020202020202,
-            FILE::FileC => 0x0404040404040404,
+            FILE::FileA => 0x0101010101010101, // 0b0000000100000001000000010000000100000001000000010000000100000001
+            FILE::FileB => 0x0202020202020202, // 0b0000001000000010000000100000001000000010000000100000001000000010
+            FILE::FileC => 0x0404040404040404, // ...
             FILE::FileD => 0x0808080808080808,
             FILE::FileE => 0x1010101010101010,
             FILE::FileF => 0x2020202020202020,
@@ -245,10 +245,8 @@ pub enum CASTLE {
 
 #[derive(Debug, Display, Clone, Copy, EnumIter)]
 pub enum DIRECTION {
-    NORTH = 8,
-    SOUTH = -8,
-    EAST = 1,
-    WEST = -1,
+    UpDown = 8,
+    LeftRight = 1,
 }
 
 impl DIRECTION {
@@ -262,7 +260,7 @@ impl DIRECTION {
 // this helps with things like generating moves
 // ex. to get north we do (1 << (A1 as usize)) << 8
 
-#[derive(Debug, Display, Clone, Copy, EnumIter)]
+#[derive(Debug, Display, Clone, Copy, EnumIter, PartialEq)]
 pub enum SQUARE {
     A1 = 0,
     B1 = 1,

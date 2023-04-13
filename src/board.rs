@@ -1,7 +1,4 @@
 use crate::*;
-use bitboard::*;
-
-mod bitboard;
 
 #[derive(Debug, Clone)]
 pub struct Board {
@@ -157,7 +154,7 @@ impl Board {
             | self.black_king
     }
 
-    pub fn all_pieces(&self) -> Bitboard {
+    pub fn occupancy(&self) -> Bitboard {
         self.all_white_pieces() | self.all_black_pieces()
     }
 
@@ -235,10 +232,6 @@ impl Board {
 
             PIECE::Empty => panic!("Cannot add empty piece"),
         }
-    }
-
-    pub fn generate_moves(&self) -> Vec<Move> {
-        MoveGenerator::new(self).generate_moves()
     }
 
     pub fn make_move(&mut self, move_: Move) {
