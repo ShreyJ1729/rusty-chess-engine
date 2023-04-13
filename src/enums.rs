@@ -161,6 +161,22 @@ pub enum COLOR {
     BLACK = 1,
 }
 
+impl COLOR {
+    pub fn index(&self) -> usize {
+        match self {
+            COLOR::WHITE => 0,
+            COLOR::BLACK => 1,
+        }
+    }
+
+    pub fn opposite(&self) -> COLOR {
+        match self {
+            COLOR::WHITE => COLOR::BLACK,
+            COLOR::BLACK => COLOR::WHITE,
+        }
+    }
+}
+
 // ranks and files are defined in the following way so that rank * 8 + file = square
 #[derive(Debug, Display, Clone, Copy, EnumIter, PartialEq, PartialOrd)]
 pub enum RANK {
@@ -186,6 +202,10 @@ impl RANK {
             RANK::Rank7 => 0xFF000000000000,
             RANK::Rank8 => 0xFF00000000000000,
         }
+    }
+
+    pub fn index(&self) -> usize {
+        *self as usize
     }
 }
 
@@ -213,6 +233,10 @@ impl FILE {
             FILE::FileG => 0x4040404040404040,
             FILE::FileH => 0x8080808080808080,
         }
+    }
+
+    pub fn index(&self) -> usize {
+        *self as usize
     }
 }
 
@@ -252,6 +276,90 @@ pub enum DIRECTION {
 impl DIRECTION {
     pub fn bits(&self) -> u64 {
         (*self as i8).abs() as u64
+    }
+}
+
+#[derive(Debug, Display, Clone, Copy, EnumIter)]
+pub enum DIAGONAL {
+    A8A8 = 1,
+    A7B8 = 2,
+    A6C8 = 3,
+    A5D8 = 4,
+    A4E8 = 5,
+    A3F8 = 6,
+    A2G8 = 7,
+    A1H8 = 8,
+    B1H7 = 9,
+    C1H6 = 10,
+    D1H5 = 11,
+    E1H4 = 12,
+    F1H3 = 13,
+    G1H2 = 14,
+    H1H1 = 15,
+}
+
+impl DIAGONAL {
+    pub fn bits(&self) -> u64 {
+        match self {
+            Self::A8A8 => 0b0000000100000000000000000000000000000000000000000000000000000000,
+            Self::A7B8 => 0b0000001000000001000000000000000000000000000000000000000000000000,
+            Self::A6C8 => 0b0000010000000010000000010000000000000000000000000000000000000000,
+            Self::A5D8 => 0b0000100000000100000000100000000100000000000000000000000000000000,
+            Self::A4E8 => 0b0001000000001000000001000000001000000001000000000000000000000000,
+            Self::A3F8 => 0b0010000000010000000010000000010000000010000000010000000000000000,
+            Self::A2G8 => 0b0100000000100000000100000000100000000100000000100000000100000000,
+            Self::A1H8 => 0b1000000001000000001000000001000000001000000001000000001000000001,
+            Self::B1H7 => 0b0000000010000000010000000010000000010000000010000000010000000010,
+            Self::C1H6 => 0b0000000000000000100000000100000000100000000100000000100000000100,
+            Self::D1H5 => 0b0000000000000000000000001000000001000000001000000001000000001000,
+            Self::E1H4 => 0b0000000000000000000000000000000010000000010000000010000000010000,
+            Self::F1H3 => 0b0000000000000000000000000000000000000000100000000100000000100000,
+            Self::G1H2 => 0b0000000000000000000000000000000000000000000000001000000001000000,
+            Self::H1H1 => 0b0000000000000000000000000000000000000000000000000000000010000000,
+        }
+    }
+}
+
+#[derive(Debug, Display, Clone, Copy, EnumIter)]
+pub enum ANTIDIAGONAL {
+    A1A1 = 1,
+    A2B1 = 2,
+    A3C1 = 3,
+    A4D1 = 4,
+    A5E1 = 5,
+    A6F1 = 6,
+    A7G1 = 7,
+    A8H1 = 8,
+    B8H2 = 9,
+    C8H3 = 10,
+    D8H4 = 11,
+    E8H5 = 12,
+    F8H6 = 13,
+    G8H7 = 14,
+    H8H8 = 15,
+}
+
+impl ANTIDIAGONAL {
+    pub fn bits(&self) -> u64 {
+        match self {
+            // these are the topleft - bottomright diagonals
+            // copilot make sure to include all the bits when making suggestions
+            Self::A1A1 => 0b0000000000000000000000000000000000000000000000000000000000000001,
+            Self::A2B1 => 0b0000000000000000000000000000000000000000000000000000000100000010,
+            Self::A3C1 => 0b0000000000000000000000000000000000000000000000010000001000000100,
+            Self::A4D1 => 0b0000000000000000000000000000000000000001000000100000010000001000,
+            Self::A5E1 => 0b0000000000000000000000000000000100000010000001000000100000010000,
+            Self::A6F1 => 0b0000000000000000000000010000001000000100000010000001000000100000,
+            Self::A7G1 => 0b0000000000000001000000100000010000001000000100000010000001000000,
+            Self::A8H1 => 0b0000000100000010000001000000100000010000001000000100000010000000,
+            Self::B8H2 => 0b0000001000000100000010000001000000100000010000001000000000000000,
+            Self::C8H3 => 0b0000010000001000000100000010000001000000100000000000000000000000,
+            Self::D8H4 => 0b0000100000010000001000000100000010000000000000000000000000000000,
+            Self::E8H5 => 0b0001000000100000010000001000000000000000000000000000000000000000,
+            Self::F8H6 => 0b0010000001000000100000000000000000000000000000000000000000000000,
+            Self::G8H7 => 0b0100000010000000000000000000000000000000000000000000000000000000,
+            Self::H8H8 => 0b1000000000000000000000000000000000000000000000000000000000000000,
+        }
     }
 }
 
@@ -361,6 +469,52 @@ impl SQUARE {
             5 | 13 | 21 | 29 | 37 | 45 | 53 | 61 => FILE::FileF,
             6 | 14 | 22 | 30 | 38 | 46 | 54 | 62 => FILE::FileG,
             7 | 15 | 23 | 31 | 39 | 47 | 55 | 63 => FILE::FileH,
+            _ => panic!("Invalid square"),
+        }
+    }
+
+    pub fn diagonal(&self) -> DIAGONAL {
+        match self.index() {
+            56 => DIAGONAL::A8A8,
+            48 | 57 => DIAGONAL::A7B8,
+            40 | 49 | 58 => DIAGONAL::A6C8,
+            32 | 41 | 50 | 59 => DIAGONAL::A5D8,
+            24 | 33 | 42 | 51 | 60 => DIAGONAL::A4E8,
+            16 | 25 | 34 | 43 | 52 | 61 => DIAGONAL::A3F8,
+            8 | 17 | 26 | 35 | 44 | 53 | 62 => DIAGONAL::A2G8,
+
+            0 | 9 | 18 | 27 | 36 | 45 | 54 | 63 => DIAGONAL::A1H8,
+
+            1 | 10 | 19 | 28 | 37 | 46 | 55 => DIAGONAL::B1H7,
+            2 | 11 | 20 | 29 | 38 | 47 => DIAGONAL::C1H6,
+            3 | 12 | 21 | 30 | 39 => DIAGONAL::D1H5,
+            4 | 13 | 22 | 31 => DIAGONAL::E1H4,
+            5 | 14 | 23 => DIAGONAL::F1H3,
+            6 | 15 => DIAGONAL::G1H2,
+            7 => DIAGONAL::H1H1,
+            _ => panic!("Invalid square"),
+        }
+    }
+
+    pub fn antidiagonal(&self) -> ANTIDIAGONAL {
+        match self.index() {
+            0 => ANTIDIAGONAL::A1A1,
+            1 | 8 => ANTIDIAGONAL::A2B1,
+            2 | 9 | 16 => ANTIDIAGONAL::A3C1,
+            3 | 10 | 17 | 24 => ANTIDIAGONAL::A4D1,
+            4 | 11 | 18 | 25 | 32 => ANTIDIAGONAL::A5E1,
+            5 | 12 | 19 | 26 | 33 | 40 => ANTIDIAGONAL::A6F1,
+            6 | 13 | 20 | 27 | 34 | 41 | 48 => ANTIDIAGONAL::A7G1,
+
+            7 | 14 | 21 | 28 | 35 | 42 | 49 | 56 => ANTIDIAGONAL::A8H1,
+
+            15 | 22 | 29 | 36 | 43 | 50 | 57 => ANTIDIAGONAL::B8H2,
+            23 | 30 | 37 | 44 | 51 | 58 => ANTIDIAGONAL::C8H3,
+            31 | 38 | 45 | 52 | 59 => ANTIDIAGONAL::D8H4,
+            39 | 46 | 53 | 60 => ANTIDIAGONAL::E8H5,
+            47 | 54 | 61 => ANTIDIAGONAL::F8H6,
+            55 | 62 => ANTIDIAGONAL::G8H7,
+            63 => ANTIDIAGONAL::H8H8,
             _ => panic!("Invalid square"),
         }
     }

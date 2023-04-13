@@ -1,6 +1,6 @@
 use crate::*;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Bitboard {
     bits: u64,
 }
