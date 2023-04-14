@@ -20,48 +20,40 @@ fn main() {
 
     let board = Board::from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
     println!("{}", board);
+}
+
+fn test_bishop_moves() {
+    let board = Board::from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
 
     let mut lookup_table = LookupTable::new();
-
-    // print all the diagonals and anti-diagonals
-
-    for diagonal in DIAGONAL::iter() {
-        // println!("{}:\n{}", diagonal, Bitboard::new(diagonal.bits()));
-        // count number of 1s in diagonal and print it
-        println!("{} {}", diagonal, diagonal.bits().count_ones());
-    }
-
-    for anti_diagonal in ANTIDIAGONAL::iter() {
-        // println!(
-        //     "{}:\n{}",
-        //     anti_diagonal,
-        //     Bitboard::new(anti_diagonal.bits())
-        // );
-        // count number of 1s in anti_diagonal and print it
-        println!("{} {}", anti_diagonal, anti_diagonal.bits().count_ones());
-    }
-
     lookup_table.build_moves();
 
-    // for square in SQUARE::iter() {
-    //     let true_moves = MoveGenerator::new().generate_bishop_moves(square, board.occupancy());
-    //     let predicted_moves =
-    //         Bitboard::new(lookup_table.bishop_moves(square, board.occupancy().bits()));
-    //     println!(
-    //         "{}\nmovegen:\n{}\npredicted_u64:{}\npredicted:\n{}\n--------------\n",
-    //         square,
-    //         true_moves,
-    //         predicted_moves.bits(),
-    //         predicted_moves
-    //     );
+    for square in SQUARE::iter() {
+        let true_moves = MoveGenerator::new().generate_bishop_moves(square, board.occupancy());
+        let predicted_moves =
+            Bitboard::new(lookup_table.get_bishop_moves(square, board.occupancy().bits()));
+        println!(
+            "{}\nmovegen:\n{}\npredicted_u64:{}\npredicted:\n{}\n--------------\n",
+            square,
+            true_moves,
+            predicted_moves.bits(),
+            predicted_moves
+        );
 
-    //     assert_eq!(true_moves, predicted_moves);
-    // }
+        assert_eq!(true_moves, predicted_moves);
+    }
+}
+
+fn test_rook_moves() {
+    let board = Board::from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+
+    let mut lookup_table = LookupTable::new();
+    lookup_table.build_moves();
 
     for square in SQUARE::iter() {
         let true_moves = MoveGenerator::new().generate_rook_moves(square, board.occupancy());
         let predicted_moves =
-            Bitboard::new(lookup_table.rook_moves(square, board.occupancy().bits()));
+            Bitboard::new(lookup_table.get_rook_moves(square, board.occupancy().bits()));
         println!(
             "{}\nmovegen:\n{}\npredicted_u64:{}\npredicted:\n{}\n--------------\n",
             square,
@@ -70,5 +62,17 @@ fn main() {
             predicted_moves
         );
         assert_eq!(true_moves, predicted_moves);
+    }
+}
+
+fn print_diagonals() {
+    for diagonal in DIAGONAL::iter() {
+        println!("{} {}", diagonal, diagonal.bits().count_ones());
+    }
+}
+
+fn print_antidiagonals() {
+    for antidiagonal in ANTIDIAGONAL::iter() {
+        println!("{} {}", antidiagonal, antidiagonal.bits().count_ones());
     }
 }

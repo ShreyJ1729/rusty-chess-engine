@@ -295,3 +295,9 @@ impl Display for Board {
         Ok(())
     }
 }
+
+impl Default for Board {
+    fn default() -> Self {
+        return Board::from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+    }
+}

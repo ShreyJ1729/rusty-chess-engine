@@ -49,19 +49,19 @@ impl LookupTable {
     // -------------- MOVE LOOKUP -----------------
     // --------------------------------------------
 
-    pub fn pawn_moves(&self, square: SQUARE, color: COLOR) -> u64 {
+    pub fn get_pawn_moves(&self, square: SQUARE, color: COLOR) -> u64 {
         self.pawns[color.index()][square.index()]
     }
 
-    pub fn knight_moves(&self, square: SQUARE) -> u64 {
+    pub fn get_knight_moves(&self, square: SQUARE) -> u64 {
         self.knights[square.index()]
     }
 
-    pub fn king_moves(&self, square: SQUARE) -> u64 {
+    pub fn get_king_moves(&self, square: SQUARE) -> u64 {
         self.kings[square.index()]
     }
 
-    pub fn bishop_moves(&self, square: SQUARE, board_occupancy: u64) -> u64 {
+    pub fn get_bishop_moves(&self, square: SQUARE, board_occupancy: u64) -> u64 {
         // mask board occupancy to only include squares on the same diagonals as the square
         // don't include squares in rank 1 and rank 8 and file a and file h
         let masked_occupancy = board_occupancy
@@ -78,7 +78,7 @@ impl LookupTable {
         self.bishops[square.index()][occupancy_index as usize]
     }
 
-    pub fn rook_moves(&self, square: SQUARE, board_occupancy: u64) -> u64 {
+    pub fn get_rook_moves(&self, square: SQUARE, board_occupancy: u64) -> u64 {
         // mask board occupancy to only include squares on the same rank and file as the square
         // remove rank 1 and rank 8 from file mask and file a and file h from rank mask
         let rank_mask =
@@ -358,10 +358,10 @@ impl LookupTable {
                 self.validate_bishop_magic_number(magic_number, &bishop_occupancies, square)
         }
 
-        println!(
-            "{} bishop moves built - using {} for hash key",
-            square, magic_number
-        );
+        // println!(
+        //     "{} bishop moves built - using {} for hash key",
+        //     square, magic_number
+        // );
         self.bishop_magic_numbers[square.index()] = magic_number;
     }
 
@@ -378,10 +378,10 @@ impl LookupTable {
             magic_found = self.validate_rook_magic_number(magic_number, &rook_occupancies, square)
         }
 
-        println!(
-            "{} rook moves built - using {} for hash key",
-            square, magic_number
-        );
+        // println!(
+        //     "{} rook moves built - using {} for hash key",
+        //     square, magic_number
+        // );
         self.rook_magic_numbers[square.index()] = magic_number;
     }
 }
