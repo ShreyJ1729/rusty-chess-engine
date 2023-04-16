@@ -26,10 +26,10 @@ enum Square (A1, A2, ..., H8)
 - [x] BitBoard representation
 - [] Move generation
 - - [x] Move generation for leap pieces (knight, king)
-- - [] Move generation for sliding pieces (bishop, rook, queen)
-- - [] Move generation for pawns (double move, capture, and promotion)
+- - [x] Magic number move generation for sliding pieces (bishop, rook, queen)
+- - [x] Move generation for pawns (double move, capture, and promotion)
 - - [] Move generation for castling and en passant
-- [] Move validation
+- [] Move validation - is the move legal? (friendly capture or king in check)
 - [] Do perft tests to ensure move generation is correct
 
 ## Resources:

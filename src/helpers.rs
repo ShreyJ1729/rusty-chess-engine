@@ -10,11 +10,11 @@ macro_rules! ternary {
     };
 }
 
-pub fn build_move(source: SQUARE, target: SQUARE, promotion: Option<PIECE>) -> Move {
+pub fn build_move(source: SQUARE, target: SQUARE) -> Move {
     Move {
         source: source.bits(),
         target: target.bits(),
-        promotion,
+        // promotion,
     }
 }
 

@@ -46,6 +46,10 @@ impl Board {
         }
     }
 
+    // ---------------------------------------------
+    // --------------- FEN NOTATION ----------------
+    // ---------------------------------------------
+
     pub fn from_fen(fen: &str) -> Board {
         let mut board = Board::new();
         // Reverse the order of ranks in the FEN string so that chars go from A1..=H8
@@ -94,7 +98,7 @@ impl Board {
             let mut empty_squares = 0;
             for file in FILE::iter() {
                 let file_index = file as usize;
-                let square = index_to_bits(rank_index * 8 + file_index);
+                let square = rank_index * 8 + file_index;
                 let piece = self.piece_at(square);
                 match piece.not_empty() {
                     true => {
@@ -120,6 +124,10 @@ impl Board {
         fen
     }
 
+    // ---------------------------------------------
+    // ------------ BITS & OCCUPANCY ---------------
+    // ---------------------------------------------
+
     pub fn clear(&mut self) {
         self.white_pawns.clear();
         self.white_knights.clear();
@@ -136,7 +144,7 @@ impl Board {
         self.black_king.clear();
     }
 
-    pub fn all_white_pieces(&self) -> Bitboard {
+    pub fn white_occupancy(&self) -> Bitboard {
         self.white_pawns
             | self.white_knights
             | self.white_bishops
@@ -145,7 +153,7 @@ impl Board {
             | self.white_king
     }
 
-    pub fn all_black_pieces(&self) -> Bitboard {
+    pub fn black_occupancy(&self) -> Bitboard {
         self.black_pawns
             | self.black_knights
             | self.black_bishops
@@ -155,12 +163,20 @@ impl Board {
     }
 
     pub fn occupancy(&self) -> Bitboard {
-        self.all_white_pieces() | self.all_black_pieces()
+        self.white_occupancy() | self.black_occupancy()
     }
 
-    pub fn piece_at(&self, bits: u64) -> PIECE {
-        let index = bits_to_index(bits);
+    // ---------------------------------------------
+    // ------------- MOVE GENERATION ---------------
+    // ---------------------------------------------
 
+    pub fn generate_moves_for_color(&self, color: COLOR) {}
+
+    // ---------------------------------------------
+    // -------------- PIECE MOVEMENT ---------------
+    // ---------------------------------------------
+
+    pub fn piece_at(&self, index: usize) -> PIECE {
         if self.white_pawns.is_set(index) {
             PIECE::WhitePawn
         } else if self.white_knights.is_set(index) {
@@ -190,9 +206,8 @@ impl Board {
         }
     }
 
-    pub fn remove_piece(&mut self, bits: u64, piece: PIECE) {
-        let index = bits_to_index(bits);
-
+    pub fn remove_piece(&mut self, index: usize) {
+        let piece = self.piece_at(index);
         match piece {
             PIECE::WhitePawn => self.white_pawns.unset(index),
             PIECE::WhiteKnight => self.white_knights.unset(index),
@@ -212,9 +227,7 @@ impl Board {
         }
     }
 
-    pub fn add_piece(&mut self, bits: u64, piece: PIECE) {
-        let index = bits_to_index(bits);
-
+    pub fn add_piece(&mut self, index: usize, piece: PIECE) {
         match piece {
             PIECE::WhitePawn => self.white_pawns.set(index),
             PIECE::WhiteKnight => self.white_knights.set(index),
@@ -235,19 +248,15 @@ impl Board {
     }
 
     pub fn make_move(&mut self, move_: Move) {
-        let target_piece = self.piece_at(move_.target);
-        match target_piece.not_empty() {
-            true => {
-                self.remove_piece(move_.target, target_piece);
-            }
-            false => {}
-        }
+        let target_index = bits_to_index(move_.target);
+        self.remove_piece(target_index);
 
-        let source_piece = self.piece_at(move_.source);
+        let source_index = bits_to_index(move_.source);
+        let source_piece = self.piece_at(source_index);
         match source_piece.not_empty() {
             true => {
-                self.remove_piece(move_.source, source_piece);
-                self.add_piece(move_.target, source_piece);
+                self.remove_piece(source_index);
+                self.add_piece(target_index, source_piece);
             }
             false => panic!("No piece at source square"),
         }
@@ -261,6 +270,10 @@ impl Board {
         // }
     }
 }
+
+// ---------------------------------------------
+// ------------------ IMPLS --------------------
+// ---------------------------------------------
 
 impl Display for Board {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
@@ -276,7 +289,7 @@ impl Display for Board {
                 let file_index = file as usize;
                 let index = rank_index * 8 + file_index;
 
-                let piece = self.piece_at(index_to_bits(index));
+                let piece = self.piece_at(index);
 
                 let c = match piece.not_empty() {
                     true => piece as u8 as char,

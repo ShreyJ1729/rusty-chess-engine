@@ -4,7 +4,7 @@ use crate::*;
 pub struct Move {
     pub source: u64,
     pub target: u64,
-    pub promotion: Option<PIECE>,
+    // pub promotion: Option<PIECE>,
     // en_passant: bool,
     // double_push: bool,
     // castle: Option<CASTLE>,
@@ -17,7 +17,7 @@ impl Move {
         Move {
             source,
             target,
-            promotion,
+            // promotion,
         }
     }
 }

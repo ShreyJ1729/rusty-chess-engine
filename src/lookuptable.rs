@@ -17,7 +17,10 @@ pub struct LookupTable {
 // todo try reducing bishop to 2048 (11 bits) through skipping bishop square on one of the diagonals
 impl LookupTable {
     pub fn new() -> LookupTable {
-        let table = LookupTable {
+        print!("Building lookup table...");
+        io::stdout().flush().ok().expect("Could not flush stdout");
+
+        let mut table = LookupTable {
             pawns: vec![vec![0; 64]; 2],
             knights: vec![0; 64],
             bishops: vec![vec![0; 4096]; 64],
@@ -31,7 +34,8 @@ impl LookupTable {
             rng: rand::thread_rng(),
         };
 
-        // table.build_moves();
+        table.build_moves();
+        println!("done");
         table
     }
 
@@ -93,6 +97,11 @@ impl LookupTable {
             .wrapping_mul(masked_occupancy)
             .wrapping_shr(64 - 12);
         self.rooks[square.index()][occupancy_index as usize]
+    }
+
+    pub fn get_queen_moves(&self, square: SQUARE, board_occupancy: u64) -> u64 {
+        self.get_bishop_moves(square, board_occupancy)
+            | self.get_rook_moves(square, board_occupancy)
     }
 
     // --------------------------------------------

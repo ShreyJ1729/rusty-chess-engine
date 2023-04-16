@@ -3,6 +3,8 @@ use crate::{
 };
 use rand::Rng;
 use std::fmt::{Display, Formatter, Result};
+use std::io;
+use std::io::prelude::*;
 use strum::IntoEnumIterator;
 use strum_macros::Display;
 use strum_macros::EnumIter;
@@ -20,6 +22,8 @@ fn main() {
 
     let board = Board::from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
     println!("{}", board);
+
+    let mut lookup_table = LookupTable::new();
 }
 
 fn test_bishop_moves() {
