@@ -10,14 +10,6 @@ macro_rules! ternary {
     };
 }
 
-pub fn build_move(source: SQUARE, target: SQUARE) -> Move {
-    Move {
-        source: source.bits(),
-        target: target.bits(),
-        // promotion,
-    }
-}
-
 pub fn index_to_bits(index: usize) -> u64 {
     assert!(index < 64);
     1 << index

@@ -1,5 +1,6 @@
 use crate::*;
 
+#[derive(Debug, Clone)]
 pub struct LookupTable {
     pub pawns: Vec<Vec<u64>>,
     pub knights: Vec<u64>,
@@ -53,19 +54,25 @@ impl LookupTable {
     // -------------- MOVE LOOKUP -----------------
     // --------------------------------------------
 
-    pub fn get_pawn_moves(&self, square: SQUARE, color: COLOR) -> u64 {
-        self.pawns[color.index()][square.index()]
+    pub fn get_pawn_moves(&self, square: SQUARE, color: COLOR) -> Bitboard {
+        let moves = self.pawns[color.index()][square.index()];
+
+        Bitboard::new(moves)
     }
 
-    pub fn get_knight_moves(&self, square: SQUARE) -> u64 {
-        self.knights[square.index()]
+    pub fn get_knight_moves(&self, square: SQUARE, color: COLOR) -> Bitboard {
+        let moves = self.knights[square.index()];
+
+        Bitboard::new(moves)
     }
 
-    pub fn get_king_moves(&self, square: SQUARE) -> u64 {
-        self.kings[square.index()]
+    pub fn get_king_moves(&self, square: SQUARE, color: COLOR) -> Bitboard {
+        let moves = self.kings[square.index()];
+
+        Bitboard::new(moves)
     }
 
-    pub fn get_bishop_moves(&self, square: SQUARE, board_occupancy: u64) -> u64 {
+    pub fn get_bishop_moves(&self, square: SQUARE, color: COLOR, board_occupancy: u64) -> Bitboard {
         // mask board occupancy to only include squares on the same diagonals as the square
         // don't include squares in rank 1 and rank 8 and file a and file h
         let masked_occupancy = board_occupancy
@@ -79,10 +86,12 @@ impl LookupTable {
             .wrapping_mul(masked_occupancy)
             .wrapping_shr(64 - 12);
 
-        self.bishops[square.index()][occupancy_index as usize]
+        let moves = self.bishops[square.index()][occupancy_index as usize];
+
+        Bitboard::new(moves)
     }
 
-    pub fn get_rook_moves(&self, square: SQUARE, board_occupancy: u64) -> u64 {
+    pub fn get_rook_moves(&self, square: SQUARE, color: COLOR, board_occupancy: u64) -> Bitboard {
         // mask board occupancy to only include squares on the same rank and file as the square
         // remove rank 1 and rank 8 from file mask and file a and file h from rank mask
         let rank_mask =
@@ -96,12 +105,15 @@ impl LookupTable {
         let occupancy_index = self.rook_magic_numbers[square.index()]
             .wrapping_mul(masked_occupancy)
             .wrapping_shr(64 - 12);
-        self.rooks[square.index()][occupancy_index as usize]
+
+        let moves = self.rooks[square.index()][occupancy_index as usize];
+
+        Bitboard::new(moves)
     }
 
-    pub fn get_queen_moves(&self, square: SQUARE, board_occupancy: u64) -> u64 {
-        self.get_bishop_moves(square, board_occupancy)
-            | self.get_rook_moves(square, board_occupancy)
+    pub fn get_queen_moves(&self, square: SQUARE, color: COLOR, board_occupancy: u64) -> Bitboard {
+        self.get_bishop_moves(square, color, board_occupancy)
+            | self.get_rook_moves(square, color, board_occupancy)
     }
 
     // --------------------------------------------
@@ -253,9 +265,9 @@ impl LookupTable {
         bishop_occupancies
     }
 
-    // --------------------------------------------
-    // ------------ MAGIC NUMBERS -----------------
-    // --------------------------------------------
+    // ---------------------------------------------
+    // --------------- MAGIC NUMBERS ---------------
+    // ---------------------------------------------
 
     pub fn generate_magic_number_candidate(&mut self) -> u64 {
         self.rng.gen::<u64>() & self.rng.gen::<u64>() & self.rng.gen::<u64>()

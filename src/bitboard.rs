@@ -37,6 +37,31 @@ impl Bitboard {
     pub fn count(&self) -> u32 {
         self.bits.count_ones()
     }
+
+    pub fn pop_lsb(&mut self) -> Option<usize> {
+        if self.bits == 0 {
+            return None;
+        }
+
+        let lsb = self.bits.trailing_zeros();
+        self.unset(lsb as usize);
+        Some(lsb as usize)
+    }
+
+    pub fn indices(&self) -> Vec<usize> {
+        let mut indices = Vec::new();
+        let mut bits = self.bits;
+        while bits != 0 {
+            let lsb = bits.trailing_zeros();
+            indices.push(lsb as usize);
+            bits &= !(1 << lsb);
+        }
+        indices
+    }
+
+    pub fn any(&self) -> bool {
+        self.bits != 0
+    }
 }
 
 // Bitwise operators
@@ -92,6 +117,14 @@ impl std::ops::BitAndAssign for Bitboard {
 impl Default for Bitboard {
     fn default() -> Self {
         Self::new(0)
+    }
+}
+
+impl Not for Bitboard {
+    type Output = Bitboard;
+
+    fn not(self) -> Bitboard {
+        Bitboard { bits: !self.bits }
     }
 }
 

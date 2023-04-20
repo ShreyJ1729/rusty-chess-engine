@@ -2,6 +2,7 @@ use crate::*;
 
 use super::enums::COLOR;
 
+#[derive(Debug, Clone, Copy)]
 pub struct MoveGenerator {}
 
 impl MoveGenerator {

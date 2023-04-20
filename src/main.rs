@@ -1,10 +1,12 @@
 use crate::{
-    bitboard::*, board::*, enums::*, helpers::*, lookuptable::*, movegenerator::*, r#move::*,
+    bitboard::*, board::*, enums::*, helpers::*, lookuptable::*, movegenerator::*,
+    movevalidator::*, r#move::*,
 };
 use rand::Rng;
 use std::fmt::{Display, Formatter, Result};
 use std::io;
 use std::io::prelude::*;
+use std::ops::*;
 use strum::IntoEnumIterator;
 use strum_macros::Display;
 use strum_macros::EnumIter;
@@ -16,67 +18,49 @@ mod helpers;
 mod lookuptable;
 mod r#move;
 mod movegenerator;
+mod movevalidator;
 
 fn main() {
-    // std::env::set_var("RUST_BACKTRACE", "1");
+    std::env::set_var("RUST_BACKTRACE", "1");
+    let lookup_table = LookupTable::new();
 
-    let board = Board::from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+    let mut board = Board::starting_position(&lookup_table);
     println!("{}", board);
 
-    let mut lookup_table = LookupTable::new();
+    // let mut turn = COLOR::WHITE;
+
+    // while board.occupancy().count() > 2 {
+    //     let moves = board.generate_moves_for_color(turn);
+    //     let move_ = moves[rand::thread_rng().gen_range(0..moves.len())];
+    //     println!("{} {}", turn, move_);
+    //     board.make_move(move_);
+    //     println!("{}", board);
+    //     turn = turn.opposite();
+    // }
+
+    // println!(
+    //     "total moves: {}",
+    //     board.move_history.unwrap_or(vec![]).len()
+    // );
+
+    profile_moves_per_second(10);
 }
 
-fn test_bishop_moves() {
-    let board = Board::from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
+fn profile_moves_per_second(num_seconds: u64) {
+    let lookup_table = LookupTable::new();
+    let board = Board::starting_position(&lookup_table);
+    let mut moves = board.generate_moves_for_color(COLOR::WHITE);
 
-    let mut lookup_table = LookupTable::new();
-    lookup_table.build_moves();
+    let start = std::time::Instant::now();
+    let mut count = 0;
 
-    for square in SQUARE::iter() {
-        let true_moves = MoveGenerator::new().generate_bishop_moves(square, board.occupancy());
-        let predicted_moves =
-            Bitboard::new(lookup_table.get_bishop_moves(square, board.occupancy().bits()));
-        println!(
-            "{}\nmovegen:\n{}\npredicted_u64:{}\npredicted:\n{}\n--------------\n",
-            square,
-            true_moves,
-            predicted_moves.bits(),
-            predicted_moves
-        );
-
-        assert_eq!(true_moves, predicted_moves);
+    while start.elapsed().as_secs() < 10 {
+        moves = board.generate_moves_for_color(COLOR::WHITE);
+        count += 1;
     }
-}
 
-fn test_rook_moves() {
-    let board = Board::from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR");
-
-    let mut lookup_table = LookupTable::new();
-    lookup_table.build_moves();
-
-    for square in SQUARE::iter() {
-        let true_moves = MoveGenerator::new().generate_rook_moves(square, board.occupancy());
-        let predicted_moves =
-            Bitboard::new(lookup_table.get_rook_moves(square, board.occupancy().bits()));
-        println!(
-            "{}\nmovegen:\n{}\npredicted_u64:{}\npredicted:\n{}\n--------------\n",
-            square,
-            true_moves,
-            predicted_moves.bits(),
-            predicted_moves
-        );
-        assert_eq!(true_moves, predicted_moves);
-    }
-}
-
-fn print_diagonals() {
-    for diagonal in DIAGONAL::iter() {
-        println!("{} {}", diagonal, diagonal.bits().count_ones());
-    }
-}
-
-fn print_antidiagonals() {
-    for antidiagonal in ANTIDIAGONAL::iter() {
-        println!("{} {}", antidiagonal, antidiagonal.bits().count_ones());
-    }
+    println!(
+        "{} moves per second",
+        moves.len() * count / num_seconds as usize
+    );
 }

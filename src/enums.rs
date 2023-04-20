@@ -1,6 +1,6 @@
 use crate::*;
 
-#[derive(Debug, Display, Clone, Copy)]
+#[derive(Debug, Display, Clone, Copy, EnumIter, PartialEq, Eq)]
 pub enum PIECE {
     WhitePawn = 80,   // P
     WhiteKnight = 78, // N
@@ -20,38 +20,59 @@ pub enum PIECE {
 }
 
 impl PIECE {
-    pub fn color(&self) -> COLOR {
+    pub fn color(&self) -> Option<COLOR> {
         match self {
             PIECE::WhitePawn
             | PIECE::WhiteKnight
             | PIECE::WhiteBishop
             | PIECE::WhiteRook
             | PIECE::WhiteQueen
-            | PIECE::WhiteKing => COLOR::WHITE,
+            | PIECE::WhiteKing => Some(COLOR::WHITE),
             PIECE::BlackPawn
             | PIECE::BlackKnight
             | PIECE::BlackBishop
             | PIECE::BlackRook
             | PIECE::BlackQueen
-            | PIECE::BlackKing => COLOR::BLACK,
-            PIECE::Empty => panic!("Empty piece has no color"),
+            | PIECE::BlackKing => Some(COLOR::BLACK),
+            PIECE::Empty => None,
+        }
+    }
+
+    // given a board, returns the bitboard of all pieces of this type
+    pub fn piece_bb(&self, board: &Board) -> Bitboard {
+        match self {
+            PIECE::WhitePawn => board.white_pawns,
+            PIECE::WhiteKnight => board.white_knights,
+            PIECE::WhiteBishop => board.white_bishops,
+            PIECE::WhiteRook => board.white_rooks,
+            PIECE::WhiteQueen => board.white_queens,
+            PIECE::WhiteKing => board.white_king,
+
+            PIECE::BlackPawn => board.black_pawns,
+            PIECE::BlackKnight => board.black_knights,
+            PIECE::BlackBishop => board.black_bishops,
+            PIECE::BlackRook => board.black_rooks,
+            PIECE::BlackQueen => board.black_queens,
+            PIECE::BlackKing => board.black_king,
+
+            PIECE::Empty => Bitboard::default(),
         }
     }
 
     pub fn is_white(&self) -> bool {
-        self.color() == COLOR::WHITE
+        self.color() == Some(COLOR::WHITE)
     }
 
     pub fn is_black(&self) -> bool {
-        self.color() == COLOR::BLACK
+        self.color() == Some(COLOR::BLACK)
     }
 
     pub fn is_color(&self, color: COLOR) -> bool {
-        self.not_empty() && self.color() == color
+        self.not_empty() && self.color() == Some(color)
     }
 
     pub fn is_opposite_color(&self, color: COLOR) -> bool {
-        self.not_empty() && self.color() != color
+        self.not_empty() && self.color() != Some(color)
     }
 
     pub fn is_pawn(&self) -> bool {
@@ -120,6 +141,7 @@ impl PIECE {
     }
 }
 
+#[derive(Debug, Display, Clone, Copy, PartialEq, Eq)]
 pub enum PieceType {
     PAWN,
     KNIGHT,
@@ -178,7 +200,7 @@ impl COLOR {
 }
 
 // ranks and files are defined in the following way so that rank * 8 + file = square
-#[derive(Debug, Display, Clone, Copy, EnumIter, PartialEq, PartialOrd)]
+#[derive(Debug, Display, Clone, Copy, EnumIter, PartialEq, PartialOrd, Eq, Ord)]
 pub enum RANK {
     Rank1 = 0,
     Rank2 = 1,
@@ -209,7 +231,23 @@ impl RANK {
     }
 }
 
-#[derive(Debug, Display, Clone, Copy, EnumIter, PartialEq, PartialOrd)]
+impl Sub for RANK {
+    type Output = i8;
+
+    fn sub(self, other: RANK) -> i8 {
+        self.index() as i8 - other.index() as i8
+    }
+}
+
+impl Add for RANK {
+    type Output = i8;
+
+    fn add(self, other: RANK) -> i8 {
+        self.index() as i8 + other.index() as i8
+    }
+}
+
+#[derive(Debug, Display, Clone, Copy, EnumIter, PartialEq, PartialOrd, Eq)]
 pub enum FILE {
     FileA = 0,
     FileB = 1,
@@ -240,12 +278,41 @@ impl FILE {
     }
 }
 
+impl Sub for FILE {
+    type Output = i8;
+
+    fn sub(self, other: FILE) -> i8 {
+        self.index() as i8 - other.index() as i8
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 pub struct CastlingRights {
     pub white_kingside: bool,
     pub white_queenside: bool,
     pub black_kingside: bool,
     pub black_queenside: bool,
+}
+
+impl CastlingRights {
+    pub fn from_fen(fen: &str) -> Self {
+        let mut castling_rights = CastlingRights {
+            white_kingside: false,
+            white_queenside: false,
+            black_kingside: false,
+            black_queenside: false,
+        };
+        for c in fen.chars() {
+            match c {
+                'K' => castling_rights.white_kingside = true,
+                'Q' => castling_rights.white_queenside = true,
+                'k' => castling_rights.black_kingside = true,
+                'q' => castling_rights.black_queenside = true,
+                _ => (),
+            }
+        }
+        castling_rights
+    }
 }
 
 impl Default for CastlingRights {
@@ -531,6 +598,38 @@ impl SQUARE {
             COLOR::WHITE => self.rank() == RANK::Rank8,
             COLOR::BLACK => self.rank() == RANK::Rank1,
         }
+    }
+
+    pub fn from_string(s: &str) -> Option<SQUARE> {
+        if s.len() != 2 {
+            return None;
+        }
+
+        let file = match s.chars().nth(0).unwrap() {
+            'a' => FILE::FileA,
+            'b' => FILE::FileB,
+            'c' => FILE::FileC,
+            'd' => FILE::FileD,
+            'e' => FILE::FileE,
+            'f' => FILE::FileF,
+            'g' => FILE::FileG,
+            'h' => FILE::FileH,
+            _ => return None,
+        };
+
+        let rank = match s.chars().nth(1).unwrap() {
+            '1' => RANK::Rank1,
+            '2' => RANK::Rank2,
+            '3' => RANK::Rank3,
+            '4' => RANK::Rank4,
+            '5' => RANK::Rank5,
+            '6' => RANK::Rank6,
+            '7' => RANK::Rank7,
+            '8' => RANK::Rank8,
+            _ => return None,
+        };
+
+        Some(SQUARE::from(file.index() * 8 + rank.index()))
     }
 }
 
