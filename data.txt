@@ -1,0 +1,4030 @@
+Building lookup table...done in 520 milliseconds
+8 r n b q k b n r 
+7 p p p p p p p p 
+6                 
+5                 
+4                 
+3                 
+2 P P P P P P P P 
+1 R N B Q K B N R 
+  a b c d e f g h
+
+WHITE B1->A3
+8 r n b q k b n r 
+7 p p p p p p p p 
+6                 
+5                 
+4                 
+3 N               
+2 P P P P P P P P 
+1 R   B Q K B N R 
+  a b c d e f g h
+
+BLACK D7->D6
+8 r n b q k b n r 
+7 p p p   p p p p 
+6       p         
+5                 
+4                 
+3 N               
+2 P P P P P P P P 
+1 R   B Q K B N R 
+  a b c d e f g h
+
+WHITE D2->D4
+8 r n b q k b n r 
+7 p p p   p p p p 
+6       p         
+5                 
+4       P         
+3 N               
+2 P P P   P P P P 
+1 R   B Q K B N R 
+  a b c d e f g h
+
+BLACK F7->F6
+8 r n b q k b n r 
+7 p p p   p   p p 
+6       p   p     
+5                 
+4       P         
+3 N               
+2 P P P   P P P P 
+1 R   B Q K B N R 
+  a b c d e f g h
+
+WHITE G1->H3
+8 r n b q k b n r 
+7 p p p   p   p p 
+6       p   p     
+5                 
+4       P         
+3 N             N 
+2 P P P   P P P P 
+1 R   B Q K B   R 
+  a b c d e f g h
+
+BLACK F6->F5
+8 r n b q k b n r 
+7 p p p   p   p p 
+6       p         
+5           p     
+4       P         
+3 N             N 
+2 P P P   P P P P 
+1 R   B Q K B   R 
+  a b c d e f g h
+
+WHITE F2->F3
+8 r n b q k b n r 
+7 p p p   p   p p 
+6       p         
+5           p     
+4       P         
+3 N         P   N 
+2 P P P   P   P P 
+1 R   B Q K B   R 
+  a b c d e f g h
+
+BLACK F5->F4
+8 r n b q k b n r 
+7 p p p   p   p p 
+6       p         
+5                 
+4       P   p     
+3 N         P   N 
+2 P P P   P   P P 
+1 R   B Q K B   R 
+  a b c d e f g h
+
+WHITE H3->F2
+8 r n b q k b n r 
+7 p p p   p   p p 
+6       p         
+5                 
+4       P   p     
+3 N         P     
+2 P P P   P N P P 
+1 R   B Q K B   R 
+  a b c d e f g h
+
+BLACK C7->C5
+8 r n b q k b n r 
+7 p p     p   p p 
+6       p         
+5     p           
+4       P   p     
+3 N         P     
+2 P P P   P N P P 
+1 R   B Q K B   R 
+  a b c d e f g h
+
+WHITE A3->B1
+8 r n b q k b n r 
+7 p p     p   p p 
+6       p         
+5     p           
+4       P   p     
+3           P     
+2 P P P   P N P P 
+1 R N B Q K B   R 
+  a b c d e f g h
+
+BLACK H7->H5
+8 r n b q k b n r 
+7 p p     p   p   
+6       p         
+5     p         p 
+4       P   p     
+3           P     
+2 P P P   P N P P 
+1 R N B Q K B   R 
+  a b c d e f g h
+
+WHITE A2->A4
+8 r n b q k b n r 
+7 p p     p   p   
+6       p         
+5     p         p 
+4 P     P   p     
+3           P     
+2   P P   P N P P 
+1 R N B Q K B   R 
+  a b c d e f g h
+
+BLACK G8->H6
+8 r n b q k b   r 
+7 p p     p   p   
+6       p       n 
+5     p         p 
+4 P     P   p     
+3           P     
+2   P P   P N P P 
+1 R N B Q K B   R 
+  a b c d e f g h
+
+WHITE F2->G4
+8 r n b q k b   r 
+7 p p     p   p   
+6       p       n 
+5     p         p 
+4 P     P   p N   
+3           P     
+2   P P   P   P P 
+1 R N B Q K B   R 
+  a b c d e f g h
+
+BLACK D6->D5
+8 r n b q k b   r 
+7 p p     p   p   
+6               n 
+5     p p       p 
+4 P     P   p N   
+3           P     
+2   P P   P   P P 
+1 R N B Q K B   R 
+  a b c d e f g h
+
+WHITE H1->G1
+8 r n b q k b   r 
+7 p p     p   p   
+6               n 
+5     p p       p 
+4 P     P   p N   
+3           P     
+2   P P   P   P P 
+1 R N B Q K B R   
+  a b c d e f g h
+
+BLACK D8->C7
+8 r n b   k b   r 
+7 p p q   p   p   
+6               n 
+5     p p       p 
+4 P     P   p N   
+3           P     
+2   P P   P   P P 
+1 R N B Q K B R   
+  a b c d e f g h
+
+WHITE A1->A2
+8 r n b   k b   r 
+7 p p q   p   p   
+6               n 
+5     p p       p 
+4 P     P   p N   
+3           P     
+2 R P P   P   P P 
+1   N B Q K B R   
+  a b c d e f g h
+
+BLACK E7->E6
+8 r n b   k b   r 
+7 p p q       p   
+6         p     n 
+5     p p       p 
+4 P     P   p N   
+3           P     
+2 R P P   P   P P 
+1   N B Q K B R   
+  a b c d e f g h
+
+WHITE G4->F2
+8 r n b   k b   r 
+7 p p q       p   
+6         p     n 
+5     p p       p 
+4 P     P   p     
+3           P     
+2 R P P   P N P P 
+1   N B Q K B R   
+  a b c d e f g h
+
+BLACK B8->C6
+8 r   b   k b   r 
+7 p p q       p   
+6     n   p     n 
+5     p p       p 
+4 P     P   p     
+3           P     
+2 R P P   P N P P 
+1   N B Q K B R   
+  a b c d e f g h
+
+WHITE B1->A3
+8 r   b   k b   r 
+7 p p q       p   
+6     n   p     n 
+5     p p       p 
+4 P     P   p     
+3 N         P     
+2 R P P   P N P P 
+1     B Q K B R   
+  a b c d e f g h
+
+BLACK C8->D7
+8 r       k b   r 
+7 p p q b     p   
+6     n   p     n 
+5     p p       p 
+4 P     P   p     
+3 N         P     
+2 R P P   P N P P 
+1     B Q K B R   
+  a b c d e f g h
+
+WHITE H2->H3
+8 r       k b   r 
+7 p p q b     p   
+6     n   p     n 
+5     p p       p 
+4 P     P   p     
+3 N         P   P 
+2 R P P   P N P   
+1     B Q K B R   
+  a b c d e f g h
+
+BLACK C6->D8
+8 r     n k b   r 
+7 p p q b     p   
+6         p     n 
+5     p p       p 
+4 P     P   p     
+3 N         P   P 
+2 R P P   P N P   
+1     B Q K B R   
+  a b c d e f g h
+
+WHITE F2->H1
+8 r     n k b   r 
+7 p p q b     p   
+6         p     n 
+5     p p       p 
+4 P     P   p     
+3 N         P   P 
+2 R P P   P   P   
+1     B Q K B R N 
+  a b c d e f g h
+
+BLACK A7->A6
+8 r     n k b   r 
+7   p q b     p   
+6 p       p     n 
+5     p p       p 
+4 P     P   p     
+3 N         P   P 
+2 R P P   P   P   
+1     B Q K B R N 
+  a b c d e f g h
+
+WHITE D1->D3
+8 r     n k b   r 
+7   p q b     p   
+6 p       p     n 
+5     p p       p 
+4 P     P   p     
+3 N     Q   P   P 
+2 R P P   P   P   
+1     B   K B R N 
+  a b c d e f g h
+
+BLACK C7->B8
+8 r q   n k b   r 
+7   p   b     p   
+6 p       p     n 
+5     p p       p 
+4 P     P   p     
+3 N     Q   P   P 
+2 R P P   P   P   
+1     B   K B R N 
+  a b c d e f g h
+
+WHITE D3->F5
+8 r q   n k b   r 
+7   p   b     p   
+6 p       p     n 
+5     p p   Q   p 
+4 P     P   p     
+3 N         P   P 
+2 R P P   P   P   
+1     B   K B R N 
+  a b c d e f g h
+
+BLACK H6->F5
+8 r q   n k b   r 
+7   p   b     p   
+6 p       p       
+5     p p   n   p 
+4 P     P   p     
+3 N         P   P 
+2 R P P   P   P   
+1     B   K B R N 
+  a b c d e f g h
+
+WHITE E2->E4
+8 r q   n k b   r 
+7   p   b     p   
+6 p       p       
+5     p p   n   p 
+4 P     P P p     
+3 N         P   P 
+2 R P P       P   
+1     B   K B R N 
+  a b c d e f g h
+
+BLACK G7->G5
+8 r q   n k b   r 
+7   p   b         
+6 p       p       
+5     p p   n p p 
+4 P     P P p     
+3 N         P   P 
+2 R P P       P   
+1     B   K B R N 
+  a b c d e f g h
+
+WHITE E4->F5
+8 r q   n k b   r 
+7   p   b         
+6 p       p       
+5     p p   P p p 
+4 P     P   p     
+3 N         P   P 
+2 R P P       P   
+1     B   K B R N 
+  a b c d e f g h
+
+BLACK B7->B6
+8 r q   n k b   r 
+7       b         
+6 p p     p       
+5     p p   P p p 
+4 P     P   p     
+3 N         P   P 
+2 R P P       P   
+1     B   K B R N 
+  a b c d e f g h
+
+WHITE F5->F6
+8 r q   n k b   r 
+7       b         
+6 p p     p P     
+5     p p     p p 
+4 P     P   p     
+3 N         P   P 
+2 R P P       P   
+1     B   K B R N 
+  a b c d e f g h
+
+BLACK B8->B7
+8 r     n k b   r 
+7   q   b         
+6 p p     p P     
+5     p p     p p 
+4 P     P   p     
+3 N         P   P 
+2 R P P       P   
+1     B   K B R N 
+  a b c d e f g h
+
+WHITE C1->F4
+8 r     n k b   r 
+7   q   b         
+6 p p     p P     
+5     p p     p p 
+4 P     P   B     
+3 N         P   P 
+2 R P P       P   
+1         K B R N 
+  a b c d e f g h
+
+BLACK G5->G4
+8 r     n k b   r 
+7   q   b         
+6 p p     p P     
+5     p p       p 
+4 P     P   B p   
+3 N         P   P 
+2 R P P       P   
+1         K B R N 
+  a b c d e f g h
+
+WHITE H1->F2
+8 r     n k b   r 
+7   q   b         
+6 p p     p P     
+5     p p       p 
+4 P     P   B p   
+3 N         P   P 
+2 R P P     N P   
+1         K B R   
+  a b c d e f g h
+
+BLACK F8->D6
+8 r     n k     r 
+7   q   b         
+6 p p   b p P     
+5     p p       p 
+4 P     P   B p   
+3 N         P   P 
+2 R P P     N P   
+1         K B R   
+  a b c d e f g h
+
+WHITE F4->E3
+8 r     n k     r 
+7   q   b         
+6 p p   b p P     
+5     p p       p 
+4 P     P     p   
+3 N       B P   P 
+2 R P P     N P   
+1         K B R   
+  a b c d e f g h
+
+BLACK D6->E7
+8 r     n k     r 
+7   q   b b       
+6 p p     p P     
+5     p p       p 
+4 P     P     p   
+3 N       B P   P 
+2 R P P     N P   
+1         K B R   
+  a b c d e f g h
+
+WHITE F2->E4
+8 r     n k     r 
+7   q   b b       
+6 p p     p P     
+5     p p       p 
+4 P     P N   p   
+3 N       B P   P 
+2 R P P       P   
+1         K B R   
+  a b c d e f g h
+
+BLACK A8->B8
+8   r   n k     r 
+7   q   b b       
+6 p p     p P     
+5     p p       p 
+4 P     P N   p   
+3 N       B P   P 
+2 R P P       P   
+1         K B R   
+  a b c d e f g h
+
+WHITE B2->B4
+8   r   n k     r 
+7   q   b b       
+6 p p     p P     
+5     p p       p 
+4 P P   P N   p   
+3 N       B P   P 
+2 R   P       P   
+1         K B R   
+  a b c d e f g h
+
+BLACK B7->A7
+8   r   n k     r 
+7 q     b b       
+6 p p     p P     
+5     p p       p 
+4 P P   P N   p   
+3 N       B P   P 
+2 R   P       P   
+1         K B R   
+  a b c d e f g h
+
+WHITE E3->C1
+8   r   n k     r 
+7 q     b b       
+6 p p     p P     
+5     p p       p 
+4 P P   P N   p   
+3 N         P   P 
+2 R   P       P   
+1     B   K B R   
+  a b c d e f g h
+
+BLACK D7->C6
+8   r   n k     r 
+7 q       b       
+6 p p b   p P     
+5     p p       p 
+4 P P   P N   p   
+3 N         P   P 
+2 R   P       P   
+1     B   K B R   
+  a b c d e f g h
+
+WHITE D4->C5
+8   r   n k     r 
+7 q       b       
+6 p p b   p P     
+5     P p       p 
+4 P P     N   p   
+3 N         P   P 
+2 R   P       P   
+1     B   K B R   
+  a b c d e f g h
+
+BLACK C6->B7
+8   r   n k     r 
+7 q b     b       
+6 p p     p P     
+5     P p       p 
+4 P P     N   p   
+3 N         P   P 
+2 R   P       P   
+1     B   K B R   
+  a b c d e f g h
+
+WHITE F1->D3
+8   r   n k     r 
+7 q b     b       
+6 p p     p P     
+5     P p       p 
+4 P P     N   p   
+3 N     B   P   P 
+2 R   P       P   
+1     B   K   R   
+  a b c d e f g h
+
+BLACK B7->C8
+8   r b n k     r 
+7 q       b       
+6 p p     p P     
+5     P p       p 
+4 P P     N   p   
+3 N     B   P   P 
+2 R   P       P   
+1     B   K   R   
+  a b c d e f g h
+
+WHITE G1->H1
+8   r b n k     r 
+7 q       b       
+6 p p     p P     
+5     P p       p 
+4 P P     N   p   
+3 N     B   P   P 
+2 R   P       P   
+1     B   K     R 
+  a b c d e f g h
+
+BLACK A7->C7
+8   r b n k     r 
+7     q   b       
+6 p p     p P     
+5     P p       p 
+4 P P     N   p   
+3 N     B   P   P 
+2 R   P       P   
+1     B   K     R 
+  a b c d e f g h
+
+WHITE E4->G5
+8   r b n k     r 
+7     q   b       
+6 p p     p P     
+5     P p     N p 
+4 P P         p   
+3 N     B   P   P 
+2 R   P       P   
+1     B   K     R 
+  a b c d e f g h
+
+BLACK B8->A8
+8 r   b n k     r 
+7     q   b       
+6 p p     p P     
+5     P p     N p 
+4 P P         p   
+3 N     B   P   P 
+2 R   P       P   
+1     B   K     R 
+  a b c d e f g h
+
+WHITE D3->F1
+8 r   b n k     r 
+7     q   b       
+6 p p     p P     
+5     P p     N p 
+4 P P         p   
+3 N         P   P 
+2 R   P       P   
+1     B   K B   R 
+  a b c d e f g h
+
+BLACK D8->B7
+8 r   b   k     r 
+7   n q   b       
+6 p p     p P     
+5     P p     N p 
+4 P P         p   
+3 N         P   P 
+2 R   P       P   
+1     B   K B   R 
+  a b c d e f g h
+
+WHITE F1->C4
+8 r   b   k     r 
+7   n q   b       
+6 p p     p P     
+5     P p     N p 
+4 P P B       p   
+3 N         P   P 
+2 R   P       P   
+1     B   K     R 
+  a b c d e f g h
+
+BLACK A8->A7
+8     b   k     r 
+7 r n q   b       
+6 p p     p P     
+5     P p     N p 
+4 P P B       p   
+3 N         P   P 
+2 R   P       P   
+1     B   K     R 
+  a b c d e f g h
+
+WHITE C5->B6
+8     b   k     r 
+7 r n q   b       
+6 p P     p P     
+5       p     N p 
+4 P P B       p   
+3 N         P   P 
+2 R   P       P   
+1     B   K     R 
+  a b c d e f g h
+
+BLACK E7->B4
+8     b   k     r 
+7 r n q           
+6 p P     p P     
+5       p     N p 
+4 P b B       p   
+3 N         P   P 
+2 R   P       P   
+1     B   K     R 
+  a b c d e f g h
+
+WHITE C4->E2
+8     b   k     r 
+7 r n q           
+6 p P     p P     
+5       p     N p 
+4 P b         p   
+3 N         P   P 
+2 R   P   B   P   
+1     B   K     R 
+  a b c d e f g h
+
+BLACK C7->F4
+8     b   k     r 
+7 r n             
+6 p P     p P     
+5       p     N p 
+4 P b       q p   
+3 N         P   P 
+2 R   P   B   P   
+1     B   K     R 
+  a b c d e f g h
+
+WHITE C2->C4
+8     b   k     r 
+7 r n             
+6 p P     p P     
+5       p     N p 
+4 P b P     q p   
+3 N         P   P 
+2 R       B   P   
+1     B   K     R 
+  a b c d e f g h
+
+BLACK B4->E1
+8     b   k     r 
+7 r n             
+6 p P     p P     
+5       p     N p 
+4 P   P     q p   
+3 N         P   P 
+2 R       B   P   
+1     B   b     R 
+  a b c d e f g h
+
+WHITE G2->G3
+8     b   k     r 
+7 r n             
+6 p P     p P     
+5       p     N p 
+4 P   P     q p   
+3 N         P P P 
+2 R       B       
+1     B   b     R 
+  a b c d e f g h
+
+BLACK E1->F2
+8     b   k     r 
+7 r n             
+6 p P     p P     
+5       p     N p 
+4 P   P     q p   
+3 N         P P P 
+2 R       B b     
+1     B         R 
+  a b c d e f g h
+
+WHITE A3->C2
+8     b   k     r 
+7 r n             
+6 p P     p P     
+5       p     N p 
+4 P   P     q p   
+3           P P P 
+2 R   N   B b     
+1     B         R 
+  a b c d e f g h
+
+BLACK G4->F3
+8     b   k     r 
+7 r n             
+6 p P     p P     
+5       p     N p 
+4 P   P     q     
+3           p P P 
+2 R   N   B b     
+1     B         R 
+  a b c d e f g h
+
+WHITE H1->F1
+8     b   k     r 
+7 r n             
+6 p P     p P     
+5       p     N p 
+4 P   P     q     
+3           p P P 
+2 R   N   B b     
+1     B     R     
+  a b c d e f g h
+
+BLACK F4->E4
+8     b   k     r 
+7 r n             
+6 p P     p P     
+5       p     N p 
+4 P   P   q       
+3           p P P 
+2 R   N   B b     
+1     B     R     
+  a b c d e f g h
+
+WHITE F1->E1
+8     b   k     r 
+7 r n             
+6 p P     p P     
+5       p     N p 
+4 P   P   q       
+3           p P P 
+2 R   N   B b     
+1     B   R       
+  a b c d e f g h
+
+BLACK F2->E1
+8     b   k     r 
+7 r n             
+6 p P     p P     
+5       p     N p 
+4 P   P   q       
+3           p P P 
+2 R   N   B       
+1     B   b       
+  a b c d e f g h
+
+WHITE C1->A3
+8     b   k     r 
+7 r n             
+6 p P     p P     
+5       p     N p 
+4 P   P   q       
+3 B         p P P 
+2 R   N   B       
+1         b       
+  a b c d e f g h
+
+BLACK H8->H7
+8     b   k       
+7 r n           r 
+6 p P     p P     
+5       p     N p 
+4 P   P   q       
+3 B         p P P 
+2 R   N   B       
+1         b       
+  a b c d e f g h
+
+WHITE E2->F1
+8     b   k       
+7 r n           r 
+6 p P     p P     
+5       p     N p 
+4 P   P   q       
+3 B         p P P 
+2 R   N           
+1         b B     
+  a b c d e f g h
+
+BLACK C8->D7
+8         k       
+7 r n   b       r 
+6 p P     p P     
+5       p     N p 
+4 P   P   q       
+3 B         p P P 
+2 R   N           
+1         b B     
+  a b c d e f g h
+
+WHITE A2->B2
+8         k       
+7 r n   b       r 
+6 p P     p P     
+5       p     N p 
+4 P   P   q       
+3 B         p P P 
+2   R N           
+1         b B     
+  a b c d e f g h
+
+BLACK E1->F2
+8         k       
+7 r n   b       r 
+6 p P     p P     
+5       p     N p 
+4 P   P   q       
+3 B         p P P 
+2   R N     b     
+1           B     
+  a b c d e f g h
+
+WHITE C2->E1
+8         k       
+7 r n   b       r 
+6 p P     p P     
+5       p     N p 
+4 P   P   q       
+3 B         p P P 
+2   R       b     
+1         N B     
+  a b c d e f g h
+
+BLACK F2->C5
+8         k       
+7 r n   b       r 
+6 p P     p P     
+5     b p     N p 
+4 P   P   q       
+3 B         p P P 
+2   R             
+1         N B     
+  a b c d e f g h
+
+WHITE G5->E4
+8         k       
+7 r n   b       r 
+6 p P     p P     
+5     b p       p 
+4 P   P   N       
+3 B         p P P 
+2   R             
+1         N B     
+  a b c d e f g h
+
+BLACK A6->A5
+8         k       
+7 r n   b       r 
+6   P     p P     
+5 p   b p       p 
+4 P   P   N       
+3 B         p P P 
+2   R             
+1         N B     
+  a b c d e f g h
+
+WHITE B2->A2
+8         k       
+7 r n   b       r 
+6   P     p P     
+5 p   b p       p 
+4 P   P   N       
+3 B         p P P 
+2 R               
+1         N B     
+  a b c d e f g h
+
+BLACK H7->H6
+8         k       
+7 r n   b         
+6   P     p P   r 
+5 p   b p       p 
+4 P   P   N       
+3 B         p P P 
+2 R               
+1         N B     
+  a b c d e f g h
+
+WHITE A2->D2
+8         k       
+7 r n   b         
+6   P     p P   r 
+5 p   b p       p 
+4 P   P   N       
+3 B         p P P 
+2       R         
+1         N B     
+  a b c d e f g h
+
+BLACK H6->H7
+8         k       
+7 r n   b       r 
+6   P     p P     
+5 p   b p       p 
+4 P   P   N       
+3 B         p P P 
+2       R         
+1         N B     
+  a b c d e f g h
+
+WHITE H3->H4
+8         k       
+7 r n   b       r 
+6   P     p P     
+5 p   b p       p 
+4 P   P   N     P 
+3 B         p P   
+2       R         
+1         N B     
+  a b c d e f g h
+
+BLACK H7->E7
+8         k       
+7 r n   b r       
+6   P     p P     
+5 p   b p       p 
+4 P   P   N     P 
+3 B         p P   
+2       R         
+1         N B     
+  a b c d e f g h
+
+WHITE D2->G2
+8         k       
+7 r n   b r       
+6   P     p P     
+5 p   b p       p 
+4 P   P   N     P 
+3 B         p P   
+2             R   
+1         N B     
+  a b c d e f g h
+
+BLACK C5->F2
+8         k       
+7 r n   b r       
+6   P     p P     
+5 p     p       p 
+4 P   P   N     P 
+3 B         p P   
+2           b R   
+1         N B     
+  a b c d e f g h
+
+WHITE E4->C5
+8         k       
+7 r n   b r       
+6   P     p P     
+5 p   N p       p 
+4 P   P         P 
+3 B         p P   
+2           b R   
+1         N B     
+  a b c d e f g h
+
+BLACK B7->D6
+8         k       
+7 r     b r       
+6   P   n p P     
+5 p   N p       p 
+4 P   P         P 
+3 B         p P   
+2           b R   
+1         N B     
+  a b c d e f g h
+
+WHITE F1->D3
+8         k       
+7 r     b r       
+6   P   n p P     
+5 p   N p       p 
+4 P   P         P 
+3 B     B   p P   
+2           b R   
+1         N       
+  a b c d e f g h
+
+BLACK A7->A6
+8         k       
+7       b r       
+6 r P   n p P     
+5 p   N p       p 
+4 P   P         P 
+3 B     B   p P   
+2           b R   
+1         N       
+  a b c d e f g h
+
+WHITE C5->E6
+8         k       
+7       b r       
+6 r P   n N P     
+5 p     p       p 
+4 P   P         P 
+3 B     B   p P   
+2           b R   
+1         N       
+  a b c d e f g h
+
+BLACK F2->C5
+8         k       
+7       b r       
+6 r P   n N P     
+5 p   b p       p 
+4 P   P         P 
+3 B     B   p P   
+2             R   
+1         N       
+  a b c d e f g h
+
+WHITE D3->C2
+8         k       
+7       b r       
+6 r P   n N P     
+5 p   b p       p 
+4 P   P         P 
+3 B         p P   
+2     B       R   
+1         N       
+  a b c d e f g h
+
+BLACK D5->D4
+8         k       
+7       b r       
+6 r P   n N P     
+5 p   b         p 
+4 P   P p       P 
+3 B         p P   
+2     B       R   
+1         N       
+  a b c d e f g h
+
+WHITE E6->G5
+8         k       
+7       b r       
+6 r P   n   P     
+5 p   b       N p 
+4 P   P p       P 
+3 B         p P   
+2     B       R   
+1         N       
+  a b c d e f g h
+
+BLACK D6->C8
+8     n   k       
+7       b r       
+6 r P       P     
+5 p   b       N p 
+4 P   P p       P 
+3 B         p P   
+2     B       R   
+1         N       
+  a b c d e f g h
+
+WHITE G5->H3
+8     n   k       
+7       b r       
+6 r P       P     
+5 p   b         p 
+4 P   P p       P 
+3 B         p P N 
+2     B       R   
+1         N       
+  a b c d e f g h
+
+BLACK E7->F7
+8     n   k       
+7       b   r     
+6 r P       P     
+5 p   b         p 
+4 P   P p       P 
+3 B         p P N 
+2     B       R   
+1         N       
+  a b c d e f g h
+
+WHITE C2->B3
+8     n   k       
+7       b   r     
+6 r P       P     
+5 p   b         p 
+4 P   P p       P 
+3 B B       p P N 
+2             R   
+1         N       
+  a b c d e f g h
+
+BLACK C5->D6
+8     n   k       
+7       b   r     
+6 r P   b   P     
+5 p             p 
+4 P   P p       P 
+3 B B       p P N 
+2             R   
+1         N       
+  a b c d e f g h
+
+WHITE H3->G1
+8     n   k       
+7       b   r     
+6 r P   b   P     
+5 p             p 
+4 P   P p       P 
+3 B B       p P   
+2             R   
+1         N   N   
+  a b c d e f g h
+
+BLACK D7->F5
+8     n   k       
+7           r     
+6 r P   b   P     
+5 p         b   p 
+4 P   P p       P 
+3 B B       p P   
+2             R   
+1         N   N   
+  a b c d e f g h
+
+WHITE A3->B2
+8     n   k       
+7           r     
+6 r P   b   P     
+5 p         b   p 
+4 P   P p       P 
+3   B       p P   
+2   B         R   
+1         N   N   
+  a b c d e f g h
+
+BLACK A6->B6
+8     n   k       
+7           r     
+6   r   b   P     
+5 p         b   p 
+4 P   P p       P 
+3   B       p P   
+2   B         R   
+1         N   N   
+  a b c d e f g h
+
+WHITE G1->H3
+8     n   k       
+7           r     
+6   r   b   P     
+5 p         b   p 
+4 P   P p       P 
+3   B       p P N 
+2   B         R   
+1         N       
+  a b c d e f g h
+
+BLACK D6->E7
+8     n   k       
+7         b r     
+6   r       P     
+5 p         b   p 
+4 P   P p       P 
+3   B       p P N 
+2   B         R   
+1         N       
+  a b c d e f g h
+
+WHITE B3->D1
+8     n   k       
+7         b r     
+6   r       P     
+5 p         b   p 
+4 P   P p       P 
+3           p P N 
+2   B         R   
+1       B N       
+  a b c d e f g h
+
+BLACK B6->A6
+8     n   k       
+7         b r     
+6 r         P     
+5 p         b   p 
+4 P   P p       P 
+3           p P N 
+2   B         R   
+1       B N       
+  a b c d e f g h
+
+WHITE E1->F3
+8     n   k       
+7         b r     
+6 r         P     
+5 p         b   p 
+4 P   P p       P 
+3           N P N 
+2   B         R   
+1       B         
+  a b c d e f g h
+
+BLACK A6->A8
+8 r   n   k       
+7         b r     
+6           P     
+5 p         b   p 
+4 P   P p       P 
+3           N P N 
+2   B         R   
+1       B         
+  a b c d e f g h
+
+WHITE H3->F4
+8 r   n   k       
+7         b r     
+6           P     
+5 p         b   p 
+4 P   P p   N   P 
+3           N P   
+2   B         R   
+1       B         
+  a b c d e f g h
+
+BLACK E7->F8
+8 r   n   k b     
+7           r     
+6           P     
+5 p         b   p 
+4 P   P p   N   P 
+3           N P   
+2   B         R   
+1       B         
+  a b c d e f g h
+
+WHITE F4->D5
+8 r   n   k b     
+7           r     
+6           P     
+5 p     N   b   p 
+4 P   P p       P 
+3           N P   
+2   B         R   
+1       B         
+  a b c d e f g h
+
+BLACK F5->B1
+8 r   n   k b     
+7           r     
+6           P     
+5 p     N       p 
+4 P   P p       P 
+3           N P   
+2   B         R   
+1   b   B         
+  a b c d e f g h
+
+WHITE G2->D2
+8 r   n   k b     
+7           r     
+6           P     
+5 p     N       p 
+4 P   P p       P 
+3           N P   
+2   B   R         
+1   b   B         
+  a b c d e f g h
+
+BLACK A8->B8
+8   r n   k b     
+7           r     
+6           P     
+5 p     N       p 
+4 P   P p       P 
+3           N P   
+2   B   R         
+1   b   B         
+  a b c d e f g h
+
+WHITE F3->G1
+8   r n   k b     
+7           r     
+6           P     
+5 p     N       p 
+4 P   P p       P 
+3             P   
+2   B   R         
+1   b   B     N   
+  a b c d e f g h
+
+BLACK B1->A2
+8   r n   k b     
+7           r     
+6           P     
+5 p     N       p 
+4 P   P p       P 
+3             P   
+2 b B   R         
+1       B     N   
+  a b c d e f g h
+
+WHITE C4->C5
+8   r n   k b     
+7           r     
+6           P     
+5 p   P N       p 
+4 P     p       P 
+3             P   
+2 b B   R         
+1       B     N   
+  a b c d e f g h
+
+BLACK C8->A7
+8   r     k b     
+7 n         r     
+6           P     
+5 p   P N       p 
+4 P     p       P 
+3             P   
+2 b B   R         
+1       B     N   
+  a b c d e f g h
+
+WHITE B2->C3
+8   r     k b     
+7 n         r     
+6           P     
+5 p   P N       p 
+4 P     p       P 
+3     B       P   
+2 b     R         
+1       B     N   
+  a b c d e f g h
+
+BLACK F7->F6
+8   r     k b     
+7 n               
+6           r     
+5 p   P N       p 
+4 P     p       P 
+3     B       P   
+2 b     R         
+1       B     N   
+  a b c d e f g h
+
+WHITE D2->C2
+8   r     k b     
+7 n               
+6           r     
+5 p   P N       p 
+4 P     p       P 
+3     B       P   
+2 b   R           
+1       B     N   
+  a b c d e f g h
+
+BLACK F8->D6
+8   r     k       
+7 n               
+6       b   r     
+5 p   P N       p 
+4 P     p       P 
+3     B       P   
+2 b   R           
+1       B     N   
+  a b c d e f g h
+
+WHITE C2->E2
+8   r     k       
+7 n               
+6       b   r     
+5 p   P N       p 
+4 P     p       P 
+3     B       P   
+2 b       R       
+1       B     N   
+  a b c d e f g h
+
+BLACK D4->C3
+8   r     k       
+7 n               
+6       b   r     
+5 p   P N       p 
+4 P             P 
+3     p       P   
+2 b       R       
+1       B     N   
+  a b c d e f g h
+
+WHITE E2->F2
+8   r     k       
+7 n               
+6       b   r     
+5 p   P N       p 
+4 P             P 
+3     p       P   
+2 b         R     
+1       B     N   
+  a b c d e f g h
+
+BLACK A7->C6
+8   r     k       
+7                 
+6     n b   r     
+5 p   P N       p 
+4 P             P 
+3     p       P   
+2 b         R     
+1       B     N   
+  a b c d e f g h
+
+WHITE D1->E2
+8   r     k       
+7                 
+6     n b   r     
+5 p   P N       p 
+4 P             P 
+3     p       P   
+2 b       B R     
+1             N   
+  a b c d e f g h
+
+BLACK C6->E7
+8   r     k       
+7         n       
+6       b   r     
+5 p   P N       p 
+4 P             P 
+3     p       P   
+2 b       B R     
+1             N   
+  a b c d e f g h
+
+WHITE E2->H5
+8   r     k       
+7         n       
+6       b   r     
+5 p   P N       B 
+4 P             P 
+3     p       P   
+2 b         R     
+1             N   
+  a b c d e f g h
+
+BLACK D6->C5
+8   r     k       
+7         n       
+6           r     
+5 p   b N       B 
+4 P             P 
+3     p       P   
+2 b         R     
+1             N   
+  a b c d e f g h
+
+WHITE F2->F3
+8   r     k       
+7         n       
+6           r     
+5 p   b N       B 
+4 P             P 
+3     p     R P   
+2 b               
+1             N   
+  a b c d e f g h
+
+BLACK F6->D6
+8   r     k       
+7         n       
+6       r         
+5 p   b N       B 
+4 P             P 
+3     p     R P   
+2 b               
+1             N   
+  a b c d e f g h
+
+WHITE F3->E3
+8   r     k       
+7         n       
+6       r         
+5 p   b N       B 
+4 P             P 
+3     p   R   P   
+2 b               
+1             N   
+  a b c d e f g h
+
+BLACK B8->B6
+8         k       
+7         n       
+6   r   r         
+5 p   b N       B 
+4 P             P 
+3     p   R   P   
+2 b               
+1             N   
+  a b c d e f g h
+
+WHITE H5->F7
+8         k       
+7         n B     
+6   r   r         
+5 p   b N         
+4 P             P 
+3     p   R   P   
+2 b               
+1             N   
+  a b c d e f g h
+
+BLACK D6->D8
+8       r k       
+7         n B     
+6   r             
+5 p   b N         
+4 P             P 
+3     p   R   P   
+2 b               
+1             N   
+  a b c d e f g h
+
+WHITE H4->H5
+8       r k       
+7         n B     
+6   r             
+5 p   b N       P 
+4 P               
+3     p   R   P   
+2 b               
+1             N   
+  a b c d e f g h
+
+BLACK B6->D6
+8       r k       
+7         n B     
+6       r         
+5 p   b N       P 
+4 P               
+3     p   R   P   
+2 b               
+1             N   
+  a b c d e f g h
+
+WHITE G1->E2
+8       r k       
+7         n B     
+6       r         
+5 p   b N       P 
+4 P               
+3     p   R   P   
+2 b       N       
+1                 
+  a b c d e f g h
+
+BLACK D6->D5
+8       r k       
+7         n B     
+6                 
+5 p   b r       P 
+4 P               
+3     p   R   P   
+2 b       N       
+1                 
+  a b c d e f g h
+
+WHITE E3->D3
+8       r k       
+7         n B     
+6                 
+5 p   b r       P 
+4 P               
+3     p R     P   
+2 b       N       
+1                 
+  a b c d e f g h
+
+BLACK D8->D6
+8         k       
+7         n B     
+6       r         
+5 p   b r       P 
+4 P               
+3     p R     P   
+2 b       N       
+1                 
+  a b c d e f g h
+
+WHITE H5->H6
+8         k       
+7         n B     
+6       r       P 
+5 p   b r         
+4 P               
+3     p R     P   
+2 b       N       
+1                 
+  a b c d e f g h
+
+BLACK C5->E3
+8         k       
+7         n B     
+6       r       P 
+5 p     r         
+4 P               
+3     p R b   P   
+2 b       N       
+1                 
+  a b c d e f g h
+
+WHITE F7->G6
+8         k       
+7         n       
+6       r     B P 
+5 p     r         
+4 P               
+3     p R b   P   
+2 b       N       
+1                 
+  a b c d e f g h
+
+BLACK A2->B3
+8         k       
+7         n       
+6       r     B P 
+5 p     r         
+4 P               
+3   b p R b   P   
+2         N       
+1                 
+  a b c d e f g h
+
+WHITE G6->E4
+8         k       
+7         n       
+6       r       P 
+5 p     r         
+4 P       B       
+3   b p R b   P   
+2         N       
+1                 
+  a b c d e f g h
+
+BLACK B3->C2
+8         k       
+7         n       
+6       r       P 
+5 p     r         
+4 P       B       
+3     p R b   P   
+2     b   N       
+1                 
+  a b c d e f g h
+
+WHITE D3->E3
+8         k       
+7         n       
+6       r       P 
+5 p     r         
+4 P       B       
+3     p   R   P   
+2     b   N       
+1                 
+  a b c d e f g h
+
+BLACK E7->F5
+8         k       
+7                 
+6       r       P 
+5 p     r   n     
+4 P       B       
+3     p   R   P   
+2     b   N       
+1                 
+  a b c d e f g h
+
+WHITE E2->D4
+8         k       
+7                 
+6       r       P 
+5 p     r   n     
+4 P     N B       
+3     p   R   P   
+2     b           
+1                 
+  a b c d e f g h
+
+BLACK C2->B1
+8         k       
+7                 
+6       r       P 
+5 p     r   n     
+4 P     N B       
+3     p   R   P   
+2                 
+1   b             
+  a b c d e f g h
+
+WHITE E4->F3
+8         k       
+7                 
+6       r       P 
+5 p     r   n     
+4 P     N         
+3     p   R B P   
+2                 
+1   b             
+  a b c d e f g h
+
+BLACK D5->B5
+8         k       
+7                 
+6       r       P 
+5 p r       n     
+4 P     N         
+3     p   R B P   
+2                 
+1   b             
+  a b c d e f g h
+
+WHITE F3->G4
+8         k       
+7                 
+6       r       P 
+5 p r       n     
+4 P     N     B   
+3     p   R   P   
+2                 
+1   b             
+  a b c d e f g h
+
+BLACK D6->G6
+8         k       
+7                 
+6             r P 
+5 p r       n     
+4 P     N     B   
+3     p   R   P   
+2                 
+1   b             
+  a b c d e f g h
+
+WHITE G4->F5
+8         k       
+7                 
+6             r P 
+5 p r       B     
+4 P     N         
+3     p   R   P   
+2                 
+1   b             
+  a b c d e f g h
+
+BLACK B5->B3
+8         k       
+7                 
+6             r P 
+5 p         B     
+4 P     N         
+3   r p   R   P   
+2                 
+1   b             
+  a b c d e f g h
+
+WHITE E3->E6
+8         k       
+7                 
+6         R   r P 
+5 p         B     
+4 P     N         
+3   r p       P   
+2                 
+1   b             
+  a b c d e f g h
+
+BLACK B3->B2
+8         k       
+7                 
+6         R   r P 
+5 p         B     
+4 P     N         
+3     p       P   
+2   r             
+1   b             
+  a b c d e f g h
+
+WHITE D4->B3
+8         k       
+7                 
+6         R   r P 
+5 p         B     
+4 P               
+3   N p       P   
+2   r             
+1   b             
+  a b c d e f g h
+
+BLACK B2->H2
+8         k       
+7                 
+6         R   r P 
+5 p         B     
+4 P               
+3   N p       P   
+2               r 
+1   b             
+  a b c d e f g h
+
+WHITE E6->E2
+8         k       
+7                 
+6             r P 
+5 p         B     
+4 P               
+3   N p       P   
+2         R     r 
+1   b             
+  a b c d e f g h
+
+BLACK G6->G3
+8         k       
+7                 
+6               P 
+5 p         B     
+4 P               
+3   N p       r   
+2         R     r 
+1   b             
+  a b c d e f g h
+
+WHITE F5->D3
+8         k       
+7                 
+6               P 
+5 p               
+4 P               
+3   N p B     r   
+2         R     r 
+1   b             
+  a b c d e f g h
+
+BLACK B1->C2
+8         k       
+7                 
+6               P 
+5 p               
+4 P               
+3   N p B     r   
+2     b   R     r 
+1                 
+  a b c d e f g h
+
+WHITE E2->E1
+8         k       
+7                 
+6               P 
+5 p               
+4 P               
+3   N p B     r   
+2     b         r 
+1         R       
+  a b c d e f g h
+
+BLACK C2->B1
+8         k       
+7                 
+6               P 
+5 p               
+4 P               
+3   N p B     r   
+2               r 
+1   b     R       
+  a b c d e f g h
+
+WHITE E1->C1
+8         k       
+7                 
+6               P 
+5 p               
+4 P               
+3   N p B     r   
+2               r 
+1   b R           
+  a b c d e f g h
+
+BLACK G3->E3
+8         k       
+7                 
+6               P 
+5 p               
+4 P               
+3   N p B r       
+2               r 
+1   b R           
+  a b c d e f g h
+
+WHITE C1->E1
+8         k       
+7                 
+6               P 
+5 p               
+4 P               
+3   N p B r       
+2               r 
+1   b     R       
+  a b c d e f g h
+
+BLACK E3->E1
+8         k       
+7                 
+6               P 
+5 p               
+4 P               
+3   N p B         
+2               r 
+1   b     r       
+  a b c d e f g h
+
+WHITE D3->A6
+8         k       
+7                 
+6 B             P 
+5 p               
+4 P               
+3   N p           
+2               r 
+1   b     r       
+  a b c d e f g h
+
+BLACK E1->E5
+8         k       
+7                 
+6 B             P 
+5 p       r       
+4 P               
+3   N p           
+2               r 
+1   b             
+  a b c d e f g h
+
+WHITE A6->E2
+8         k       
+7                 
+6               P 
+5 p       r       
+4 P               
+3   N p           
+2         B     r 
+1   b             
+  a b c d e f g h
+
+BLACK H2->H4
+8         k       
+7                 
+6               P 
+5 p       r       
+4 P             r 
+3   N p           
+2         B       
+1   b             
+  a b c d e f g h
+
+WHITE E2->F1
+8         k       
+7                 
+6               P 
+5 p       r       
+4 P             r 
+3   N p           
+2                 
+1   b       B     
+  a b c d e f g h
+
+BLACK B1->F5
+8         k       
+7                 
+6               P 
+5 p       r b     
+4 P             r 
+3   N p           
+2                 
+1           B     
+  a b c d e f g h
+
+WHITE F1->A6
+8         k       
+7                 
+6 B             P 
+5 p       r b     
+4 P             r 
+3   N p           
+2                 
+1                 
+  a b c d e f g h
+
+BLACK H4->H5
+8         k       
+7                 
+6 B             P 
+5 p       r b   r 
+4 P               
+3   N p           
+2                 
+1                 
+  a b c d e f g h
+
+WHITE A6->C8
+8     B   k       
+7                 
+6               P 
+5 p       r b   r 
+4 P               
+3   N p           
+2                 
+1                 
+  a b c d e f g h
+
+BLACK F5->B1
+8     B   k       
+7                 
+6               P 
+5 p       r     r 
+4 P               
+3   N p           
+2                 
+1   b             
+  a b c d e f g h
+
+WHITE B3->D4
+8     B   k       
+7                 
+6               P 
+5 p       r     r 
+4 P     N         
+3     p           
+2                 
+1   b             
+  a b c d e f g h
+
+BLACK B1->C2
+8     B   k       
+7                 
+6               P 
+5 p       r     r 
+4 P     N         
+3     p           
+2     b           
+1                 
+  a b c d e f g h
+
+WHITE C8->B7
+8         k       
+7   B             
+6               P 
+5 p       r     r 
+4 P     N         
+3     p           
+2     b           
+1                 
+  a b c d e f g h
+
+BLACK H5->F5
+8         k       
+7   B             
+6               P 
+5 p       r r     
+4 P     N         
+3     p           
+2     b           
+1                 
+  a b c d e f g h
+
+WHITE B7->C6
+8         k       
+7                 
+6     B         P 
+5 p       r r     
+4 P     N         
+3     p           
+2     b           
+1                 
+  a b c d e f g h
+
+BLACK E5->E6
+8         k       
+7                 
+6     B   r     P 
+5 p         r     
+4 P     N         
+3     p           
+2     b           
+1                 
+  a b c d e f g h
+
+WHITE D4->E6
+8         k       
+7                 
+6     B   N     P 
+5 p         r     
+4 P               
+3     p           
+2     b           
+1                 
+  a b c d e f g h
+
+BLACK F5->F1
+8         k       
+7                 
+6     B   N     P 
+5 p               
+4 P               
+3     p           
+2     b           
+1           r     
+  a b c d e f g h
+
+WHITE E6->C5
+8         k       
+7                 
+6     B         P 
+5 p   N           
+4 P               
+3     p           
+2     b           
+1           r     
+  a b c d e f g h
+
+BLACK C2->D3
+8         k       
+7                 
+6     B         P 
+5 p   N           
+4 P               
+3     p b         
+2                 
+1           r     
+  a b c d e f g h
+
+WHITE C5->D3
+8         k       
+7                 
+6     B         P 
+5 p               
+4 P               
+3     p N         
+2                 
+1           r     
+  a b c d e f g h
+
+BLACK F1->F3
+8         k       
+7                 
+6     B         P 
+5 p               
+4 P               
+3     p N   r     
+2                 
+1                 
+  a b c d e f g h
+
+WHITE C6->E8
+8         B       
+7                 
+6               P 
+5 p               
+4 P               
+3     p N   r     
+2                 
+1                 
+  a b c d e f g h
+
+BLACK F3->D3
+8         B       
+7                 
+6               P 
+5 p               
+4 P               
+3     p r         
+2                 
+1                 
+  a b c d e f g h
+
+WHITE E8->B5
+8                 
+7                 
+6               P 
+5 p B             
+4 P               
+3     p r         
+2                 
+1                 
+  a b c d e f g h
+
+BLACK D3->D5
+8                 
+7                 
+6               P 
+5 p B   r         
+4 P               
+3     p           
+2                 
+1                 
+  a b c d e f g h
+
+WHITE B5->C4
+8                 
+7                 
+6               P 
+5 p     r         
+4 P   B           
+3     p           
+2                 
+1                 
+  a b c d e f g h
+
+BLACK D5->D7
+8                 
+7       r         
+6               P 
+5 p               
+4 P   B           
+3     p           
+2                 
+1                 
+  a b c d e f g h
+
+WHITE C4->F7
+8                 
+7       r   B     
+6               P 
+5 p               
+4 P               
+3     p           
+2                 
+1                 
+  a b c d e f g h
+
+BLACK C3->C2
+8                 
+7       r   B     
+6               P 
+5 p               
+4 P               
+3                 
+2     p           
+1                 
+  a b c d e f g h
+
+WHITE F7->A2
+8                 
+7       r         
+6               P 
+5 p               
+4 P               
+3                 
+2 B   p           
+1                 
+  a b c d e f g h
+
+BLACK C2->C1
+8                 
+7       r         
+6               P 
+5 p               
+4 P               
+3                 
+2 B               
+1     q           
+  a b c d e f g h
+
+WHITE A2->C4
+8                 
+7       r         
+6               P 
+5 p               
+4 P   B           
+3                 
+2                 
+1     q           
+  a b c d e f g h
+
+BLACK C1->C4
+8                 
+7       r         
+6               P 
+5 p               
+4 P   q           
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+WHITE H6->H7
+8                 
+7       r       P 
+6                 
+5 p               
+4 P   q           
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+BLACK D7->F7
+8                 
+7           r   P 
+6                 
+5 p               
+4 P   q           
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+WHITE H7->H8
+8               Q 
+7           r     
+6                 
+5 p               
+4 P   q           
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+BLACK C4->C3
+8               Q 
+7           r     
+6                 
+5 p               
+4 P               
+3     q           
+2                 
+1                 
+  a b c d e f g h
+
+WHITE H8->C3
+8                 
+7           r     
+6                 
+5 p               
+4 P               
+3     Q           
+2                 
+1                 
+  a b c d e f g h
+
+BLACK F7->G7
+8                 
+7             r   
+6                 
+5 p               
+4 P               
+3     Q           
+2                 
+1                 
+  a b c d e f g h
+
+WHITE C3->C2
+8                 
+7             r   
+6                 
+5 p               
+4 P               
+3                 
+2     Q           
+1                 
+  a b c d e f g h
+
+BLACK G7->C7
+8                 
+7     r           
+6                 
+5 p               
+4 P               
+3                 
+2     Q           
+1                 
+  a b c d e f g h
+
+WHITE C2->F2
+8                 
+7     r           
+6                 
+5 p               
+4 P               
+3                 
+2           Q     
+1                 
+  a b c d e f g h
+
+BLACK C7->A7
+8                 
+7 r               
+6                 
+5 p               
+4 P               
+3                 
+2           Q     
+1                 
+  a b c d e f g h
+
+WHITE F2->G3
+8                 
+7 r               
+6                 
+5 p               
+4 P               
+3             Q   
+2                 
+1                 
+  a b c d e f g h
+
+BLACK A7->H7
+8                 
+7               r 
+6                 
+5 p               
+4 P               
+3             Q   
+2                 
+1                 
+  a b c d e f g h
+
+WHITE G3->E3
+8                 
+7               r 
+6                 
+5 p               
+4 P               
+3         Q       
+2                 
+1                 
+  a b c d e f g h
+
+BLACK H7->H2
+8                 
+7                 
+6                 
+5 p               
+4 P               
+3         Q       
+2               r 
+1                 
+  a b c d e f g h
+
+WHITE E3->B6
+8                 
+7                 
+6   Q             
+5 p               
+4 P               
+3                 
+2               r 
+1                 
+  a b c d e f g h
+
+BLACK H2->H1
+8                 
+7                 
+6   Q             
+5 p               
+4 P               
+3                 
+2                 
+1               r 
+  a b c d e f g h
+
+WHITE B6->B4
+8                 
+7                 
+6                 
+5 p               
+4 P Q             
+3                 
+2                 
+1               r 
+  a b c d e f g h
+
+BLACK H1->H7
+8                 
+7               r 
+6                 
+5 p               
+4 P Q             
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+WHITE B4->C3
+8                 
+7               r 
+6                 
+5 p               
+4 P               
+3     Q           
+2                 
+1                 
+  a b c d e f g h
+
+BLACK H7->F7
+8                 
+7           r     
+6                 
+5 p               
+4 P               
+3     Q           
+2                 
+1                 
+  a b c d e f g h
+
+WHITE C3->B4
+8                 
+7           r     
+6                 
+5 p               
+4 P Q             
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+BLACK F7->H7
+8                 
+7               r 
+6                 
+5 p               
+4 P Q             
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+WHITE B4->E1
+8                 
+7               r 
+6                 
+5 p               
+4 P               
+3                 
+2                 
+1         Q       
+  a b c d e f g h
+
+BLACK H7->F7
+8                 
+7           r     
+6                 
+5 p               
+4 P               
+3                 
+2                 
+1         Q       
+  a b c d e f g h
+
+WHITE E1->F2
+8                 
+7           r     
+6                 
+5 p               
+4 P               
+3                 
+2           Q     
+1                 
+  a b c d e f g h
+
+BLACK F7->E7
+8                 
+7         r       
+6                 
+5 p               
+4 P               
+3                 
+2           Q     
+1                 
+  a b c d e f g h
+
+WHITE F2->B6
+8                 
+7         r       
+6   Q             
+5 p               
+4 P               
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+BLACK E7->E8
+8         r       
+7                 
+6   Q             
+5 p               
+4 P               
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+WHITE B6->B2
+8         r       
+7                 
+6                 
+5 p               
+4 P               
+3                 
+2   Q             
+1                 
+  a b c d e f g h
+
+BLACK E8->A8
+8 r               
+7                 
+6                 
+5 p               
+4 P               
+3                 
+2   Q             
+1                 
+  a b c d e f g h
+
+WHITE B2->B6
+8 r               
+7                 
+6   Q             
+5 p               
+4 P               
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+BLACK A8->D8
+8       r         
+7                 
+6   Q             
+5 p               
+4 P               
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+WHITE B6->F2
+8       r         
+7                 
+6                 
+5 p               
+4 P               
+3                 
+2           Q     
+1                 
+  a b c d e f g h
+
+BLACK D8->D1
+8                 
+7                 
+6                 
+5 p               
+4 P               
+3                 
+2           Q     
+1       r         
+  a b c d e f g h
+
+WHITE F2->H2
+8                 
+7                 
+6                 
+5 p               
+4 P               
+3                 
+2               Q 
+1       r         
+  a b c d e f g h
+
+BLACK D1->D7
+8                 
+7       r         
+6                 
+5 p               
+4 P               
+3                 
+2               Q 
+1                 
+  a b c d e f g h
+
+WHITE H2->A2
+8                 
+7       r         
+6                 
+5 p               
+4 P               
+3                 
+2 Q               
+1                 
+  a b c d e f g h
+
+BLACK D7->D2
+8                 
+7                 
+6                 
+5 p               
+4 P               
+3                 
+2 Q     r         
+1                 
+  a b c d e f g h
+
+WHITE A2->B3
+8                 
+7                 
+6                 
+5 p               
+4 P               
+3   Q             
+2       r         
+1                 
+  a b c d e f g h
+
+BLACK D2->D3
+8                 
+7                 
+6                 
+5 p               
+4 P               
+3   Q   r         
+2                 
+1                 
+  a b c d e f g h
+
+WHITE B3->B4
+8                 
+7                 
+6                 
+5 p               
+4 P Q             
+3       r         
+2                 
+1                 
+  a b c d e f g h
+
+BLACK D3->E3
+8                 
+7                 
+6                 
+5 p               
+4 P Q             
+3         r       
+2                 
+1                 
+  a b c d e f g h
+
+WHITE B4->A5
+8                 
+7                 
+6                 
+5 Q               
+4 P               
+3         r       
+2                 
+1                 
+  a b c d e f g h
+
+BLACK E3->E7
+8                 
+7         r       
+6                 
+5 Q               
+4 P               
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+WHITE A5->A6
+8                 
+7         r       
+6 Q               
+5                 
+4 P               
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+BLACK E7->E3
+8                 
+7                 
+6 Q               
+5                 
+4 P               
+3         r       
+2                 
+1                 
+  a b c d e f g h
+
+WHITE A4->A5
+8                 
+7                 
+6 Q               
+5 P               
+4                 
+3         r       
+2                 
+1                 
+  a b c d e f g h
+
+BLACK E3->F3
+8                 
+7                 
+6 Q               
+5 P               
+4                 
+3           r     
+2                 
+1                 
+  a b c d e f g h
+
+WHITE A6->B5
+8                 
+7                 
+6                 
+5 P Q             
+4                 
+3           r     
+2                 
+1                 
+  a b c d e f g h
+
+BLACK F3->F6
+8                 
+7                 
+6           r     
+5 P Q             
+4                 
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+WHITE B5->C6
+8                 
+7                 
+6     Q     r     
+5 P               
+4                 
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+BLACK F6->F7
+8                 
+7           r     
+6     Q           
+5 P               
+4                 
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+WHITE C6->E8
+8         Q       
+7           r     
+6                 
+5 P               
+4                 
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+BLACK F7->F2
+8         Q       
+7                 
+6                 
+5 P               
+4                 
+3                 
+2           r     
+1                 
+  a b c d e f g h
+
+WHITE E8->E3
+8                 
+7                 
+6                 
+5 P               
+4                 
+3         Q       
+2           r     
+1                 
+  a b c d e f g h
+
+BLACK F2->F3
+8                 
+7                 
+6                 
+5 P               
+4                 
+3         Q r     
+2                 
+1                 
+  a b c d e f g h
+
+WHITE E3->C5
+8                 
+7                 
+6                 
+5 P   Q           
+4                 
+3           r     
+2                 
+1                 
+  a b c d e f g h
+
+BLACK F3->G3
+8                 
+7                 
+6                 
+5 P   Q           
+4                 
+3             r   
+2                 
+1                 
+  a b c d e f g h
+
+WHITE C5->C8
+8     Q           
+7                 
+6                 
+5 P               
+4                 
+3             r   
+2                 
+1                 
+  a b c d e f g h
+
+BLACK G3->D3
+8     Q           
+7                 
+6                 
+5 P               
+4                 
+3       r         
+2                 
+1                 
+  a b c d e f g h
+
+WHITE A5->A6
+8     Q           
+7                 
+6 P               
+5                 
+4                 
+3       r         
+2                 
+1                 
+  a b c d e f g h
+
+BLACK D3->H3
+8     Q           
+7                 
+6 P               
+5                 
+4                 
+3               r 
+2                 
+1                 
+  a b c d e f g h
+
+WHITE C8->E8
+8         Q       
+7                 
+6 P               
+5                 
+4                 
+3               r 
+2                 
+1                 
+  a b c d e f g h
+
+BLACK H3->G3
+8         Q       
+7                 
+6 P               
+5                 
+4                 
+3             r   
+2                 
+1                 
+  a b c d e f g h
+
+WHITE E8->B5
+8                 
+7                 
+6 P               
+5   Q             
+4                 
+3             r   
+2                 
+1                 
+  a b c d e f g h
+
+BLACK G3->G1
+8                 
+7                 
+6 P               
+5   Q             
+4                 
+3                 
+2                 
+1             r   
+  a b c d e f g h
+
+WHITE B5->B2
+8                 
+7                 
+6 P               
+5                 
+4                 
+3                 
+2   Q             
+1             r   
+  a b c d e f g h
+
+BLACK G1->F1
+8                 
+7                 
+6 P               
+5                 
+4                 
+3                 
+2   Q             
+1           r     
+  a b c d e f g h
+
+WHITE B2->B3
+8                 
+7                 
+6 P               
+5                 
+4                 
+3   Q             
+2                 
+1           r     
+  a b c d e f g h
+
+BLACK F1->A1
+8                 
+7                 
+6 P               
+5                 
+4                 
+3   Q             
+2                 
+1 r               
+  a b c d e f g h
+
+WHITE B3->C2
+8                 
+7                 
+6 P               
+5                 
+4                 
+3                 
+2     Q           
+1 r               
+  a b c d e f g h
+
+BLACK A1->B1
+8                 
+7                 
+6 P               
+5                 
+4                 
+3                 
+2     Q           
+1   r             
+  a b c d e f g h
+
+WHITE C2->G6
+8                 
+7                 
+6 P           Q   
+5                 
+4                 
+3                 
+2                 
+1   r             
+  a b c d e f g h
+
+BLACK B1->B2
+8                 
+7                 
+6 P           Q   
+5                 
+4                 
+3                 
+2   r             
+1                 
+  a b c d e f g h
+
+WHITE G6->D6
+8                 
+7                 
+6 P     Q         
+5                 
+4                 
+3                 
+2   r             
+1                 
+  a b c d e f g h
+
+BLACK B2->C2
+8                 
+7                 
+6 P     Q         
+5                 
+4                 
+3                 
+2     r           
+1                 
+  a b c d e f g h
+
+WHITE D6->D5
+8                 
+7                 
+6 P               
+5       Q         
+4                 
+3                 
+2     r           
+1                 
+  a b c d e f g h
+
+BLACK C2->C5
+8                 
+7                 
+6 P               
+5     r Q         
+4                 
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+WHITE D5->H5
+8                 
+7                 
+6 P               
+5     r         Q 
+4                 
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+BLACK C5->F5
+8                 
+7                 
+6 P               
+5           r   Q 
+4                 
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+WHITE H5->H1
+8                 
+7                 
+6 P               
+5           r     
+4                 
+3                 
+2                 
+1               Q 
+  a b c d e f g h
+
+BLACK F5->F2
+8                 
+7                 
+6 P               
+5                 
+4                 
+3                 
+2           r     
+1               Q 
+  a b c d e f g h
+
+WHITE H1->E1
+8                 
+7                 
+6 P               
+5                 
+4                 
+3                 
+2           r     
+1         Q       
+  a b c d e f g h
+
+BLACK F2->F4
+8                 
+7                 
+6 P               
+5                 
+4           r     
+3                 
+2                 
+1         Q       
+  a b c d e f g h
+
+WHITE E1->H4
+8                 
+7                 
+6 P               
+5                 
+4           r   Q 
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+BLACK F4->C4
+8                 
+7                 
+6 P               
+5                 
+4     r         Q 
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+WHITE H4->H8
+8               Q 
+7                 
+6 P               
+5                 
+4     r           
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+BLACK C4->C2
+8               Q 
+7                 
+6 P               
+5                 
+4                 
+3                 
+2     r           
+1                 
+  a b c d e f g h
+
+WHITE H8->D4
+8                 
+7                 
+6 P               
+5                 
+4       Q         
+3                 
+2     r           
+1                 
+  a b c d e f g h
+
+BLACK C2->C3
+8                 
+7                 
+6 P               
+5                 
+4       Q         
+3     r           
+2                 
+1                 
+  a b c d e f g h
+
+WHITE D4->D5
+8                 
+7                 
+6 P               
+5       Q         
+4                 
+3     r           
+2                 
+1                 
+  a b c d e f g h
+
+BLACK C3->C6
+8                 
+7                 
+6 P   r           
+5       Q         
+4                 
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+WHITE D5->A5
+8                 
+7                 
+6 P   r           
+5 Q               
+4                 
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+BLACK C6->B6
+8                 
+7                 
+6 P r             
+5 Q               
+4                 
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+WHITE A5->D2
+8                 
+7                 
+6 P r             
+5                 
+4                 
+3                 
+2       Q         
+1                 
+  a b c d e f g h
+
+BLACK B6->B1
+8                 
+7                 
+6 P               
+5                 
+4                 
+3                 
+2       Q         
+1   r             
+  a b c d e f g h
+
+WHITE D2->D4
+8                 
+7                 
+6 P               
+5                 
+4       Q         
+3                 
+2                 
+1   r             
+  a b c d e f g h
+
+BLACK B1->B5
+8                 
+7                 
+6 P               
+5   r             
+4       Q         
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+WHITE D4->D5
+8                 
+7                 
+6 P               
+5   r   Q         
+4                 
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+BLACK B5->B3
+8                 
+7                 
+6 P               
+5       Q         
+4                 
+3   r             
+2                 
+1                 
+  a b c d e f g h
+
+WHITE D5->F7
+8                 
+7           Q     
+6 P               
+5                 
+4                 
+3   r             
+2                 
+1                 
+  a b c d e f g h
+
+BLACK B3->B8
+8   r             
+7           Q     
+6 P               
+5                 
+4                 
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+WHITE F7->G8
+8   r         Q   
+7                 
+6 P               
+5                 
+4                 
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+BLACK B8->B2
+8             Q   
+7                 
+6 P               
+5                 
+4                 
+3                 
+2   r             
+1                 
+  a b c d e f g h
+
+WHITE G8->D5
+8                 
+7                 
+6 P               
+5       Q         
+4                 
+3                 
+2   r             
+1                 
+  a b c d e f g h
+
+BLACK B2->C2
+8                 
+7                 
+6 P               
+5       Q         
+4                 
+3                 
+2     r           
+1                 
+  a b c d e f g h
+
+WHITE A6->A7
+8                 
+7 P               
+6                 
+5       Q         
+4                 
+3                 
+2     r           
+1                 
+  a b c d e f g h
+
+BLACK C2->E2
+8                 
+7 P               
+6                 
+5       Q         
+4                 
+3                 
+2         r       
+1                 
+  a b c d e f g h
+
+WHITE A7->A8
+8 B               
+7                 
+6                 
+5       Q         
+4                 
+3                 
+2         r       
+1                 
+  a b c d e f g h
+
+BLACK E2->E6
+8 B               
+7                 
+6         r       
+5       Q         
+4                 
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+WHITE D5->B3
+8 B               
+7                 
+6         r       
+5                 
+4                 
+3   Q             
+2                 
+1                 
+  a b c d e f g h
+
+BLACK E6->A6
+8 B               
+7                 
+6 r               
+5                 
+4                 
+3   Q             
+2                 
+1                 
+  a b c d e f g h
+
+WHITE A8->C6
+8                 
+7                 
+6 r   B           
+5                 
+4                 
+3   Q             
+2                 
+1                 
+  a b c d e f g h
+
+BLACK A6->A8
+8 r               
+7                 
+6     B           
+5                 
+4                 
+3   Q             
+2                 
+1                 
+  a b c d e f g h
+
+WHITE B3->B1
+8 r               
+7                 
+6     B           
+5                 
+4                 
+3                 
+2                 
+1   Q             
+  a b c d e f g h
+
+BLACK A8->A5
+8                 
+7                 
+6     B           
+5 r               
+4                 
+3                 
+2                 
+1   Q             
+  a b c d e f g h
+
+WHITE C6->G2
+8                 
+7                 
+6                 
+5 r               
+4                 
+3                 
+2             B   
+1   Q             
+  a b c d e f g h
+
+BLACK A5->H5
+8                 
+7                 
+6                 
+5               r 
+4                 
+3                 
+2             B   
+1   Q             
+  a b c d e f g h
+
+WHITE G2->F3
+8                 
+7                 
+6                 
+5               r 
+4                 
+3           B     
+2                 
+1   Q             
+  a b c d e f g h
+
+BLACK H5->H3
+8                 
+7                 
+6                 
+5                 
+4                 
+3           B   r 
+2                 
+1   Q             
+  a b c d e f g h
+
+WHITE B1->D1
+8                 
+7                 
+6                 
+5                 
+4                 
+3           B   r 
+2                 
+1       Q         
+  a b c d e f g h
+
+BLACK H3->H4
+8                 
+7                 
+6                 
+5                 
+4               r 
+3           B     
+2                 
+1       Q         
+  a b c d e f g h
+
+WHITE D1->D2
+8                 
+7                 
+6                 
+5                 
+4               r 
+3           B     
+2       Q         
+1                 
+  a b c d e f g h
+
+BLACK H4->H7
+8                 
+7               r 
+6                 
+5                 
+4                 
+3           B     
+2       Q         
+1                 
+  a b c d e f g h
+
+WHITE D2->D7
+8                 
+7       Q       r 
+6                 
+5                 
+4                 
+3           B     
+2                 
+1                 
+  a b c d e f g h
+
+BLACK H7->H1
+8                 
+7       Q         
+6                 
+5                 
+4                 
+3           B     
+2                 
+1               r 
+  a b c d e f g h
+
+WHITE F3->C6
+8                 
+7       Q         
+6     B           
+5                 
+4                 
+3                 
+2                 
+1               r 
+  a b c d e f g h
+
+BLACK H1->H7
+8                 
+7       Q       r 
+6     B           
+5                 
+4                 
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+WHITE D7->E8
+8         Q       
+7               r 
+6     B           
+5                 
+4                 
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+BLACK H7->H2
+8         Q       
+7                 
+6     B           
+5                 
+4                 
+3                 
+2               r 
+1                 
+  a b c d e f g h
+
+WHITE C6->B7
+8         Q       
+7   B             
+6                 
+5                 
+4                 
+3                 
+2               r 
+1                 
+  a b c d e f g h
+
+BLACK H2->H5
+8         Q       
+7   B             
+6                 
+5               r 
+4                 
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+WHITE B7->A6
+8         Q       
+7                 
+6 B               
+5               r 
+4                 
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+BLACK H5->B5
+8         Q       
+7                 
+6 B               
+5   r             
+4                 
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+WHITE E8->B8
+8   Q             
+7                 
+6 B               
+5   r             
+4                 
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+BLACK B5->B7
+8   Q             
+7   r             
+6 B               
+5                 
+4                 
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+WHITE A6->E2
+8   Q             
+7   r             
+6                 
+5                 
+4                 
+3                 
+2         B       
+1                 
+  a b c d e f g h
+
+BLACK B7->F7
+8   Q             
+7           r     
+6                 
+5                 
+4                 
+3                 
+2         B       
+1                 
+  a b c d e f g h
+
+WHITE B8->G8
+8             Q   
+7           r     
+6                 
+5                 
+4                 
+3                 
+2         B       
+1                 
+  a b c d e f g h
+
+BLACK F7->F6
+8             Q   
+7                 
+6           r     
+5                 
+4                 
+3                 
+2         B       
+1                 
+  a b c d e f g h
+
+WHITE E2->A6
+8             Q   
+7                 
+6 B         r     
+5                 
+4                 
+3                 
+2                 
+1                 
+  a b c d e f g h
+
+BLACK F6->F1
+8             Q   
+7                 
+6 B               
+5                 
+4                 
+3                 
+2                 
+1           r     
+  a b c d e f g h
+
+WHITE G8->E8
+8         Q       
+7                 
+6 B               
+5                 
+4                 
+3                 
+2                 
+1           r     
+  a b c d e f g h
+
+BLACK F1->B1
+8         Q       
+7                 
+6 B               
+5                 
+4                 
+3                 
+2                 
+1   r             
+  a b c d e f g h
+
+WHITE E8->B5
+8                 
+7                 
+6 B               
+5   Q             
+4                 
+3                 
+2                 
+1   r             
+  a b c d e f g h
+
+BLACK B1->E1
+8                 
+7                 
+6 B               
+5   Q             
+4                 
+3                 
+2                 
+1         r       
+  a b c d e f g h
+
+WHITE B5->F1
+8                 
+7                 
+6 B               
+5                 
+4                 
+3                 
+2                 
+1         r Q     
+  a b c d e f g h
+
+BLACK E1->F1
+8                 
+7                 
+6 B               
+5                 
+4                 
+3                 
+2                 
+1           r     
+  a b c d e f g h
+
+WHITE A6->F1
+8                 
+7                 
+6                 
+5                 
+4                 
+3                 
+2                 
+1           B     
+  a b c d e f g h
+
+8/8/8/8/8/8/8/5B2
+Profiling moves per second...
+Building lookup table...done in 533 milliseconds
+7178420 moves/second generated

@@ -6,16 +6,12 @@ use super::enums::COLOR;
 pub struct MoveGenerator {}
 
 impl MoveGenerator {
-    pub fn new() -> MoveGenerator {
-        MoveGenerator {}
-    }
-
     // --------------------------------------------------
     // ------------------- PAWN MOVES -------------------
     // --------------------------------------------------
 
     // todo add en passant and promotion
-    pub fn generate_pawn_moves(&self, square: SQUARE, color: COLOR) -> Bitboard {
+    pub fn generate_pawn_moves(square: SQUARE, color: COLOR) -> Bitboard {
         let source = square.bits();
 
         let forward = match color {
@@ -57,7 +53,7 @@ impl MoveGenerator {
     // ---------------------------------------------------
 
     // todo add castling
-    pub fn generate_king_moves(&self, square: SQUARE) -> Bitboard {
+    pub fn generate_king_moves(square: SQUARE) -> Bitboard {
         let source = square.bits();
 
         let targets = vec![
@@ -76,7 +72,7 @@ impl MoveGenerator {
         Bitboard::new(targets)
     }
 
-    pub fn generate_knight_moves(&self, square: SQUARE) -> Bitboard {
+    pub fn generate_knight_moves(square: SQUARE) -> Bitboard {
         let source = square.bits();
 
         let targets = vec![
@@ -99,7 +95,7 @@ impl MoveGenerator {
     // ------------------ SLIDING MOVES ------------------
     // ---------------------------------------------------
 
-    pub fn generate_rook_moves(&self, square: SQUARE, occupancy: Bitboard) -> Bitboard {
+    pub fn generate_rook_moves(square: SQUARE, occupancy: Bitboard) -> Bitboard {
         let source = square.bits();
 
         let mut targets: u64 = 0;
@@ -149,7 +145,7 @@ impl MoveGenerator {
         Bitboard::new(targets)
     }
 
-    pub fn generate_bishop_moves(&self, square: SQUARE, occupancy: Bitboard) -> Bitboard {
+    pub fn generate_bishop_moves(square: SQUARE, occupancy: Bitboard) -> Bitboard {
         let source = square.bits();
 
         let mut targets: u64 = 0;
@@ -198,7 +194,8 @@ impl MoveGenerator {
         Bitboard::new(targets)
     }
 
-    pub fn generate_queen_moves(&self, square: SQUARE, occupancy: Bitboard) -> Bitboard {
-        self.generate_rook_moves(square, occupancy) | self.generate_bishop_moves(square, occupancy)
+    pub fn generate_queen_moves(square: SQUARE, occupancy: Bitboard) -> Bitboard {
+        Self::generate_rook_moves(square, occupancy)
+            | Self::generate_bishop_moves(square, occupancy)
     }
 }

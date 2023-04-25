@@ -177,6 +177,13 @@ impl PieceType {
     }
 }
 
+pub const PROMOTION_OPTIONS: [PieceType; 4] = [
+    PieceType::KNIGHT,
+    PieceType::BISHOP,
+    PieceType::ROOK,
+    PieceType::QUEEN,
+];
+
 #[derive(Debug, Display, Clone, Copy, PartialEq, EnumIter)]
 pub enum COLOR {
     WHITE = 0,
@@ -195,6 +202,13 @@ impl COLOR {
         match self {
             COLOR::WHITE => COLOR::BLACK,
             COLOR::BLACK => COLOR::WHITE,
+        }
+    }
+
+    pub fn to_fen(&self) -> char {
+        match self {
+            COLOR::WHITE => 'w',
+            COLOR::BLACK => 'b',
         }
     }
 }
@@ -228,6 +242,19 @@ impl RANK {
 
     pub fn index(&self) -> usize {
         *self as usize
+    }
+
+    pub fn to_fen(&self) -> char {
+        match self {
+            RANK::Rank1 => '1',
+            RANK::Rank2 => '2',
+            RANK::Rank3 => '3',
+            RANK::Rank4 => '4',
+            RANK::Rank5 => '5',
+            RANK::Rank6 => '6',
+            RANK::Rank7 => '7',
+            RANK::Rank8 => '8',
+        }
     }
 }
 
@@ -276,6 +303,19 @@ impl FILE {
     pub fn index(&self) -> usize {
         *self as usize
     }
+
+    pub fn to_fen(&self) -> char {
+        match self {
+            FILE::FileA => 'a',
+            FILE::FileB => 'b',
+            FILE::FileC => 'c',
+            FILE::FileD => 'd',
+            FILE::FileE => 'e',
+            FILE::FileF => 'f',
+            FILE::FileG => 'g',
+            FILE::FileH => 'h',
+        }
+    }
 }
 
 impl Sub for FILE {
@@ -312,6 +352,26 @@ impl CastlingRights {
             }
         }
         castling_rights
+    }
+
+    pub fn to_fen(&self) -> String {
+        let mut fen = String::new();
+        if self.white_kingside {
+            fen.push('K');
+        }
+        if self.white_queenside {
+            fen.push('Q');
+        }
+        if self.black_kingside {
+            fen.push('k');
+        }
+        if self.black_queenside {
+            fen.push('q');
+        }
+        if fen.is_empty() {
+            fen.push('-');
+        }
+        fen
     }
 }
 
@@ -600,6 +660,11 @@ impl SQUARE {
         }
     }
 
+    pub fn from_bits(bits: u64) -> SQUARE {
+        assert!(bits == 0 || bits.count_ones() > 1);
+        SQUARE::from(bits.trailing_zeros() as usize)
+    }
+
     pub fn from_string(s: &str) -> Option<SQUARE> {
         if s.len() != 2 {
             return None;
@@ -630,6 +695,10 @@ impl SQUARE {
         };
 
         Some(SQUARE::from(file.index() * 8 + rank.index()))
+    }
+
+    pub fn to_fen(&self) -> String {
+        format!("{}{}", self.file().to_fen(), self.rank().to_fen())
     }
 }
 

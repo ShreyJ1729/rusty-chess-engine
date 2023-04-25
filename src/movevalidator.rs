@@ -4,14 +4,11 @@ use crate::*;
 pub struct MoveValidator {}
 
 impl MoveValidator {
-    pub fn new() -> Self {
-        Self {}
-    }
-
     // checks if a move is valid given board configuration
-    pub fn is_move_valid(&self, board: &Board, m: &Move) -> bool {
+    pub fn is_move_valid(board: &Board, m: &Move) -> bool {
         let source = m.source;
         let target = m.target;
+        let castling = m.castling;
 
         // Get details of the piece that is moving
         let source_color = board
@@ -68,12 +65,12 @@ impl MoveValidator {
         }
 
         // 4. Check if the pawn diagonal move is legal (only possible if capture or en passant)
-        if is_pawn_diagonal_move && !is_capture && !board.en_passant_available {
+        if is_pawn_diagonal_move && !is_capture && board.en_passant_target.is_none() {
             return false;
         }
 
         // 5. Check for en passant
-        if is_pawn_diagonal_move && !is_capture && board.en_passant_available {
+        if is_pawn_diagonal_move && !is_capture && board.en_passant_target.is_some() {
             let en_passant_target = board.en_passant_target.expect("en passant target not set");
 
             // make sure move target and the en passant target are the same
@@ -82,71 +79,140 @@ impl MoveValidator {
             }
         }
 
-        // 6. Check for castling
-        if source_piece.piece_type() == PieceType::KING {
-            // TODO:
-            // if king in check, return false
-            // for each of the 4 castling moves
-            // - check if source/target squares are correct
-            // - check board state for castling rights
-            // - check if squares between source and target are empty
-            // - check if squares between source and target are under attack
-            // - - compute all opponent moves + check if those squares are a target
+        // 6. Invalidate moves where king under check at target square
+        // todo fix this so that target is the king square
+        if source_piece.piece_type() == PieceType::KING
+            && Self::is_square_under_attack(board, target, source_color)
+        {
+            return false;
         }
 
-        // 7. Check if king under check after move
+        // 7. Check for castling
+        // this is non-rigorous, since we're relying on data from board generate moves function
+        // which is guaranteed to not generate castling moves if castling rights are false
         if source_piece.piece_type() == PieceType::KING {
-            // place each of pawn, knight, bishop, rook, queen on king's square and compute attacks
-            let pawn_attacks = board.lookup_table.get_pawn_moves(target, source_color);
-            let knight_attacks = board.lookup_table.get_knight_moves(target, source_color);
-            let bishop_attacks =
-                board
-                    .lookup_table
-                    .get_bishop_moves(target, source_color, board.occupancy().bits());
-            let rook_attacks =
-                board
-                    .lookup_table
-                    .get_rook_moves(target, source_color, board.occupancy().bits());
-            let queen_attacks =
-                board
-                    .lookup_table
-                    .get_queen_moves(target, source_color, board.occupancy().bits());
+            // if king currently in check, already returned false
 
-            // if any attacks an opposite color pieces of same piecetype, king is under check
-            let under_pawn_attack = (pawn_attacks
-                & board.pieces_of_color_and_type(source_color.opposite(), PieceType::PAWN))
-            .any();
+            // for each of the 4 castling moves
+            // these are squares strictly between king and rook (source and target)
+            let white_kingside = [SQUARE::F1, SQUARE::G1];
+            let white_queenside = [SQUARE::D1, SQUARE::C1, SQUARE::B1];
+            let black_kingside = [SQUARE::F8, SQUARE::G8];
+            let black_queenside = [SQUARE::D8, SQUARE::C8, SQUARE::B8];
 
-            let under_knight_attack = (knight_attacks
-                & board.pieces_of_color_and_type(source_color.opposite(), PieceType::KNIGHT))
-            .any();
-
-            let under_bishop_attack = (bishop_attacks
-                & board.pieces_of_color_and_type(source_color.opposite(), PieceType::BISHOP))
-            .any();
-
-            let under_rook_attack = (rook_attacks
-                & board.pieces_of_color_and_type(source_color.opposite(), PieceType::ROOK))
-            .any();
-
-            let under_queen_attack = (queen_attacks
-                & board.pieces_of_color_and_type(source_color.opposite(), PieceType::QUEEN))
-            .any();
-
-            if under_pawn_attack
-                || under_knight_attack
-                || under_bishop_attack
-                || under_rook_attack
-                || under_queen_attack
-            {
-                return false;
+            // - check if squares between source and target are empty
+            // - check if squares between source and target inclusive are under attack
+            match castling {
+                Some(CASTLE::WhiteKingside) => {
+                    if !white_kingside
+                        .iter()
+                        .all(|s| board.piece_at(s.index()).is_empty())
+                    {
+                        return false;
+                    }
+                    if !white_kingside
+                        .iter()
+                        .all(|s| !Self::is_square_under_attack(board, *s, source_color))
+                    {
+                        return false;
+                    }
+                }
+                Some(CASTLE::WhiteQueenside) => {
+                    if !white_queenside
+                        .iter()
+                        .all(|s| board.piece_at(s.index()).is_empty())
+                    {
+                        return false;
+                    }
+                    if !white_queenside
+                        .iter()
+                        .all(|s| !Self::is_square_under_attack(board, *s, source_color))
+                    {
+                        return false;
+                    }
+                }
+                Some(CASTLE::BlackKingside) => {
+                    if !black_kingside
+                        .iter()
+                        .all(|s| board.piece_at(s.index()).is_empty())
+                    {
+                        return false;
+                    }
+                    if !black_kingside
+                        .iter()
+                        .all(|s| !Self::is_square_under_attack(board, *s, source_color))
+                    {
+                        return false;
+                    }
+                }
+                Some(CASTLE::BlackQueenside) => {
+                    if !black_queenside
+                        .iter()
+                        .all(|s| board.piece_at(s.index()).is_empty())
+                    {
+                        return false;
+                    }
+                    if !black_queenside
+                        .iter()
+                        .all(|s| !Self::is_square_under_attack(board, *s, source_color))
+                    {
+                        return false;
+                    }
+                }
+                _ => {}
             }
         }
 
         true
     }
 
-    pub fn filter_valid_moves(&self, board: &Board, moves: &mut Vec<Move>) {
-        moves.retain(|m| self.is_move_valid(board, m));
+    // returns is square under attack for color
+    pub fn is_square_under_attack(board: &Board, square: SQUARE, color: COLOR) -> bool {
+        // place each of pawn, knight, bishop, rook, queen on king's square and compute attacks
+        let pawn_attacks = board.lookup_table.get_pawn_moves(square, color);
+        let knight_attacks = board.lookup_table.get_knight_moves(square, color);
+        let bishop_attacks =
+            board
+                .lookup_table
+                .get_bishop_moves(square, color, board.occupancy().bits());
+        let rook_attacks =
+            board
+                .lookup_table
+                .get_rook_moves(square, color, board.occupancy().bits());
+        let queen_attacks =
+            board
+                .lookup_table
+                .get_queen_moves(square, color, board.occupancy().bits());
+
+        // if any attacks an opposite color pieces of same piecetype, king is under check
+        let under_pawn_attack = (pawn_attacks
+            & board.pieces_of_color_and_type(color.opposite(), PieceType::PAWN))
+        .any();
+
+        let under_knight_attack = (knight_attacks
+            & board.pieces_of_color_and_type(color.opposite(), PieceType::KNIGHT))
+        .any();
+
+        let under_bishop_attack = (bishop_attacks
+            & board.pieces_of_color_and_type(color.opposite(), PieceType::BISHOP))
+        .any();
+
+        let under_rook_attack = (rook_attacks
+            & board.pieces_of_color_and_type(color.opposite(), PieceType::ROOK))
+        .any();
+
+        let under_queen_attack = (queen_attacks
+            & board.pieces_of_color_and_type(color.opposite(), PieceType::QUEEN))
+        .any();
+
+        return under_pawn_attack
+            || under_knight_attack
+            || under_bishop_attack
+            || under_rook_attack
+            || under_queen_attack;
+    }
+
+    pub fn filter_valid_moves(board: &Board, moves: &mut Vec<Move>) {
+        moves.retain(|m| Self::is_move_valid(board, m));
     }
 }

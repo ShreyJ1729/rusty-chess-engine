@@ -7,9 +7,7 @@ pub struct Board<'a> {
     pub halfmove_clock: u8,
     pub fullmove_number: u16,
 
-    pub en_passant_available: bool,
     pub en_passant_target: Option<SQUARE>,
-    pub move_history: Option<Vec<Move>>,
 
     pub white_pawns: Bitboard,
     pub white_knights: Bitboard,
@@ -26,23 +24,17 @@ pub struct Board<'a> {
     pub black_king: Bitboard,
 
     pub lookup_table: &'a LookupTable,
-    pub move_validator: MoveValidator,
 }
 
 impl<'a> Board<'a> {
-    pub fn new(lookup_table: &'a LookupTable, keep_move_history: bool) -> Board<'a> {
+    pub fn new(lookup_table: &'a LookupTable) -> Board<'a> {
         Self {
             to_move: COLOR::WHITE,
             castling_rights: CastlingRights::default(),
             halfmove_clock: 0,
             fullmove_number: 1,
 
-            en_passant_available: false,
             en_passant_target: None,
-            move_history: match keep_move_history {
-                true => Some(Vec::new()),
-                false => None,
-            },
 
             white_pawns: Bitboard::default(),
             white_knights: Bitboard::default(),
@@ -59,7 +51,6 @@ impl<'a> Board<'a> {
             black_king: Bitboard::default(),
 
             lookup_table,
-            move_validator: MoveValidator::new(),
         }
     }
 
@@ -67,12 +58,8 @@ impl<'a> Board<'a> {
     // --------------- FEN NOTATION ----------------
     // ---------------------------------------------
 
-    pub fn from_fen(
-        fen: &str,
-        lookup_table: &'a LookupTable,
-        keep_move_history: bool,
-    ) -> Board<'a> {
-        let mut board = Board::new(lookup_table, keep_move_history);
+    pub fn from_fen(fen: &str, lookup_table: &'a LookupTable) -> Board<'a> {
+        let mut board = Board::new(lookup_table);
 
         // split the board configuration from metadata
         let fen = fen.split(" ").into_iter().collect::<Vec<&str>>();
@@ -142,6 +129,7 @@ impl<'a> Board<'a> {
     pub fn to_fen(&self) -> String {
         let mut fen = String::new();
 
+        // adding board data
         for rank in RANK::iter().rev() {
             let rank_index = rank as usize;
             let mut empty_squares = 0;
@@ -170,6 +158,29 @@ impl<'a> Board<'a> {
             }
         }
 
+        // adding turn
+        fen.push(' ');
+        fen.push(self.to_move.to_fen());
+
+        // adding castling rights
+        fen.push(' ');
+        fen.push_str(&self.castling_rights.to_fen());
+
+        // adding en passant target
+        fen.push(' ');
+        match self.en_passant_target {
+            Some(square) => fen.push_str(&square.to_fen()),
+            None => fen.push('-'),
+        };
+
+        // adding halfmove clock
+        fen.push(' ');
+        fen.push_str(&self.halfmove_clock.to_string());
+
+        // adding fullmove number
+        fen.push(' ');
+        fen.push_str(&self.fullmove_number.to_string());
+
         fen
     }
 
@@ -177,7 +188,6 @@ impl<'a> Board<'a> {
         Board::from_fen(
             "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
             lookup_table,
-            true,
         )
     }
 
@@ -295,13 +305,76 @@ impl<'a> Board<'a> {
 
             // 3. build the moves and push to the moves vector
             for target in target_indices {
-                let move_ = Move::new(SQUARE::from(source), SQUARE::from(target), None);
-                moves.push(move_);
+                let target_square = SQUARE::from(target);
+                let is_pawn_promotion =
+                    piece_type == PieceType::PAWN && target_square.is_pawn_promote(color);
+
+                // if it's a king move, add castling moves if castling rights
+                if piece_type == PieceType::KING {
+                    match color {
+                        COLOR::WHITE => {
+                            if self.castling_rights.white_kingside {
+                                moves.push(Move::new(
+                                    source_square,
+                                    SQUARE::G1,
+                                    None,
+                                    Some(CASTLE::WhiteKingside),
+                                ));
+                            }
+                            if self.castling_rights.white_queenside {
+                                moves.push(Move::new(
+                                    source_square,
+                                    SQUARE::C1,
+                                    None,
+                                    Some(CASTLE::WhiteQueenside),
+                                ));
+                            }
+                        }
+                        COLOR::BLACK => {
+                            if self.castling_rights.black_kingside {
+                                moves.push(Move::new(
+                                    source_square,
+                                    SQUARE::G8,
+                                    None,
+                                    Some(CASTLE::BlackKingside),
+                                ));
+                            }
+                            if self.castling_rights.black_queenside {
+                                moves.push(Move::new(
+                                    source_square,
+                                    SQUARE::C8,
+                                    None,
+                                    Some(CASTLE::BlackQueenside),
+                                ));
+                            }
+                        }
+                    }
+                }
+
+                // if it's pawn promotion, add four moves (one for each promotion piece)
+                match is_pawn_promotion {
+                    true => {
+                        for promotion_option in PROMOTION_OPTIONS.iter() {
+                            moves.push(Move::new(
+                                source_square,
+                                target_square,
+                                Some(*promotion_option),
+                                None,
+                            ));
+                        }
+                    }
+                    false => moves.push(Move::new(
+                        SQUARE::from(source),
+                        SQUARE::from(target),
+                        None,
+                        None,
+                    )),
+                }
             }
         }
 
         // finally we filter out invalid moves
-        self.move_validator.filter_valid_moves(&self, &mut moves);
+        MoveValidator::filter_valid_moves(&self, &mut moves);
 
         moves
     }
@@ -400,18 +473,62 @@ impl<'a> Board<'a> {
     }
 
     pub fn make_move(&mut self, move_: Move) {
+        let source_square = move_.source;
         let target_index = move_.target.index();
+        let source_index = move_.source.index();
+        let source_piece = self.piece_at(source_index);
+        let source_color = source_piece.color().expect("Cannot move empty piece");
+
+        // updating halfmove clock for capture
         if self.piece_at(target_index).not_empty() {
             self.halfmove_clock = 0;
             self.remove_piece(target_index);
         }
 
-        let source_index = move_.source.index();
-        let source_piece = self.piece_at(source_index);
-        let source_color = source_piece.color().expect("Cannot move empty piece");
+        // updating halfmove clock for pawn move and add en passant square if double pawn move
+        // en passant target is the square behind the pawn that can be captured
         if source_piece.piece_type() == PieceType::PAWN {
             self.halfmove_clock = 0;
+            match source_color {
+                COLOR::WHITE => {
+                    if source_square.rank() == RANK::Rank2 {
+                        let en_passant_target =
+                            bits_to_index(north(source_square.bits()).unwrap_or(0));
+                        self.en_passant_target = Some(SQUARE::from(en_passant_target));
+                    }
+                }
+                COLOR::BLACK => {
+                    if source_square.rank() == RANK::Rank7 {
+                        let en_passant_target =
+                            bits_to_index(south(source_square.bits()).unwrap_or(0));
+                        self.en_passant_target = Some(SQUARE::from(en_passant_target));
+                    }
+                }
+            }
         }
+
+        // updating castling rights
+        if source_piece == PIECE::WhiteKing {
+            self.castling_rights.white_kingside = false;
+            self.castling_rights.white_queenside = false;
+        } else if source_piece == PIECE::BlackKing {
+            self.castling_rights.black_kingside = false;
+            self.castling_rights.black_queenside = false;
+        } else if source_piece == PIECE::WhiteRook {
+            if source_square == SQUARE::A1 {
+                self.castling_rights.white_queenside = false;
+            } else if source_square == SQUARE::H1 {
+                self.castling_rights.white_kingside = false;
+            }
+        } else if source_piece == PIECE::BlackRook {
+            if source_square == SQUARE::A8 {
+                self.castling_rights.black_queenside = false;
+            } else if source_square == SQUARE::H8 {
+                self.castling_rights.black_kingside = false;
+            }
+        }
+
+        // move piece
         match source_piece.not_empty() {
             true => {
                 self.remove_piece(source_index);
@@ -420,6 +537,7 @@ impl<'a> Board<'a> {
             false => panic!("No piece at source square"),
         }
 
+        // handle promotion
         match move_.promotion {
             Some(new_piece) => {
                 self.remove_piece(target_index);
@@ -428,9 +546,10 @@ impl<'a> Board<'a> {
             None => {}
         }
 
-        // if we're keeping track of the move history, add this move to it
-        if let Some(move_history) = &mut self.move_history {
-            move_history.push(move_);
+        // update clocks
+        self.halfmove_clock += 1;
+        if source_color == COLOR::BLACK {
+            self.fullmove_number += 1;
         }
     }
 }

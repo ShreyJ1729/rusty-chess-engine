@@ -11,7 +11,6 @@ pub struct LookupTable {
     pub bishop_magic_numbers: Vec<u64>,
     pub rook_magic_numbers: Vec<u64>,
 
-    pub move_gen: MoveGenerator,
     pub rng: rand::rngs::ThreadRng,
 }
 
@@ -21,6 +20,7 @@ impl LookupTable {
         print!("Building lookup table...");
         io::stdout().flush().ok().expect("Could not flush stdout");
 
+        let start = std::time::Instant::now();
         let mut table = LookupTable {
             pawns: vec![vec![0; 64]; 2],
             knights: vec![0; 64],
@@ -31,12 +31,11 @@ impl LookupTable {
             bishop_magic_numbers: vec![0; 64],
             rook_magic_numbers: vec![0; 64],
 
-            move_gen: MoveGenerator::new(),
             rng: rand::thread_rng(),
         };
 
         table.build_moves();
-        println!("done");
+        println!("done in {} milliseconds", start.elapsed().as_millis());
         table
     }
 
@@ -269,7 +268,7 @@ impl LookupTable {
     // --------------- MAGIC NUMBERS ---------------
     // ---------------------------------------------
 
-    pub fn generate_magic_number_candidate(&mut self) -> u64 {
+    pub fn generate_magic_number(&mut self) -> u64 {
         self.rng.gen::<u64>() & self.rng.gen::<u64>() & self.rng.gen::<u64>()
     }
 
@@ -282,11 +281,9 @@ impl LookupTable {
         for occupancy_index in 0..4096 {
             let occupancy = bishop_occupancies[occupancy_index];
             // println!("occupancy\n: {}", Bitboard::new(occupancy));
-            let moves = self
-                .move_gen
-                .generate_bishop_moves(square, Bitboard::new(occupancy));
+            let moves = MoveGenerator::generate_bishop_moves(square, Bitboard::new(occupancy));
 
-            // compute this hash: hash = (occupancy * magic_number_candidate) >> (64 - 12)
+            // compute this hash: hash = (occupancy * magic_number) >> (64 - 12)
             let hash = (occupancy.wrapping_mul(magic_number) >> (64 - 12)) as usize;
 
             // check if collision occurs (value is already set and is not equal to the moves we just computed)
@@ -294,7 +291,7 @@ impl LookupTable {
             let collision = value_at_hash != 0 && value_at_hash != moves.bits();
             if collision {
                 // if a collision occurs then clear array, pick a new magic number and try again
-                // println!("candidate failed: {}", magic_number_candidate);
+                // println!("candidate failed: {}", magic_number);
                 self.bishops[square.index()] = vec![0; 4096];
                 return false;
             }
@@ -315,11 +312,9 @@ impl LookupTable {
         for occupancy_index in 0..4096 {
             let occupancy = rook_occupancies[occupancy_index];
             // println!("occupancy\n: {}", Bitboard::new(occupancy));
-            let moves = self
-                .move_gen
-                .generate_rook_moves(square, Bitboard::new(occupancy));
+            let moves = MoveGenerator::generate_rook_moves(square, Bitboard::new(occupancy));
 
-            // compute this hash: hash = (occupancy * magic_number_candidate) >> (64 - 12)
+            // compute this hash: hash = (occupancy * magic_number) >> (64 - 12)
             let hash = (occupancy.wrapping_mul(magic_number) >> (64 - 12)) as usize;
 
             // check if collision occurs (value is already set and is not equal to the moves we just computed)
@@ -328,7 +323,7 @@ impl LookupTable {
 
             if collision {
                 // if a collision occurs then clear array, pick a new magic number and try again
-                // println!("candidate failed: {}", magic_number_candidate);
+                // println!("candidate failed: {}", magic_number);
                 self.rooks[square.index()] = vec![0; 4096];
                 return false;
             }
@@ -346,18 +341,18 @@ impl LookupTable {
 
     pub fn build_pawn_moves(&mut self, square: SQUARE) {
         for color in COLOR::iter() {
-            let moves = self.move_gen.generate_pawn_moves(square, color);
+            let moves = MoveGenerator::generate_pawn_moves(square, color);
             self.pawns[color.index()][square.index()] = moves.bits();
         }
     }
 
     pub fn build_king_moves(&mut self, square: SQUARE) {
-        let moves = self.move_gen.generate_king_moves(square);
+        let moves = MoveGenerator::generate_king_moves(square);
         self.kings[square.index()] = moves.bits();
     }
 
     pub fn build_knight_moves(&mut self, square: SQUARE) {
-        let moves = self.move_gen.generate_knight_moves(square);
+        let moves = MoveGenerator::generate_knight_moves(square);
         self.knights[square.index()] = moves.bits();
     }
 
@@ -373,7 +368,7 @@ impl LookupTable {
         let mut magic_number = 0;
 
         while !magic_found {
-            magic_number = self.generate_magic_number_candidate();
+            magic_number = self.generate_magic_number();
             // validationg simultaneously validates the magic number and computing the moves for each occupancy
             magic_found =
                 self.validate_bishop_magic_number(magic_number, &bishop_occupancies, square)
@@ -394,7 +389,7 @@ impl LookupTable {
         let mut magic_number = 0;
 
         while !magic_found {
-            magic_number = self.generate_magic_number_candidate();
+            magic_number = self.generate_magic_number();
             // validationg simultaneously validates the magic number and computing the moves for each occupancy
             magic_found = self.validate_rook_magic_number(magic_number, &rook_occupancies, square)
         }

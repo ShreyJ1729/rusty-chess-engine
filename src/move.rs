@@ -5,6 +5,7 @@ pub struct Move {
     pub source: SQUARE,
     pub target: SQUARE,
     pub promotion: Option<PieceType>,
+    pub castling: Option<CASTLE>,
     // en_passant: bool,
     // double_push: bool,
     // castle: Option<CASTLE>,
@@ -13,7 +14,12 @@ pub struct Move {
 }
 
 impl Move {
-    pub fn new(source: SQUARE, target: SQUARE, promotion: Option<PieceType>) -> Move {
+    pub fn new(
+        source: SQUARE,
+        target: SQUARE,
+        promotion: Option<PieceType>,
+        castling: Option<CASTLE>,
+    ) -> Move {
         assert_ne!(Some(PieceType::KING), promotion);
         assert_ne!(Some(PieceType::PAWN), promotion);
 
@@ -21,6 +27,7 @@ impl Move {
             source,
             target,
             promotion,
+            castling,
         }
     }
 }

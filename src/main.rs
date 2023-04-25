@@ -27,26 +27,25 @@ fn main() {
     let mut board = Board::starting_position(&lookup_table);
     println!("{}", board);
 
-    // let mut turn = COLOR::WHITE;
+    let mut turn = COLOR::WHITE;
+    let mut moves = board.generate_moves_for_color(turn);
 
-    // while board.occupancy().count() > 2 {
-    //     let moves = board.generate_moves_for_color(turn);
-    //     let move_ = moves[rand::thread_rng().gen_range(0..moves.len())];
-    //     println!("{} {}", turn, move_);
-    //     board.make_move(move_);
-    //     println!("{}", board);
-    //     turn = turn.opposite();
-    // }
+    while moves.len() > 0 {
+        let move_ = moves[rand::thread_rng().gen_range(0..moves.len())];
+        println!("{} {}", turn, move_);
+        board.make_move(move_);
+        println!("{}", board);
+        turn = turn.opposite();
+        moves = board.generate_moves_for_color(turn);
+    }
 
-    // println!(
-    //     "total moves: {}",
-    //     board.move_history.unwrap_or(vec![]).len()
-    // );
+    println!("{}", board.to_fen());
 
-    profile_moves_per_second(10);
+    profile_moves_per_second();
 }
 
-fn profile_moves_per_second(num_seconds: u64) {
+fn profile_moves_per_second() {
+    println!("Profiling moves per second...");
     let lookup_table = LookupTable::new();
     let board = Board::starting_position(&lookup_table);
     let mut moves = board.generate_moves_for_color(COLOR::WHITE);
@@ -54,13 +53,10 @@ fn profile_moves_per_second(num_seconds: u64) {
     let start = std::time::Instant::now();
     let mut count = 0;
 
-    while start.elapsed().as_secs() < 10 {
+    while start.elapsed().as_secs() < 1 {
         moves = board.generate_moves_for_color(COLOR::WHITE);
         count += 1;
     }
 
-    println!(
-        "{} moves per second",
-        moves.len() * count / num_seconds as usize
-    );
+    println!("{} moves/second generated", moves.len() * count);
 }
