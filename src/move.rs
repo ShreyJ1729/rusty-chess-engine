@@ -6,11 +6,9 @@ pub struct Move {
     pub target: SQUARE,
     pub promotion: Option<PieceType>,
     pub castling: Option<CASTLE>,
-    // en_passant: bool,
-    // double_push: bool,
-    // castle: Option<CASTLE>,
+    pub capture: Option<PIECE>,
+    pub en_passant: bool,
     // piece: PIECE,
-    // capture: Option<PIECE>,
 }
 
 impl Move {
@@ -19,7 +17,10 @@ impl Move {
         target: SQUARE,
         promotion: Option<PieceType>,
         castling: Option<CASTLE>,
+        capture: Option<PIECE>,
+        en_passant: bool,
     ) -> Move {
+        // can't promote to king or pawn
         assert_ne!(Some(PieceType::KING), promotion);
         assert_ne!(Some(PieceType::PAWN), promotion);
 
@@ -28,12 +29,30 @@ impl Move {
             target,
             promotion,
             castling,
+            capture,
+            en_passant,
         }
     }
 }
 
 impl Display for Move {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}->{}", self.source, self.target)
+        let out = format!("{}{}", self.source, self.target);
+        write!(f, "{}", out.to_ascii_lowercase())?;
+        // write!(f, " (")?;
+        if let Some(promotion) = self.promotion {
+            write!(f, "Promotion: {}, ", promotion)?;
+        }
+        if let Some(castling) = self.castling {
+            write!(f, "Castling: {}, ", castling)?;
+        }
+        if let Some(capture) = self.capture {
+            write!(f, "Capture: {}, ", capture)?;
+        }
+        if self.en_passant {
+            write!(f, "En Passant, ")?;
+        }
+        // write!(f, ")")
+        Ok(())
     }
 }

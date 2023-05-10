@@ -386,7 +386,7 @@ impl Default for CastlingRights {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Display)]
 pub enum CASTLE {
     WhiteKingside = 0,
     WhiteQueenside = 1,
@@ -660,8 +660,9 @@ impl SQUARE {
         }
     }
 
+    // can only be used on bitboards with a single bit set
     pub fn from_bits(bits: u64) -> SQUARE {
-        assert!(bits == 0 || bits.count_ones() > 1);
+        assert!(bits == 0 || bits.count_ones() == 1);
         SQUARE::from(bits.trailing_zeros() as usize)
     }
 

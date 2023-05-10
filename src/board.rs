@@ -260,14 +260,18 @@ impl<'a> Board<'a> {
     // ------------- MOVE GENERATION ---------------
     // ---------------------------------------------
 
-    pub fn generate_moves_for_piece(&self, piece: PIECE) -> Vec<Move> {
+    pub fn generate_moves_for_piece(&self, piece: PIECE, piece_bb: Option<Bitboard>) -> Vec<Move> {
         let mut moves = Vec::new();
 
         // get occupancy for sliding pieces
         let occupancy = self.occupancy().bits();
 
-        // get the corresponding bitboard for the piece
-        let piece_bb = piece.piece_bb(&self);
+        // get the corresponding bitboard for the piece if not provided
+        let piece_bb = match piece_bb {
+            Some(bb) => bb,
+            None => piece.piece_bb(&self),
+        };
+
         let color = piece
             .color()
             .expect("Cannot generate moves for empty square");
@@ -309,6 +313,25 @@ impl<'a> Board<'a> {
                 let is_pawn_promotion =
                     piece_type == PieceType::PAWN && target_square.is_pawn_promote(color);
 
+                let is_en_passant = piece_type == PieceType::PAWN
+                    && match color {
+                        COLOR::WHITE => {
+                            Some(target_square) == self.en_passant_target
+                                && source_square.rank() == RANK::Rank5
+                                && target_square.rank() == RANK::Rank6
+                        }
+                        COLOR::BLACK => {
+                            Some(target_square) == self.en_passant_target
+                                && source_square.rank() == RANK::Rank4
+                                && target_square.rank() == RANK::Rank3
+                        }
+                    };
+
+                let capture = match self.piece_at(target_square.index()) {
+                    PIECE::Empty => None,
+                    piece => Some(piece),
+                };
+
                 // if it's a king move, add castling moves if castling rights
                 if piece_type == PieceType::KING {
                     match color {
@@ -319,6 +342,8 @@ impl<'a> Board<'a> {
                                     SQUARE::G1,
                                     None,
                                     Some(CASTLE::WhiteKingside),
+                                    None,
+                                    false,
                                 ));
                             }
                             if self.castling_rights.white_queenside {
@@ -327,6 +352,8 @@ impl<'a> Board<'a> {
                                     SQUARE::C1,
                                     None,
                                     Some(CASTLE::WhiteQueenside),
+                                    None,
+                                    false,
                                 ));
                             }
                         }
@@ -337,6 +364,8 @@ impl<'a> Board<'a> {
                                     SQUARE::G8,
                                     None,
                                     Some(CASTLE::BlackKingside),
+                                    None,
+                                    false,
                                 ));
                             }
                             if self.castling_rights.black_queenside {
@@ -345,6 +374,8 @@ impl<'a> Board<'a> {
                                     SQUARE::C8,
                                     None,
                                     Some(CASTLE::BlackQueenside),
+                                    None,
+                                    false,
                                 ));
                             }
                         }
@@ -360,15 +391,22 @@ impl<'a> Board<'a> {
                                 target_square,
                                 Some(*promotion_option),
                                 None,
+                                capture,
+                                false, // if pawn promotion, en passant is not possible
                             ));
                         }
                     }
-                    false => moves.push(Move::new(
-                        SQUARE::from(source),
-                        SQUARE::from(target),
-                        None,
-                        None,
-                    )),
+                    // if not, just add the move
+                    false => {
+                        moves.push(Move::new(
+                            source_square,
+                            target_square,
+                            None,
+                            None,
+                            capture,
+                            is_en_passant,
+                        ));
+                    }
                 }
             }
         }
@@ -381,16 +419,23 @@ impl<'a> Board<'a> {
 
     pub fn generate_moves_for_square(&self, square: SQUARE) -> Vec<Move> {
         let piece = self.piece_at(square.index());
-        self.generate_moves_for_piece(piece)
+        let bb = Bitboard::new(square.bits());
+        println!(
+            "generating moves for square {} with piece {}",
+            square, piece,
+        );
+        println!("bb: {}", bb);
+        self.generate_moves_for_piece(piece, Some(bb))
     }
 
     pub fn generate_moves_for_color(&self, color: COLOR) -> Vec<Move> {
         vec![
-            self.generate_moves_for_piece(PieceType::PAWN.for_color(color)),
-            self.generate_moves_for_piece(PieceType::KNIGHT.for_color(color)),
-            self.generate_moves_for_piece(PieceType::BISHOP.for_color(color)),
-            self.generate_moves_for_piece(PieceType::ROOK.for_color(color)),
-            self.generate_moves_for_piece(PieceType::QUEEN.for_color(color)),
+            self.generate_moves_for_piece(PieceType::PAWN.for_color(color), None),
+            self.generate_moves_for_piece(PieceType::KNIGHT.for_color(color), None),
+            self.generate_moves_for_piece(PieceType::BISHOP.for_color(color), None),
+            self.generate_moves_for_piece(PieceType::ROOK.for_color(color), None),
+            self.generate_moves_for_piece(PieceType::QUEEN.for_color(color), None),
+            self.generate_moves_for_piece(PieceType::KING.for_color(color), None),
         ]
         .into_iter()
         .flatten()
@@ -448,7 +493,10 @@ impl<'a> Board<'a> {
             PIECE::BlackQueen => self.black_queens.unset(index),
             PIECE::BlackKing => self.black_king.unset(index),
 
-            PIECE::Empty => panic!("Cannot remove empty piece"),
+            PIECE::Empty => {
+                println!("board: {}", self);
+                panic!("Tried to remove empty piece at index {}", index);
+            }
         }
     }
 
@@ -474,15 +522,29 @@ impl<'a> Board<'a> {
 
     pub fn make_move(&mut self, move_: Move) {
         let source_square = move_.source;
+        let target_square = move_.target;
         let target_index = move_.target.index();
         let source_index = move_.source.index();
         let source_piece = self.piece_at(source_index);
-        let source_color = source_piece.color().expect("Cannot move empty piece");
+        let source_color = match source_piece.color() {
+            Some(COLOR::WHITE) => COLOR::WHITE,
+            Some(COLOR::BLACK) => COLOR::BLACK,
+            None => {
+                println!("move: {}", move_);
+                panic!("Cannot make move from empty square");
+            }
+        };
+
+        // println!("making move: {}", move_);
 
         // updating halfmove clock for capture
         if self.piece_at(target_index).not_empty() {
             self.halfmove_clock = 0;
-            self.remove_piece(target_index);
+        }
+
+        // reset en passant target if it was set
+        if self.en_passant_target.is_some() {
+            self.en_passant_target = None;
         }
 
         // updating halfmove clock for pawn move and add en passant square if double pawn move
@@ -491,59 +553,137 @@ impl<'a> Board<'a> {
             self.halfmove_clock = 0;
             match source_color {
                 COLOR::WHITE => {
-                    if source_square.rank() == RANK::Rank2 {
-                        let en_passant_target =
-                            bits_to_index(north(source_square.bits()).unwrap_or(0));
+                    if source_square.rank() == RANK::Rank2 && move_.target.rank() == RANK::Rank4 {
+                        let en_passant_target = bits_to_index(
+                            north(source_square.bits())
+                                .expect("Pawn double move cannot be on rank 8"),
+                        );
                         self.en_passant_target = Some(SQUARE::from(en_passant_target));
                     }
                 }
                 COLOR::BLACK => {
-                    if source_square.rank() == RANK::Rank7 {
-                        let en_passant_target =
-                            bits_to_index(south(source_square.bits()).unwrap_or(0));
+                    if source_square.rank() == RANK::Rank7 && move_.target.rank() == RANK::Rank5 {
+                        let en_passant_target = bits_to_index(
+                            south(source_square.bits())
+                                .expect("Pawn double move cannot be on rank 1"),
+                        );
                         self.en_passant_target = Some(SQUARE::from(en_passant_target));
                     }
                 }
             }
         }
 
-        // updating castling rights
-        if source_piece == PIECE::WhiteKing {
-            self.castling_rights.white_kingside = false;
-            self.castling_rights.white_queenside = false;
-        } else if source_piece == PIECE::BlackKing {
-            self.castling_rights.black_kingside = false;
-            self.castling_rights.black_queenside = false;
-        } else if source_piece == PIECE::WhiteRook {
-            if source_square == SQUARE::A1 {
-                self.castling_rights.white_queenside = false;
-            } else if source_square == SQUARE::H1 {
+        // perform castling move and return if castling:
+        match move_.castling {
+            Some(CASTLE::WhiteKingside) => {
+                self.remove_piece(SQUARE::E1.index());
+                self.remove_piece(SQUARE::H1.index());
+                self.add_piece(SQUARE::G1.index(), PIECE::WhiteKing);
+                self.add_piece(SQUARE::F1.index(), PIECE::WhiteRook);
                 self.castling_rights.white_kingside = false;
+                self.castling_rights.white_queenside = false;
             }
-        } else if source_piece == PIECE::BlackRook {
-            if source_square == SQUARE::A8 {
-                self.castling_rights.black_queenside = false;
-            } else if source_square == SQUARE::H8 {
+            Some(CASTLE::WhiteQueenside) => {
+                self.remove_piece(SQUARE::E1.index());
+                self.remove_piece(SQUARE::A1.index());
+                self.add_piece(SQUARE::C1.index(), PIECE::WhiteKing);
+                self.add_piece(SQUARE::D1.index(), PIECE::WhiteRook);
+                self.castling_rights.white_kingside = false;
+                self.castling_rights.white_queenside = false;
+            }
+            Some(CASTLE::BlackKingside) => {
+                self.remove_piece(SQUARE::E8.index());
+                self.remove_piece(SQUARE::H8.index());
+                self.add_piece(SQUARE::G8.index(), PIECE::BlackKing);
+                self.add_piece(SQUARE::F8.index(), PIECE::BlackRook);
                 self.castling_rights.black_kingside = false;
+                self.castling_rights.black_queenside = false;
             }
-        }
+            Some(CASTLE::BlackQueenside) => {
+                self.remove_piece(SQUARE::E8.index());
+                self.remove_piece(SQUARE::A8.index());
+                self.add_piece(SQUARE::C8.index(), PIECE::BlackKing);
+                self.add_piece(SQUARE::D8.index(), PIECE::BlackRook);
+                self.castling_rights.black_kingside = false;
+                self.castling_rights.black_queenside = false;
+            }
+            // if not castling make move as normal
+            None => {
+                // remove target for captures
+                if self.piece_at(target_index).not_empty() {
+                    self.remove_piece(target_index);
+                }
+                // move piece
+                match source_piece.not_empty() {
+                    true => {
+                        self.remove_piece(source_index);
+                        self.add_piece(target_index, source_piece);
+                    }
+                    false => panic!("No piece at source square"),
+                }
 
-        // move piece
-        match source_piece.not_empty() {
-            true => {
-                self.remove_piece(source_index);
-                self.add_piece(target_index, source_piece);
-            }
-            false => panic!("No piece at source square"),
-        }
+                // handle promotion
+                match move_.promotion {
+                    Some(new_piece) => {
+                        self.remove_piece(target_index);
+                        self.add_piece(target_index, new_piece.for_color(source_color));
+                    }
+                    None => {}
+                }
 
-        // handle promotion
-        match move_.promotion {
-            Some(new_piece) => {
-                self.remove_piece(target_index);
-                self.add_piece(target_index, new_piece.for_color(source_color));
+                // handle en passant capture
+                if move_.en_passant {
+                    // depending on color of moving piece, remove the piece one rank above or below the target square
+                    // println!("En passant capture");
+                    match source_color {
+                        COLOR::WHITE => {
+                            let to_remove_idx = bits_to_index(
+                                south(target_square.bits())
+                                    .expect("En passant cannot be on rank 1"),
+                            );
+                            if self.piece_at(to_remove_idx) != PIECE::BlackPawn {
+                                panic!("En passant capture not on black pawn");
+                            }
+                            self.remove_piece(to_remove_idx)
+                        }
+                        COLOR::BLACK => {
+                            let to_remove_idx = bits_to_index(
+                                north(target_square.bits())
+                                    .expect("En passant cannot be on rank 8"),
+                            );
+                            if self.piece_at(to_remove_idx) != PIECE::WhitePawn {
+                                panic!("En passant capture not on white pawn");
+                            }
+                            self.remove_piece(to_remove_idx)
+                        }
+                    }
+                    // println!("Board:\n{}", self);
+                }
+
+                // updating castling rights for king moves
+                if source_piece == PIECE::WhiteKing {
+                    self.castling_rights.white_kingside = false;
+                    self.castling_rights.white_queenside = false;
+                } else if source_piece == PIECE::BlackKing {
+                    self.castling_rights.black_kingside = false;
+                    self.castling_rights.black_queenside = false;
+                }
+
+                // updating castling rights for rook moves
+                if source_piece == PIECE::WhiteRook {
+                    if source_square == SQUARE::A1 {
+                        self.castling_rights.white_queenside = false;
+                    } else if source_square == SQUARE::H1 {
+                        self.castling_rights.white_kingside = false;
+                    }
+                } else if source_piece == PIECE::BlackRook {
+                    if source_square == SQUARE::A8 {
+                        self.castling_rights.black_queenside = false;
+                    } else if source_square == SQUARE::H8 {
+                        self.castling_rights.black_kingside = false;
+                    }
+                }
             }
-            None => {}
         }
 
         // update clocks
@@ -551,6 +691,57 @@ impl<'a> Board<'a> {
         if source_color == COLOR::BLACK {
             self.fullmove_number += 1;
         }
+
+        // change to_move
+        self.to_move = self.to_move.opposite();
+        // println!("board after move\n{}", self);
+    }
+
+    // ---------------------------------------------
+    // ------------------ PERFT --------------------
+    // ---------------------------------------------
+
+    pub fn perft(&mut self, depth: u8, max_depth: u8) -> (u64, u64, u64, u64, u64) {
+        if depth == 0 {
+            return (1, 0, 0, 0, 0);
+        }
+
+        let mut nodes = 0;
+        let mut captures = 0;
+        let mut castles = 0;
+        let mut en_passants = 0;
+        let mut promotions = 0;
+
+        let moves = self.generate_moves_for_color(self.to_move);
+
+        // enumerate m and idx for moves
+        for (i, m) in moves.iter().enumerate() {
+            if m.capture.is_some() {
+                captures += 1;
+            }
+            if m.castling.is_some() {
+                castles += 1;
+            }
+            if m.en_passant {
+                en_passants += 1;
+            }
+            if m.promotion.is_some() {
+                promotions += 1;
+            }
+            let mut board = self.clone();
+            board.make_move(*m);
+            let (n, c, ca, en, pro) = board.perft(depth - 1, max_depth);
+            nodes += n;
+            captures += c;
+            castles += ca;
+            en_passants += en;
+            promotions += pro;
+
+            if depth == max_depth {
+                println!("{}/{} - {}: {}", i, moves.len(), m, n);
+            }
+        }
+        (nodes, captures, castles, en_passants, promotions)
     }
 }
 

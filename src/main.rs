@@ -21,27 +21,24 @@ mod movegenerator;
 mod movevalidator;
 
 fn main() {
-    std::env::set_var("RUST_BACKTRACE", "1");
+    std::env::set_var("RUST_BACKTRACE", "full");
     let lookup_table = LookupTable::new();
 
     let mut board = Board::starting_position(&lookup_table);
-    println!("{}", board);
 
-    let mut turn = COLOR::WHITE;
-    let mut moves = board.generate_moves_for_color(turn);
+    // e2e3
+    board.make_move(Move::new(SQUARE::E2, SQUARE::E3, None, None, None, false));
+    let depth = 3;
 
-    while moves.len() > 0 {
-        let move_ = moves[rand::thread_rng().gen_range(0..moves.len())];
-        println!("{} {}", turn, move_);
-        board.make_move(move_);
-        println!("{}", board);
-        turn = turn.opposite();
-        moves = board.generate_moves_for_color(turn);
-    }
+    let (nodes, captures, castles, enpassants, promotions) = board.perft(depth, depth);
+    println!("--------------------------------------------------------------------");
+    println!(
+        "Total for depth={}:\nNodes: {}, Captures: {}, Castles: {}, Enpassants: {}, Promotions: {}",
+        depth, nodes, captures, castles, enpassants, promotions
+    );
+    println!("--------------------------------------------------------------------");
 
-    println!("{}", board.to_fen());
-
-    profile_moves_per_second();
+    // profile_moves_per_second();
 }
 
 fn profile_moves_per_second() {

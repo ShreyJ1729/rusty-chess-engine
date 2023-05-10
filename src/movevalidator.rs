@@ -1,7 +1,9 @@
 use crate::*;
 
 #[derive(Debug, Clone, Copy)]
-pub struct MoveValidator {}
+pub struct MoveValidator {
+    move_: Move,
+}
 
 impl MoveValidator {
     // checks if a move is valid given board configuration
@@ -79,11 +81,25 @@ impl MoveValidator {
             }
         }
 
-        // 6. Invalidate moves where king under check at target square
-        // todo fix this so that target is the king square
-        if source_piece.piece_type() == PieceType::KING
-            && Self::is_square_under_attack(board, target, source_color)
-        {
+        // 6. Invalidate moves where king under check after move
+        // we do this by making a copy of the board, making the move, and checking if the king is under attack
+        let mut board_copy = board.clone();
+        // if no piece at source, print board and panic
+        if board_copy.piece_at(source.index()).is_empty() {
+            println!("board before move: \n{}", board_copy);
+            println!("move: {}", m);
+            panic!("no piece at source");
+        }
+
+        board_copy.make_move(*m);
+        let king_square = SQUARE::from_bits(match source_color {
+            COLOR::WHITE => board_copy.white_king.bits(),
+            COLOR::BLACK => board_copy.black_king.bits(),
+        });
+        // println!("board after move: \n{}", board_copy);
+        if Self::is_square_under_attack(&board_copy, king_square, source_color) {
+            // println!("king under attack");
+            // println!("cant do move {:?} -> {:?}", source, target);
             return false;
         }
 
@@ -170,6 +186,18 @@ impl MoveValidator {
     pub fn is_square_under_attack(board: &Board, square: SQUARE, color: COLOR) -> bool {
         // place each of pawn, knight, bishop, rook, queen on king's square and compute attacks
         let pawn_attacks = board.lookup_table.get_pawn_moves(square, color);
+        // for pawns, remove single and double push moves from attacks
+        let pawn_single_push = Bitboard::new(match color {
+            COLOR::WHITE => north(square.bits()).unwrap_or(0),
+            COLOR::BLACK => south(square.bits()).unwrap_or(0),
+        });
+        let pawn_double_push = Bitboard::new(match color {
+            COLOR::WHITE => north_north(square.bits()).unwrap_or(0),
+            COLOR::BLACK => south_south(square.bits()).unwrap_or(0),
+        });
+        let pawn_attacks = pawn_attacks & !(pawn_single_push | pawn_double_push);
+
+        // rest are straightforward
         let knight_attacks = board.lookup_table.get_knight_moves(square, color);
         let bishop_attacks =
             board
@@ -204,6 +232,14 @@ impl MoveValidator {
         let under_queen_attack = (queen_attacks
             & board.pieces_of_color_and_type(color.opposite(), PieceType::QUEEN))
         .any();
+
+        // println!("queen attacks:\n{}", queen_attacks);
+        // println!(
+        //     "{}",
+        //     board.pieces_of_color_and_type(color.opposite(), PieceType::QUEEN)
+        // );
+        // println!("{}", under_queen_attack);
+        // println!("above fen: {}", board.to_fen());
 
         return under_pawn_attack
             || under_knight_attack
