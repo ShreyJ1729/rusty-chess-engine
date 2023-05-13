@@ -1,36 +1,35 @@
 # Rusty Chess Engine
 
-A work in progress chess engine written in Rust, as a learning exercise.
+A work in progress chess (and anti-chess) engine written in Rust, as a learning exercise.
+
+## Usage
+
+### CLI
+
+```bash
+cargo run --release -- -mode=[perft|uci] -depth=[depth] -fen="[fen]"
+```
 
 ## Overview
 
-struct Game
-
-- board: [Piece; 16]
-- turn: Color
-
-struct Piece
-
-- color: Color
-- piece_type: PieceType
-- square: Square
-
-enum Color (White or Black)
-
-enum PieceType (Pawn, Knight, Bishop, Rook, Queen, King)
-
-enum Square (A1, A2, ..., H8)
-
-## Task List
+## Engine Features
 
 - [x] BitBoard representation
-- [] Move generation
+- [x] FEN parsing
+- [x] Move generation
 - - [x] Move generation for leap pieces (knight, king)
 - - [x] Magic number move generation for sliding pieces (bishop, rook, queen)
 - - [x] Move generation for pawns (double move, capture, and promotion)
 - - [x] Move generation for castling and en passant
 - [x] Move validation - is the move legal? (friendly capture or king in check)
-- [] Do perft tests to ensure move generation is correct
+- [x] Perft testing (node count only) - completed at 4M nodes/sec
+- [] CLI interface
+- [] Proper Testing Suite cfgs (unit tests, integration tests, perft tests)
+- [] Endgame Detection (checkmate, stalemate, insufficient material, repetition, 50 move rule)
+- [] Perft testing (stratified node count)
+- [] Move-generation performance optimization
+- - [] Single-threaded
+- - [] Multi-threaded
 
 ## Resources:
 

@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::*;
 
 #[derive(Debug, Clone)]
@@ -332,56 +334,6 @@ impl<'a> Board<'a> {
                     piece => Some(piece),
                 };
 
-                // if it's a king move, add castling moves if castling rights
-                if piece_type == PieceType::KING {
-                    match color {
-                        COLOR::WHITE => {
-                            if self.castling_rights.white_kingside {
-                                moves.push(Move::new(
-                                    source_square,
-                                    SQUARE::G1,
-                                    None,
-                                    Some(CASTLE::WhiteKingside),
-                                    None,
-                                    false,
-                                ));
-                            }
-                            if self.castling_rights.white_queenside {
-                                moves.push(Move::new(
-                                    source_square,
-                                    SQUARE::C1,
-                                    None,
-                                    Some(CASTLE::WhiteQueenside),
-                                    None,
-                                    false,
-                                ));
-                            }
-                        }
-                        COLOR::BLACK => {
-                            if self.castling_rights.black_kingside {
-                                moves.push(Move::new(
-                                    source_square,
-                                    SQUARE::G8,
-                                    None,
-                                    Some(CASTLE::BlackKingside),
-                                    None,
-                                    false,
-                                ));
-                            }
-                            if self.castling_rights.black_queenside {
-                                moves.push(Move::new(
-                                    source_square,
-                                    SQUARE::C8,
-                                    None,
-                                    Some(CASTLE::BlackQueenside),
-                                    None,
-                                    false,
-                                ));
-                            }
-                        }
-                    }
-                }
-
                 // if it's pawn promotion, add four moves (one for each promotion piece)
                 match is_pawn_promotion {
                     true => {
@@ -406,6 +358,56 @@ impl<'a> Board<'a> {
                             capture,
                             is_en_passant,
                         ));
+                    }
+                }
+            }
+
+            // special case - if it's a king move, add castling moves if castling rights
+            if piece_type == PieceType::KING {
+                match color {
+                    COLOR::WHITE => {
+                        if self.castling_rights.white_kingside {
+                            moves.push(Move::new(
+                                source_square,
+                                SQUARE::G1,
+                                None,
+                                Some(CASTLE::WhiteKingside),
+                                None,
+                                false,
+                            ));
+                        }
+                        if self.castling_rights.white_queenside {
+                            moves.push(Move::new(
+                                source_square,
+                                SQUARE::C1,
+                                None,
+                                Some(CASTLE::WhiteQueenside),
+                                None,
+                                false,
+                            ));
+                        }
+                    }
+                    COLOR::BLACK => {
+                        if self.castling_rights.black_kingside {
+                            moves.push(Move::new(
+                                source_square,
+                                SQUARE::G8,
+                                None,
+                                Some(CASTLE::BlackKingside),
+                                None,
+                                false,
+                            ));
+                        }
+                        if self.castling_rights.black_queenside {
+                            moves.push(Move::new(
+                                source_square,
+                                SQUARE::C8,
+                                None,
+                                Some(CASTLE::BlackQueenside),
+                                None,
+                                false,
+                            ));
+                        }
                     }
                 }
             }
@@ -482,16 +484,37 @@ impl<'a> Board<'a> {
             PIECE::WhitePawn => self.white_pawns.unset(index),
             PIECE::WhiteKnight => self.white_knights.unset(index),
             PIECE::WhiteBishop => self.white_bishops.unset(index),
-            PIECE::WhiteRook => self.white_rooks.unset(index),
+            PIECE::WhiteRook => {
+                self.white_rooks.unset(index);
+                match SQUARE::from(index) {
+                    SQUARE::A1 => self.castling_rights.white_queenside = false,
+                    SQUARE::H1 => self.castling_rights.white_kingside = false,
+                    _ => {}
+                }
+            }
             PIECE::WhiteQueen => self.white_queens.unset(index),
-            PIECE::WhiteKing => self.white_king.unset(index),
 
             PIECE::BlackPawn => self.black_pawns.unset(index),
             PIECE::BlackKnight => self.black_knights.unset(index),
             PIECE::BlackBishop => self.black_bishops.unset(index),
-            PIECE::BlackRook => self.black_rooks.unset(index),
+            PIECE::BlackRook => {
+                self.black_rooks.unset(index);
+                match SQUARE::from(index) {
+                    SQUARE::A8 => self.castling_rights.black_queenside = false,
+                    SQUARE::H8 => self.castling_rights.black_kingside = false,
+                    _ => {}
+                }
+            }
             PIECE::BlackQueen => self.black_queens.unset(index),
-            PIECE::BlackKing => self.black_king.unset(index),
+
+            // temporarily remove the king from the board, will check for endgame conditions later
+            PIECE::WhiteKing => {
+                self.white_king.unset(index);
+            }
+
+            PIECE::BlackKing => {
+                self.black_king.unset(index);
+            }
 
             PIECE::Empty => {
                 println!("board: {}", self);
@@ -701,7 +724,12 @@ impl<'a> Board<'a> {
     // ------------------ PERFT --------------------
     // ---------------------------------------------
 
-    pub fn perft(&mut self, depth: u8, max_depth: u8) -> (u64, u64, u64, u64, u64) {
+    pub fn perft(
+        &mut self,
+        depth: u8,
+        max_depth: u8,
+        move_counter: &mut HashMap<String, u64>,
+    ) -> (u64, u64, u64, u64, u64) {
         if depth == 0 {
             return (1, 0, 0, 0, 0);
         }
@@ -730,7 +758,7 @@ impl<'a> Board<'a> {
             }
             let mut board = self.clone();
             board.make_move(*m);
-            let (n, c, ca, en, pro) = board.perft(depth - 1, max_depth);
+            let (n, c, ca, en, pro) = board.perft(depth - 1, max_depth, move_counter);
             nodes += n;
             captures += c;
             castles += ca;
@@ -738,7 +766,8 @@ impl<'a> Board<'a> {
             promotions += pro;
 
             if depth == max_depth {
-                println!("{}/{} - {}: {}", i, moves.len(), m, n);
+                println!("({}/{}) {}: {}", i + 1, moves.len(), m, n);
+                move_counter.insert(m.to_string(), n);
             }
         }
         (nodes, captures, castles, en_passants, promotions)

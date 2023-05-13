@@ -96,7 +96,8 @@ impl MoveValidator {
             COLOR::WHITE => board_copy.white_king.bits(),
             COLOR::BLACK => board_copy.black_king.bits(),
         });
-        // println!("board after move: \n{}", board_copy);
+
+        // if king under attack after move, return false
         if Self::is_square_under_attack(&board_copy, king_square, source_color) {
             // println!("king under attack");
             // println!("cant do move {:?} -> {:?}", source, target);
@@ -117,65 +118,77 @@ impl MoveValidator {
             let black_queenside = [SQUARE::D8, SQUARE::C8, SQUARE::B8];
 
             // - check if squares between source and target are empty
-            // - check if squares between source and target inclusive are under attack
+            // - check if squares between source and target that king moves on are under attack
             match castling {
                 Some(CASTLE::WhiteKingside) => {
-                    if !white_kingside
+                    if white_kingside
                         .iter()
-                        .all(|s| board.piece_at(s.index()).is_empty())
+                        .any(|s| !board.piece_at(s.index()).is_empty())
                     {
                         return false;
                     }
-                    if !white_kingside
+                    if white_kingside
                         .iter()
-                        .all(|s| !Self::is_square_under_attack(board, *s, source_color))
+                        .any(|s| Self::is_square_under_attack(board, *s, source_color))
                     {
                         return false;
                     }
                 }
                 Some(CASTLE::WhiteQueenside) => {
-                    if !white_queenside
+                    if white_queenside
                         .iter()
-                        .all(|s| board.piece_at(s.index()).is_empty())
+                        .any(|s| !board.piece_at(s.index()).is_empty())
                     {
                         return false;
                     }
-                    if !white_queenside
+                    if white_queenside
                         .iter()
-                        .all(|s| !Self::is_square_under_attack(board, *s, source_color))
+                        .take(2)
+                        .any(|s| Self::is_square_under_attack(board, *s, source_color))
                     {
                         return false;
                     }
                 }
                 Some(CASTLE::BlackKingside) => {
-                    if !black_kingside
+                    if black_kingside
                         .iter()
-                        .all(|s| board.piece_at(s.index()).is_empty())
+                        .any(|s| !board.piece_at(s.index()).is_empty())
                     {
                         return false;
                     }
-                    if !black_kingside
+                    if black_kingside
                         .iter()
-                        .all(|s| !Self::is_square_under_attack(board, *s, source_color))
+                        .any(|s| Self::is_square_under_attack(board, *s, source_color))
                     {
                         return false;
                     }
                 }
                 Some(CASTLE::BlackQueenside) => {
-                    if !black_queenside
+                    if black_queenside
                         .iter()
-                        .all(|s| board.piece_at(s.index()).is_empty())
+                        .any(|s| !board.piece_at(s.index()).is_empty())
                     {
                         return false;
                     }
-                    if !black_queenside
+                    if black_queenside
                         .iter()
-                        .all(|s| !Self::is_square_under_attack(board, *s, source_color))
+                        .take(2)
+                        .any(|s| Self::is_square_under_attack(board, *s, source_color))
                     {
                         return false;
                     }
                 }
                 _ => {}
+            }
+
+            // add rule for can't castle out of check
+            let king_square = SQUARE::from_bits(match source_color {
+                COLOR::WHITE => board.white_king.bits(),
+                COLOR::BLACK => board.black_king.bits(),
+            });
+            if Self::is_square_under_attack(board, king_square, source_color) && castling.is_some()
+            {
+                return false;
             }
         }
 
@@ -211,6 +224,7 @@ impl MoveValidator {
             board
                 .lookup_table
                 .get_queen_moves(square, color, board.occupancy().bits());
+        let king_attacks = board.lookup_table.get_king_moves(square, color);
 
         // if any attacks an opposite color pieces of same piecetype, king is under check
         let under_pawn_attack = (pawn_attacks
@@ -233,6 +247,10 @@ impl MoveValidator {
             & board.pieces_of_color_and_type(color.opposite(), PieceType::QUEEN))
         .any();
 
+        let under_king_attack = (king_attacks
+            & board.pieces_of_color_and_type(color.opposite(), PieceType::KING))
+        .any();
+
         // println!("queen attacks:\n{}", queen_attacks);
         // println!(
         //     "{}",
@@ -245,7 +263,8 @@ impl MoveValidator {
             || under_knight_attack
             || under_bishop_attack
             || under_rook_attack
-            || under_queen_attack;
+            || under_queen_attack
+            || under_king_attack;
     }
 
     pub fn filter_valid_moves(board: &Board, moves: &mut Vec<Move>) {

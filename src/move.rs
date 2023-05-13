@@ -8,7 +8,6 @@ pub struct Move {
     pub castling: Option<CASTLE>,
     pub capture: Option<PIECE>,
     pub en_passant: bool,
-    // piece: PIECE,
 }
 
 impl Move {
@@ -41,17 +40,24 @@ impl Display for Move {
         write!(f, "{}", out.to_ascii_lowercase())?;
         // write!(f, " (")?;
         if let Some(promotion) = self.promotion {
-            write!(f, "Promotion: {}, ", promotion)?;
+            let promotion = match promotion {
+                PieceType::QUEEN => "q",
+                PieceType::ROOK => "r",
+                PieceType::BISHOP => "b",
+                PieceType::KNIGHT => "n",
+                _ => panic!("Invalid promotion"),
+            };
+            write!(f, "{}", promotion)?;
         }
-        if let Some(castling) = self.castling {
-            write!(f, "Castling: {}, ", castling)?;
-        }
-        if let Some(capture) = self.capture {
-            write!(f, "Capture: {}, ", capture)?;
-        }
-        if self.en_passant {
-            write!(f, "En Passant, ")?;
-        }
+        // if let Some(castling) = self.castling {
+        //     write!(f, " Castling: {}", castling)?;
+        // }
+        // if let Some(capture) = self.capture {
+        //     write!(f, " Capture: {}", capture)?;
+        // }
+        // if self.en_passant {
+        //     write!(f, " En Passant")?;
+        // }
         // write!(f, ")")
         Ok(())
     }
