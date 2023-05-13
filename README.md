@@ -35,17 +35,3 @@ cargo run --release -- -mode=[perft|uci] -depth=[depth] -fen="[fen]"
 
 - [Chess Programming Wiki](https://www.chessprogramming.org/Main_Page)
 - [Peter Keller's Blog Post](https://pages.cs.wisc.edu/~psilord/blog/data/chess-pages/)
-
-## FAQ
-
-### Why Rust?
-
-I've been wanting to learn Rust for a while, especially learning more about safe memory management and concurrency. A chess engine is a nice problem that deals with these concepts at a reasonable scale of complexity.
-
-### Why is it called "Rusty Chess Engine"?
-
-Knowing my programming skills and the state of the project, it's a pretty accurate name.
-
-### Why is there no Human vs. Human mode?
-
-I'm lazy. Go play on chess.com or something.
