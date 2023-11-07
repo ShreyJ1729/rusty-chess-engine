@@ -5,12 +5,13 @@ use strum_macros::Display;
 pub enum EngineMode {
     PERFT,
     UCI,
+    BESTMOVE,
 }
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 pub struct Args {
-    #[arg(short, long, default_value_t = EngineMode::UCI)]
+    #[arg(short, long, default_value = "uci")]
     pub mode: EngineMode,
 
     #[arg(
@@ -22,6 +23,9 @@ pub struct Args {
 
     #[arg(short, long, default_value_t = 5)]
     pub depth: u8,
+
+    #[arg(long, default_value_t = true)]
+    pub debug: bool,
 }
 
 impl Args {

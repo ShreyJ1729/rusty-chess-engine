@@ -369,15 +369,11 @@ impl LookupTable {
 
         while !magic_found {
             magic_number = self.generate_magic_number();
-            // validationg simultaneously validates the magic number and computing the moves for each occupancy
+            // validating simultaneously validates the magic number and computing the moves for each occupancy
             magic_found =
                 self.validate_bishop_magic_number(magic_number, &bishop_occupancies, square)
         }
 
-        // println!(
-        //     "{} bishop moves built - using {} for hash key",
-        //     square, magic_number
-        // );
         self.bishop_magic_numbers[square.index()] = magic_number;
     }
 
@@ -394,10 +390,6 @@ impl LookupTable {
             magic_found = self.validate_rook_magic_number(magic_number, &rook_occupancies, square)
         }
 
-        // println!(
-        //     "{} rook moves built - using {} for hash key",
-        //     square, magic_number
-        // );
         self.rook_magic_numbers[square.index()] = magic_number;
     }
 }

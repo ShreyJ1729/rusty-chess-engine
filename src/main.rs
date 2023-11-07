@@ -23,13 +23,17 @@ mod movegenerator;
 mod movevalidator;
 
 fn main() {
-    std::env::set_var("RUST_BACKTRACE", "1");
-
     let args = Args::parse_args();
+
+    match args.debug {
+        true => std::env::set_var("RUST_BACKTRACE", "1"),
+        false => {}
+    }
 
     match args.mode {
         EngineMode::PERFT => run_perft(args.depth, args.fen),
         EngineMode::UCI => run_uci(args.fen),
+        EngineMode::BESTMOVE => get_bestmove(args.fen),
     }
 }
 
@@ -38,6 +42,13 @@ fn run_uci(fen: String) {
     let mut board = Board::from_fen(&fen, &lookuptable);
 
     todo!("UCI not implemented yet");
+}
+
+fn get_bestmove(fen: String) {
+    let lookuptable = LookupTable::new();
+    let mut board = Board::from_fen(&fen, &lookuptable);
+
+    todo!("BESTMOVE not implemented yet");
 }
 
 fn run_perft(depth: u8, fen: String) {

@@ -539,7 +539,11 @@ impl<'a> Board<'a> {
             PIECE::BlackQueen => self.black_queens.set(index),
             PIECE::BlackKing => self.black_king.set(index),
 
-            PIECE::Empty => panic!("Cannot add empty piece"),
+            PIECE::Empty => {
+                println!("Tried to add empty piece at index {} on below board", index);
+                println!("{}", self);
+                panic!("Cannot add empty piece");
+            }
         }
     }
 

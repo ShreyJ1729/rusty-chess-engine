@@ -7,7 +7,7 @@ A work in progress chess (and anti-chess) engine written in Rust, as a learning 
 ### CLI
 
 ```bash
-cargo run --release -- -mode=[perft|uci] -depth=[depth] -fen="[fen]"
+cargo run --release -- -mode=[perft|uci|bestmove] -depth=[depth] -fen="[fen]"
 ```
 
 ## Overview
@@ -24,9 +24,10 @@ cargo run --release -- -mode=[perft|uci] -depth=[depth] -fen="[fen]"
 - [x] Move validation - is the move legal? (friendly capture or king in check)
 - [x] Perft testing (node count only) - completed at 4M nodes/sec
 - [] CLI interface
+- [] Perft Progress Bar for each submove
 - [] Proper Testing Suite cfgs (unit tests, integration tests, perft tests)
 - [] Endgame Detection (checkmate, stalemate, insufficient material, repetition, 50 move rule)
-- [] Perft testing (stratified node count)
+- [] Perft testing (stratified node count among captures, promotions, checks, checkmates)
 - [] Move-generation performance optimization
 - - [] Single-threaded
 - - [] Multi-threaded
