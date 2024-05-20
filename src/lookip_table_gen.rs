@@ -3,9 +3,9 @@ use crate::*;
 use super::enums::COLOR;
 
 #[derive(Debug, Clone, Copy)]
-pub struct MoveGenerator {}
+pub struct LookupTableGenerator {}
 
-impl MoveGenerator {
+impl LookupTableGenerator {
     // --------------------------------------------------
     // ------------------- PAWN MOVES -------------------
     // --------------------------------------------------

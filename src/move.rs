@@ -39,16 +39,16 @@ impl Display for Move {
         let out = format!("{}{}", self.source, self.target);
         write!(f, "{}", out.to_ascii_lowercase())?;
         // write!(f, " (")?;
-        if let Some(promotion) = self.promotion {
-            let promotion = match promotion {
-                PieceType::QUEEN => "q",
-                PieceType::ROOK => "r",
-                PieceType::BISHOP => "b",
-                PieceType::KNIGHT => "n",
-                _ => panic!("Invalid promotion"),
-            };
-            write!(f, "{}", promotion)?;
-        }
+        // if let Some(promotion) = self.promotion {
+        //     let promotion = match promotion {
+        //         PieceType::QUEEN => "q",
+        //         PieceType::ROOK => "r",
+        //         PieceType::BISHOP => "b",
+        //         PieceType::KNIGHT => "n",
+        //         _ => panic!("Invalid promotion"),
+        //     };
+        //     write!(f, "{}", promotion)?;
+        // }
         // if let Some(castling) = self.castling {
         //     write!(f, " Castling: {}", castling)?;
         // }
@@ -58,7 +58,7 @@ impl Display for Move {
         // if self.en_passant {
         //     write!(f, " En Passant")?;
         // }
-        // write!(f, ")")
+        // write!(f, ")")?;
         Ok(())
     }
 }

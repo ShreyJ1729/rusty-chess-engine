@@ -59,6 +59,13 @@ impl Bitboard {
         indices
     }
 
+    pub fn get_squares(&self) -> Vec<SQUARE> {
+        self.indices()
+            .iter()
+            .map(|&index| SQUARE::from(index))
+            .collect()
+    }
+
     pub fn any(&self) -> bool {
         self.bits != 0
     }

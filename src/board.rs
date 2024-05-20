@@ -262,17 +262,14 @@ impl<'a> Board<'a> {
     // ------------- MOVE GENERATION ---------------
     // ---------------------------------------------
 
-    pub fn generate_moves_for_piece(&self, piece: PIECE, piece_bb: Option<Bitboard>) -> Vec<Move> {
+    pub fn generate_moves_for_piece(&self, piece: PIECE) -> Vec<Move> {
         let mut moves = Vec::new();
 
         // get occupancy for sliding pieces
         let occupancy = self.occupancy().bits();
 
-        // get the corresponding bitboard for the piece if not provided
-        let piece_bb = match piece_bb {
-            Some(bb) => bb,
-            None => piece.piece_bb(&self),
-        };
+        // get the corresponding bitboard for the piece
+        let piece_bb = piece.piece_bb(&self);
 
         let color = piece
             .color()
@@ -282,7 +279,7 @@ impl<'a> Board<'a> {
         // get the indices of the bits in the bitboard (these are the source squares)
         let sources = piece_bb.indices();
 
-        // now for each source square index
+        // now for each source square index (each piece of that type on the board, or each bit on the bitboard)
         for source in sources {
             let source_square = SQUARE::from(source);
 
@@ -307,11 +304,10 @@ impl<'a> Board<'a> {
             };
 
             // 2. get the indices of the bits in the move_bb (these are the target move squares)
-            let target_indices = move_bb.indices();
+            let target_squares = move_bb.get_squares();
 
             // 3. build the moves and push to the moves vector
-            for target in target_indices {
-                let target_square = SQUARE::from(target);
+            for target_square in target_squares {
                 let is_pawn_promotion =
                     piece_type == PieceType::PAWN && target_square.is_pawn_promote(color);
 
@@ -427,17 +423,17 @@ impl<'a> Board<'a> {
             square, piece,
         );
         println!("bb: {}", bb);
-        self.generate_moves_for_piece(piece, Some(bb))
+        self.generate_moves_for_piece(piece)
     }
 
     pub fn generate_moves_for_color(&self, color: COLOR) -> Vec<Move> {
         vec![
-            self.generate_moves_for_piece(PieceType::PAWN.for_color(color), None),
-            self.generate_moves_for_piece(PieceType::KNIGHT.for_color(color), None),
-            self.generate_moves_for_piece(PieceType::BISHOP.for_color(color), None),
-            self.generate_moves_for_piece(PieceType::ROOK.for_color(color), None),
-            self.generate_moves_for_piece(PieceType::QUEEN.for_color(color), None),
-            self.generate_moves_for_piece(PieceType::KING.for_color(color), None),
+            self.generate_moves_for_piece(PieceType::PAWN.for_color(color)),
+            self.generate_moves_for_piece(PieceType::KNIGHT.for_color(color)),
+            self.generate_moves_for_piece(PieceType::BISHOP.for_color(color)),
+            self.generate_moves_for_piece(PieceType::ROOK.for_color(color)),
+            self.generate_moves_for_piece(PieceType::QUEEN.for_color(color)),
+            self.generate_moves_for_piece(PieceType::KING.for_color(color)),
         ]
         .into_iter()
         .flatten()
@@ -724,6 +720,13 @@ impl<'a> Board<'a> {
         // println!("board after move\n{}", self);
     }
 
+    // This is a special functiont hat allows us to make any move specified by the Move struct
+    // This exists so that we can easily unmake moves when we are checking if the king is in check
+    // That way we don't have to make a board copy every time we want to check if a move is valid (in move validator)
+    pub fn unmake_move(_move: Move) {
+        todo!();
+    }
+
     // ---------------------------------------------
     // ------------------ PERFT --------------------
     // ---------------------------------------------
@@ -733,9 +736,9 @@ impl<'a> Board<'a> {
         depth: u8,
         max_depth: u8,
         move_counter: &mut HashMap<String, u64>,
-    ) -> (u64, u64, u64, u64, u64) {
+    ) -> (u64, u64, u64, u64, u64, u64) {
         if depth == 0 {
-            return (1, 0, 0, 0, 0);
+            return (1, 0, 0, 0, 0, 0);
         }
 
         let mut nodes = 0;
@@ -743,6 +746,8 @@ impl<'a> Board<'a> {
         let mut castles = 0;
         let mut en_passants = 0;
         let mut promotions = 0;
+        let mut checks = 0;
+        let mut checkmates = 0;
 
         let moves = self.generate_moves_for_color(self.to_move);
 
@@ -762,19 +767,25 @@ impl<'a> Board<'a> {
             }
             let mut board = self.clone();
             board.make_move(*m);
-            let (n, c, ca, en, pro) = board.perft(depth - 1, max_depth, move_counter);
+            if MoveValidator::in_check(&board, COLOR::WHITE)
+                || MoveValidator::in_check(&board, COLOR::BLACK)
+            {
+                checks += 1;
+            }
+            let (n, c, ca, en, pro, ch) = board.perft(depth - 1, max_depth, move_counter);
             nodes += n;
             captures += c;
             castles += ca;
             en_passants += en;
             promotions += pro;
+            checks += ch;
 
             if depth == max_depth {
                 println!("({}/{}) {}: {}", i + 1, moves.len(), m, n);
                 move_counter.insert(m.to_string(), n);
             }
         }
-        (nodes, captures, castles, en_passants, promotions)
+        (nodes, captures, castles, en_passants, promotions, checks)
     }
 }
 
@@ -787,8 +798,6 @@ impl Display for Board<'_> {
         // since bitboard is printed with rank 8 at the top, we need to iterate in reverse
         for rank in RANK::iter().rev() {
             let rank_index = rank as usize;
-
-            // writeln!(f, "{} at index {} ", rank, rank_index)?;
 
             write!(f, "{} ", rank_index + 1)?;
 

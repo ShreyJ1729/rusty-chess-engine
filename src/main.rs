@@ -1,6 +1,6 @@
 use crate::{
-    args::*, bitboard::*, board::*, enums::*, helpers::*, lookuptable::*, movegenerator::*,
-    movevalidator::*, r#move::*,
+    args::*, bitboard::*, board::*, enums::*, helpers::*, lookip_table_gen::*, lookup_table::*,
+    move_validator::*, r#move::*,
 };
 use rand::Rng;
 use std::collections::HashMap;
@@ -17,10 +17,10 @@ mod bitboard;
 mod board;
 mod enums;
 mod helpers;
-mod lookuptable;
+mod lookip_table_gen;
+mod lookup_table;
 mod r#move;
-mod movegenerator;
-mod movevalidator;
+mod move_validator;
 
 fn main() {
     let args = Args::parse_args();
@@ -32,28 +32,12 @@ fn main() {
 
     match args.mode {
         EngineMode::PERFT => run_perft(args.depth, args.fen),
-        EngineMode::UCI => run_uci(args.fen),
-        EngineMode::BESTMOVE => get_bestmove(args.fen),
     }
-}
-
-fn run_uci(fen: String) {
-    let lookuptable = LookupTable::new();
-    let mut board = Board::from_fen(&fen, &lookuptable);
-
-    todo!("UCI not implemented yet");
-}
-
-fn get_bestmove(fen: String) {
-    let lookuptable = LookupTable::new();
-    let mut board = Board::from_fen(&fen, &lookuptable);
-
-    todo!("BESTMOVE not implemented yet");
 }
 
 fn run_perft(depth: u8, fen: String) {
     let lookup_table = LookupTable::new();
-    let mut board = Board::starting_position(&lookup_table);
+    let mut board = Board::from_fen(&fen, &lookup_table);
 
     println!("{}", board);
 
@@ -64,18 +48,18 @@ fn run_perft(depth: u8, fen: String) {
     let start = std::time::Instant::now();
 
     // run perft
-    let (nodes, captures, castles, enpassants, promotions) =
+    let (nodes, captures, castles, enpassants, promotions, checks) =
         board.perft(depth, depth, &mut rusty_moves);
 
     let elapsed = start.elapsed().as_secs_f64();
 
     println!("--------------------------------------------------------------------");
     println!(
-        "Computed for depth={}:\nNodes: {}, Captures: {}, Castles: {}, Enpassants: {}, Promotions: {}",
-        depth, nodes, captures, castles, enpassants, promotions
+        "Computed for depth={}:\nNodes: {}, Captures: {}, Castles: {}, Enpassants: {}, Promotions: {}, Checks: {}",
+        depth, nodes, captures, castles, enpassants, promotions, checks
     );
     println!(
-        "Finished in {} seconds at {} nodes/second",
+        "Finished in {:.1} seconds at {:.0} nodes/second",
         elapsed,
         nodes as f64 / elapsed
     );

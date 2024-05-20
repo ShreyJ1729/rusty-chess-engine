@@ -1,9 +1,7 @@
 use crate::*;
 
 #[derive(Debug, Clone, Copy)]
-pub struct MoveValidator {
-    move_: Move,
-}
+pub struct MoveValidator {}
 
 impl MoveValidator {
     // checks if a move is valid given board configuration
@@ -73,7 +71,9 @@ impl MoveValidator {
 
         // 5. Check for en passant
         if is_pawn_diagonal_move && !is_capture && board.en_passant_target.is_some() {
-            let en_passant_target = board.en_passant_target.expect("en passant target not set");
+            let en_passant_target = board
+                .en_passant_target
+                .expect("en passant move but en passant target not set");
 
             // make sure move target and the en passant target are the same
             if target != en_passant_target {
@@ -81,7 +81,7 @@ impl MoveValidator {
             }
         }
 
-        // 6. Invalidate moves where king under check after move
+        // 6. Invalidate moves where king is under check after move
         // we do this by making a copy of the board, making the move, and checking if the king is under attack
         let mut board_copy = board.clone();
         // if no piece at source, print board and panic
@@ -91,114 +91,87 @@ impl MoveValidator {
             panic!("no piece at source");
         }
 
+        // Make move, then if king under attack after move, return false
         board_copy.make_move(*m);
-        let king_square = SQUARE::from_bits(match source_color {
-            COLOR::WHITE => board_copy.white_king.bits(),
-            COLOR::BLACK => board_copy.black_king.bits(),
-        });
-
-        // if king under attack after move, return false
-        if Self::is_square_under_attack(&board_copy, king_square, source_color) {
-            // println!("king under attack");
-            // println!("cant do move {:?} -> {:?}", source, target);
+        if Self::in_check(&board_copy, source_color) {
             return false;
         }
 
         // 7. Check for castling
         // this is non-rigorous, since we're relying on data from board generate moves function
         // which is guaranteed to not generate castling moves if castling rights are false
-        if source_piece.piece_type() == PieceType::KING {
-            // if king currently in check, already returned false
+        if castling.is_some() {
+            // Some basic checks to make sure king is moving and that castling rights are set
+            assert!(source_piece.piece_type() == PieceType::KING);
+            assert!(board.castling_rights.any());
+
+            // add rule for can't castle out of check
+            if Self::in_check(board, source_color) {
+                return false;
+            }
 
             // for each of the 4 castling moves
             // these are squares strictly between king and rook (source and target)
-            let white_kingside = [SQUARE::F1, SQUARE::G1];
-            let white_queenside = [SQUARE::D1, SQUARE::C1, SQUARE::B1];
-            let black_kingside = [SQUARE::F8, SQUARE::G8];
-            let black_queenside = [SQUARE::D8, SQUARE::C8, SQUARE::B8];
+            // todo turn these into constants
+            let wk_side = [SQUARE::F1, SQUARE::G1];
+            let wq_side = [SQUARE::D1, SQUARE::C1, SQUARE::B1];
+            let bk_side = [SQUARE::F8, SQUARE::G8];
+            let bq_side = [SQUARE::D8, SQUARE::C8, SQUARE::B8];
 
-            // - check if squares between source and target are empty
+            let wk_side_idx = [SQUARE::F1.index(), SQUARE::G1.index()];
+            let wq_side_idx = [SQUARE::D1.index(), SQUARE::C1.index(), SQUARE::B1.index()];
+            let bk_side_idx = [SQUARE::F8.index(), SQUARE::G8.index()];
+            let bq_side_idx = [SQUARE::D8.index(), SQUARE::C8.index(), SQUARE::B8.index()];
+
+            let wk_side_blocked = wk_side_idx.iter().any(|&i| board.piece_at(i).not_empty());
+            let wq_side_blocked = wq_side_idx.iter().any(|&i| board.piece_at(i).not_empty());
+            let bk_side_blocked = bk_side_idx.iter().any(|&i| board.piece_at(i).not_empty());
+            let bq_side_blocked = bq_side_idx.iter().any(|&i| board.piece_at(i).not_empty());
+
+            let wk_side_attacked = wk_side.iter().any(|s| Self::in_check(board, source_color));
+            let wq_side_attacked = wq_side.iter().any(|s| Self::in_check(board, source_color));
+            let bk_side_attacked = bk_side.iter().any(|s| Self::in_check(board, source_color));
+            let bq_side_attacked = bq_side.iter().any(|s| Self::in_check(board, source_color));
+
+            // - ensure squares between source and target are empty
             // - check if squares between source and target that king moves on are under attack
             match castling {
                 Some(CASTLE::WhiteKingside) => {
-                    if white_kingside
-                        .iter()
-                        .any(|s| !board.piece_at(s.index()).is_empty())
-                    {
-                        return false;
-                    }
-                    if white_kingside
-                        .iter()
-                        .any(|s| Self::is_square_under_attack(board, *s, source_color))
-                    {
-                        return false;
-                    }
+                    return !wk_side_blocked && !wk_side_attacked;
                 }
                 Some(CASTLE::WhiteQueenside) => {
-                    if white_queenside
-                        .iter()
-                        .any(|s| !board.piece_at(s.index()).is_empty())
-                    {
-                        return false;
-                    }
-                    if white_queenside
-                        .iter()
-                        .take(2)
-                        .any(|s| Self::is_square_under_attack(board, *s, source_color))
-                    {
-                        return false;
-                    }
+                    return !wq_side_blocked && !wq_side_attacked;
                 }
                 Some(CASTLE::BlackKingside) => {
-                    if black_kingside
-                        .iter()
-                        .any(|s| !board.piece_at(s.index()).is_empty())
-                    {
-                        return false;
-                    }
-                    if black_kingside
-                        .iter()
-                        .any(|s| Self::is_square_under_attack(board, *s, source_color))
-                    {
-                        return false;
-                    }
+                    return !bk_side_blocked && !bk_side_attacked;
                 }
                 Some(CASTLE::BlackQueenside) => {
-                    if black_queenside
-                        .iter()
-                        .any(|s| !board.piece_at(s.index()).is_empty())
-                    {
-                        return false;
-                    }
-                    if black_queenside
-                        .iter()
-                        .take(2)
-                        .any(|s| Self::is_square_under_attack(board, *s, source_color))
-                    {
-                        return false;
-                    }
+                    return !bq_side_blocked && !bq_side_attacked;
                 }
                 _ => {}
-            }
-
-            // add rule for can't castle out of check
-            let king_square = SQUARE::from_bits(match source_color {
-                COLOR::WHITE => board.white_king.bits(),
-                COLOR::BLACK => board.black_king.bits(),
-            });
-            if Self::is_square_under_attack(board, king_square, source_color) && castling.is_some()
-            {
-                return false;
             }
         }
 
         true
     }
 
+    pub fn in_check(board: &Board, color: COLOR) -> bool {
+        let king_square = SQUARE::from_bits(match color {
+            COLOR::WHITE => board.white_king.bits(),
+            COLOR::BLACK => board.black_king.bits(),
+        });
+
+        Self::is_square_under_attack(board, king_square, color)
+    }
+
     // returns is square under attack for color
     pub fn is_square_under_attack(board: &Board, square: SQUARE, color: COLOR) -> bool {
-        // place each of pawn, knight, bishop, rook, queen on king's square and compute attacks
+        // We do this by placing each of pawn, knight, bishop, rook, queen, and king on the square of interest and computing attacks
+        // If any of the target squares is the same piece type as the attacking piece, the king is under attack
+
+        // Start with pawns, but remove single and double push moves
         let pawn_attacks = board.lookup_table.get_pawn_moves(square, color);
+
         // for pawns, remove single and double push moves from attacks
         let pawn_single_push = Bitboard::new(match color {
             COLOR::WHITE => north(square.bits()).unwrap_or(0),
@@ -208,6 +181,8 @@ impl MoveValidator {
             COLOR::WHITE => north_north(square.bits()).unwrap_or(0),
             COLOR::BLACK => south_south(square.bits()).unwrap_or(0),
         });
+
+        // Now we can compute only diagonal pawn moves
         let pawn_attacks = pawn_attacks & !(pawn_single_push | pawn_double_push);
 
         // rest are straightforward
@@ -226,7 +201,7 @@ impl MoveValidator {
                 .get_queen_moves(square, color, board.occupancy().bits());
         let king_attacks = board.lookup_table.get_king_moves(square, color);
 
-        // if any attacks an opposite color pieces of same piecetype, king is under check
+        // if any attacks are on opposite color pieces of same piecetype, the square is under attack
         let under_pawn_attack = (pawn_attacks
             & board.pieces_of_color_and_type(color.opposite(), PieceType::PAWN))
         .any();
@@ -250,14 +225,6 @@ impl MoveValidator {
         let under_king_attack = (king_attacks
             & board.pieces_of_color_and_type(color.opposite(), PieceType::KING))
         .any();
-
-        // println!("queen attacks:\n{}", queen_attacks);
-        // println!(
-        //     "{}",
-        //     board.pieces_of_color_and_type(color.opposite(), PieceType::QUEEN)
-        // );
-        // println!("{}", under_queen_attack);
-        // println!("above fen: {}", board.to_fen());
 
         return under_pawn_attack
             || under_knight_attack

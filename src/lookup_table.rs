@@ -281,7 +281,8 @@ impl LookupTable {
         for occupancy_index in 0..4096 {
             let occupancy = bishop_occupancies[occupancy_index];
             // println!("occupancy\n: {}", Bitboard::new(occupancy));
-            let moves = MoveGenerator::generate_bishop_moves(square, Bitboard::new(occupancy));
+            let moves =
+                LookupTableGenerator::generate_bishop_moves(square, Bitboard::new(occupancy));
 
             // compute this hash: hash = (occupancy * magic_number) >> (64 - 12)
             let hash = (occupancy.wrapping_mul(magic_number) >> (64 - 12)) as usize;
@@ -312,7 +313,7 @@ impl LookupTable {
         for occupancy_index in 0..4096 {
             let occupancy = rook_occupancies[occupancy_index];
             // println!("occupancy\n: {}", Bitboard::new(occupancy));
-            let moves = MoveGenerator::generate_rook_moves(square, Bitboard::new(occupancy));
+            let moves = LookupTableGenerator::generate_rook_moves(square, Bitboard::new(occupancy));
 
             // compute this hash: hash = (occupancy * magic_number) >> (64 - 12)
             let hash = (occupancy.wrapping_mul(magic_number) >> (64 - 12)) as usize;
@@ -341,18 +342,18 @@ impl LookupTable {
 
     pub fn build_pawn_moves(&mut self, square: SQUARE) {
         for color in COLOR::iter() {
-            let moves = MoveGenerator::generate_pawn_moves(square, color);
+            let moves = LookupTableGenerator::generate_pawn_moves(square, color);
             self.pawns[color.index()][square.index()] = moves.bits();
         }
     }
 
     pub fn build_king_moves(&mut self, square: SQUARE) {
-        let moves = MoveGenerator::generate_king_moves(square);
+        let moves = LookupTableGenerator::generate_king_moves(square);
         self.kings[square.index()] = moves.bits();
     }
 
     pub fn build_knight_moves(&mut self, square: SQUARE) {
-        let moves = MoveGenerator::generate_knight_moves(square);
+        let moves = LookupTableGenerator::generate_knight_moves(square);
         self.knights[square.index()] = moves.bits();
     }
 

@@ -373,6 +373,10 @@ impl CastlingRights {
         }
         fen
     }
+
+    pub fn any(&self) -> bool {
+        self.white_kingside || self.white_queenside || self.black_kingside || self.black_queenside
+    }
 }
 
 impl Default for CastlingRights {

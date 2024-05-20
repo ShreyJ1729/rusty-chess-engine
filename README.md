@@ -25,18 +25,9 @@ cargo run --release -- --mode=[perft|uci|bestmove] --depth=[depth] --fen="[fen]"
 - - [x] Move generation for castling and en passant
 - [x] Move validation - is the move legal? (friendly capture or king in check)
 - [x] Perft testing (node count only) - completed at 4M nodes/sec
-- [] CLI interface
-- [] Perft Progress Bar for each submove
-- [] Terminal GUI with colored pieces and point-and-click move selection
 - [] Proper Testing Suite cfgs (unit tests, integration tests, perft tests)
-- [] Multiplayer support (via UCI protocol)
-- - [] Basic functionality: personal profiles, rooms, time controls, etc.
-- - [] In-game terminal videocalls
 - [] Endgame Detection (checkmate, stalemate, insufficient material, repetition, 50 move rule)
 - [] Perft testing (stratified node count among captures, promotions, checks, checkmates)
-- [] Move-generation performance optimization
-- - [] Single-threaded
-- - [] Multi-threaded
 
 ## Resources:
 
