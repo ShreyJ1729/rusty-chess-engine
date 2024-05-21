@@ -1,3 +1,5 @@
+use strum_macros::FromRepr;
+
 use crate::*;
 
 #[derive(Debug, Display, Clone, Copy, EnumIter, PartialEq, Eq)]
@@ -328,10 +330,11 @@ impl Sub for FILE {
 
 #[derive(Debug, Clone, Copy)]
 pub struct CastlingRights {
-    pub white_kingside: bool,
-    pub white_queenside: bool,
-    pub black_kingside: bool,
-    pub black_queenside: bool,
+    white_kingside: bool,
+    white_queenside: bool,
+    black_kingside: bool,
+    black_queenside: bool,
+    pub recently_removed: [bool; 4], // order = wk, wq, bk, bq
 }
 
 impl CastlingRights {
@@ -341,6 +344,7 @@ impl CastlingRights {
             white_queenside: false,
             black_kingside: false,
             black_queenside: false,
+            recently_removed: [false, false, false, false],
         };
         for c in fen.chars() {
             match c {
@@ -377,6 +381,95 @@ impl CastlingRights {
     pub fn any(&self) -> bool {
         self.white_kingside || self.white_queenside || self.black_kingside || self.black_queenside
     }
+
+    pub fn any_white(&self) -> bool {
+        self.white_kingside || self.white_queenside
+    }
+
+    pub fn any_black(&self) -> bool {
+        self.black_kingside || self.black_queenside
+    }
+
+    pub fn get(&self, castle: CASTLE) -> bool {
+        match castle {
+            CASTLE::WhiteKingside => self.white_kingside,
+            CASTLE::WhiteQueenside => self.white_queenside,
+            CASTLE::BlackKingside => self.black_kingside,
+            CASTLE::BlackQueenside => self.black_queenside,
+        }
+    }
+
+    pub fn set_index(&mut self, index: usize, value: bool) {
+        let castle = match index {
+            0 => CASTLE::WhiteKingside,
+            1 => CASTLE::WhiteQueenside,
+            2 => CASTLE::BlackKingside,
+            3 => CASTLE::BlackQueenside,
+            _ => panic!("Invalid index"),
+        };
+
+        self.set(castle, value);
+    }
+
+    pub fn set(&mut self, castle: CASTLE, value: bool) {
+        // if we are swapping to false, mark as recently removed for unmake_move fn
+        // we do an extra check to make sure we don't mark it as recently removed if it was already false
+        if value == false && self.get(castle) {
+            self.recently_removed[castle as usize] = true;
+        }
+
+        // The only time when castling rights are set to true from false is inside unmake move
+        // This means that we should set recently_removed to false
+        if value && !self.get(castle) {
+            self.recently_removed[castle as usize] = false;
+        }
+
+        match castle {
+            CASTLE::WhiteKingside => self.white_kingside = value,
+            CASTLE::WhiteQueenside => self.white_queenside = value,
+            CASTLE::BlackKingside => self.black_kingside = value,
+            CASTLE::BlackQueenside => self.black_queenside = value,
+        }
+    }
+
+    pub fn clear_recently_removed(&mut self, color: COLOR) {
+        match color {
+            COLOR::WHITE => {
+                self.recently_removed[0] = false;
+                self.recently_removed[1] = false;
+            }
+            COLOR::BLACK => {
+                self.recently_removed[2] = false;
+                self.recently_removed[3] = false;
+            }
+        }
+    }
+
+    pub fn remove_color(&mut self, color: COLOR) {
+        match color {
+            COLOR::WHITE => {
+                self.set(CASTLE::WhiteQueenside, false);
+                self.set(CASTLE::WhiteKingside, false);
+            }
+            COLOR::BLACK => {
+                self.set(CASTLE::BlackKingside, false);
+                self.set(CASTLE::BlackQueenside, false);
+            }
+        }
+    }
+
+    pub fn give_color(&mut self, color: COLOR) {
+        match color {
+            COLOR::WHITE => {
+                self.set(CASTLE::WhiteKingside, true);
+                self.set(CASTLE::WhiteQueenside, true);
+            }
+            COLOR::BLACK => {
+                self.set(CASTLE::BlackKingside, true);
+                self.set(CASTLE::BlackQueenside, true);
+            }
+        }
+    }
 }
 
 impl Default for CastlingRights {
@@ -386,11 +479,12 @@ impl Default for CastlingRights {
             white_queenside: true,
             black_kingside: true,
             black_queenside: true,
+            recently_removed: [false, false, false, false], // order = wk, wq, bk, bq
         }
     }
 }
 
-#[derive(Debug, Clone, Copy, Display)]
+#[derive(Debug, Clone, Copy, Display, FromRepr)]
 pub enum CASTLE {
     WhiteKingside = 0,
     WhiteQueenside = 1,

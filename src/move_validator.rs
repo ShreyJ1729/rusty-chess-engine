@@ -11,14 +11,11 @@ impl MoveValidator {
         let castling = m.castling;
 
         // Get details of the piece that is moving
-        let source_color = board
-            .piece_at(source.index())
-            .color()
-            .expect("source is empty");
-        let target_color = board.piece_at(target.index()).color();
+        let source_color = board.piece_at(source).color().expect("source is empty");
+        let target_color = board.piece_at(target).color();
 
-        let source_piece = board.piece_at(source.index());
-        let target_piece = board.piece_at(target.index());
+        let source_piece = board.piece_at(source);
+        let target_piece = board.piece_at(target);
 
         let target_empty = target_piece.piece_type() == PieceType::EMPTY;
         let is_capture = Some(source_color.opposite()) == target_color;
@@ -55,7 +52,7 @@ impl MoveValidator {
                 COLOR::WHITE => SQUARE::from(source.index() + 8),
                 COLOR::BLACK => SQUARE::from(source.index() - 8),
             };
-            let intermediate_piece = board.piece_at(intermediate_square.index());
+            let intermediate_piece = board.piece_at(intermediate_square);
             let intermediate_empty = intermediate_piece.piece_type() == PieceType::EMPTY;
 
             // if one of the two squares in front of the pawn is occupied, the move is illegal
@@ -85,7 +82,7 @@ impl MoveValidator {
         // we do this by making a copy of the board, making the move, and checking if the king is under attack
         let mut board_copy = board.clone();
         // if no piece at source, print board and panic
-        if board_copy.piece_at(source.index()).is_empty() {
+        if board_copy.piece_at(source).is_empty() {
             println!("board before move: \n{}", board_copy);
             println!("move: {}", m);
             panic!("no piece at source");
@@ -118,20 +115,25 @@ impl MoveValidator {
             let bk_side = [SQUARE::F8, SQUARE::G8];
             let bq_side = [SQUARE::D8, SQUARE::C8, SQUARE::B8];
 
-            let wk_side_idx = [SQUARE::F1.index(), SQUARE::G1.index()];
-            let wq_side_idx = [SQUARE::D1.index(), SQUARE::C1.index(), SQUARE::B1.index()];
-            let bk_side_idx = [SQUARE::F8.index(), SQUARE::G8.index()];
-            let bq_side_idx = [SQUARE::D8.index(), SQUARE::C8.index(), SQUARE::B8.index()];
+            let wk_side_blocked = wk_side.iter().any(|s| board.piece_at(*s).not_empty());
+            let wq_side_blocked = wq_side.iter().any(|s| board.piece_at(*s).not_empty());
+            let bk_side_blocked = bk_side.iter().any(|s| board.piece_at(*s).not_empty());
+            let bq_side_blocked = bq_side.iter().any(|s| board.piece_at(*s).not_empty());
 
-            let wk_side_blocked = wk_side_idx.iter().any(|&i| board.piece_at(i).not_empty());
-            let wq_side_blocked = wq_side_idx.iter().any(|&i| board.piece_at(i).not_empty());
-            let bk_side_blocked = bk_side_idx.iter().any(|&i| board.piece_at(i).not_empty());
-            let bq_side_blocked = bq_side_idx.iter().any(|&i| board.piece_at(i).not_empty());
-
-            let wk_side_attacked = wk_side.iter().any(|s| Self::in_check(board, source_color));
-            let wq_side_attacked = wq_side.iter().any(|s| Self::in_check(board, source_color));
-            let bk_side_attacked = bk_side.iter().any(|s| Self::in_check(board, source_color));
-            let bq_side_attacked = bq_side.iter().any(|s| Self::in_check(board, source_color));
+            let wk_side_attacked = wk_side
+                .iter()
+                .any(|s| Self::is_square_under_attack(board, *s, source_color));
+            let wq_side_attacked = wq_side
+                .iter()
+                .take(2)
+                .any(|s| Self::is_square_under_attack(board, *s, source_color));
+            let bk_side_attacked = bk_side
+                .iter()
+                .any(|s| Self::is_square_under_attack(board, *s, source_color));
+            let bq_side_attacked = bq_side
+                .iter()
+                .take(2)
+                .any(|s| Self::is_square_under_attack(board, *s, source_color));
 
             // - ensure squares between source and target are empty
             // - check if squares between source and target that king moves on are under attack

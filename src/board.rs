@@ -26,6 +26,7 @@ pub struct Board<'a> {
     pub black_king: Bitboard,
 
     pub lookup_table: &'a LookupTable,
+    pub move_history: Vec<Move>,
 }
 
 impl<'a> Board<'a> {
@@ -53,6 +54,7 @@ impl<'a> Board<'a> {
             black_king: Bitboard::default(),
 
             lookup_table,
+            move_history: Vec::new(),
         }
     }
 
@@ -137,8 +139,8 @@ impl<'a> Board<'a> {
             let mut empty_squares = 0;
             for file in FILE::iter() {
                 let file_index = file as usize;
-                let square = rank_index * 8 + file_index;
-                let piece = self.piece_at(square);
+                let index = rank_index * 8 + file_index;
+                let piece = self.piece_at_index(index);
                 match piece.not_empty() {
                     true => {
                         if empty_squares > 0 {
@@ -325,7 +327,7 @@ impl<'a> Board<'a> {
                         }
                     };
 
-                let capture = match self.piece_at(target_square.index()) {
+                let capture = match self.piece_at(target_square) {
                     PIECE::Empty => None,
                     piece => Some(piece),
                 };
@@ -362,7 +364,7 @@ impl<'a> Board<'a> {
             if piece_type == PieceType::KING {
                 match color {
                     COLOR::WHITE => {
-                        if self.castling_rights.white_kingside {
+                        if self.castling_rights.get(CASTLE::WhiteKingside) {
                             moves.push(Move::new(
                                 source_square,
                                 SQUARE::G1,
@@ -372,7 +374,7 @@ impl<'a> Board<'a> {
                                 false,
                             ));
                         }
-                        if self.castling_rights.white_queenside {
+                        if self.castling_rights.get(CASTLE::WhiteQueenside) {
                             moves.push(Move::new(
                                 source_square,
                                 SQUARE::C1,
@@ -384,7 +386,7 @@ impl<'a> Board<'a> {
                         }
                     }
                     COLOR::BLACK => {
-                        if self.castling_rights.black_kingside {
+                        if self.castling_rights.get(CASTLE::BlackKingside) {
                             moves.push(Move::new(
                                 source_square,
                                 SQUARE::G8,
@@ -394,7 +396,7 @@ impl<'a> Board<'a> {
                                 false,
                             ));
                         }
-                        if self.castling_rights.black_queenside {
+                        if self.castling_rights.get(CASTLE::BlackQueenside) {
                             moves.push(Move::new(
                                 source_square,
                                 SQUARE::C8,
@@ -416,7 +418,7 @@ impl<'a> Board<'a> {
     }
 
     pub fn generate_moves_for_square(&self, square: SQUARE) -> Vec<Move> {
-        let piece = self.piece_at(square.index());
+        let piece = self.piece_at(square);
         let bb = Bitboard::new(square.bits());
         println!(
             "generating moves for square {} with piece {}",
@@ -444,7 +446,11 @@ impl<'a> Board<'a> {
     // -------------- PIECE MOVEMENT ---------------
     // ---------------------------------------------
 
-    pub fn piece_at(&self, index: usize) -> PIECE {
+    pub fn piece_at(&self, square: SQUARE) -> PIECE {
+        self.piece_at_index(square.index())
+    }
+
+    pub fn piece_at_index(&self, index: usize) -> PIECE {
         if self.white_pawns.is_set(index) {
             PIECE::WhitePawn
         } else if self.white_knights.is_set(index) {
@@ -475,7 +481,7 @@ impl<'a> Board<'a> {
     }
 
     pub fn remove_piece(&mut self, index: usize) {
-        let piece = self.piece_at(index);
+        let piece = self.piece_at_index(index);
         match piece {
             PIECE::WhitePawn => self.white_pawns.unset(index),
             PIECE::WhiteKnight => self.white_knights.unset(index),
@@ -483,8 +489,8 @@ impl<'a> Board<'a> {
             PIECE::WhiteRook => {
                 self.white_rooks.unset(index);
                 match SQUARE::from(index) {
-                    SQUARE::A1 => self.castling_rights.white_queenside = false,
-                    SQUARE::H1 => self.castling_rights.white_kingside = false,
+                    SQUARE::A1 => self.castling_rights.set(CASTLE::WhiteQueenside, false),
+                    SQUARE::H1 => self.castling_rights.set(CASTLE::WhiteKingside, false),
                     _ => {}
                 }
             }
@@ -496,8 +502,8 @@ impl<'a> Board<'a> {
             PIECE::BlackRook => {
                 self.black_rooks.unset(index);
                 match SQUARE::from(index) {
-                    SQUARE::A8 => self.castling_rights.black_queenside = false,
-                    SQUARE::H8 => self.castling_rights.black_kingside = false,
+                    SQUARE::A8 => self.castling_rights.set(CASTLE::BlackQueenside, false),
+                    SQUARE::H8 => self.castling_rights.set(CASTLE::BlackKingside, false),
                     _ => {}
                 }
             }
@@ -513,8 +519,11 @@ impl<'a> Board<'a> {
             }
 
             PIECE::Empty => {
-                println!("board: {}", self);
-                panic!("Tried to remove empty piece at index {}", index);
+                println!("board:\n{}", self);
+                panic!(
+                    "Tried to remove empty piece at square {}",
+                    SQUARE::from(index)
+                );
             }
         }
     }
@@ -536,7 +545,10 @@ impl<'a> Board<'a> {
             PIECE::BlackKing => self.black_king.set(index),
 
             PIECE::Empty => {
-                println!("Tried to add empty piece at index {} on below board", index);
+                println!(
+                    "Tried to add empty piece at square {} on below board",
+                    SQUARE::from(index)
+                );
                 println!("{}", self);
                 panic!("Cannot add empty piece");
             }
@@ -544,11 +556,12 @@ impl<'a> Board<'a> {
     }
 
     pub fn make_move(&mut self, move_: Move) {
+        self.move_history.push(move_);
         let source_square = move_.source;
         let target_square = move_.target;
         let target_index = move_.target.index();
         let source_index = move_.source.index();
-        let source_piece = self.piece_at(source_index);
+        let source_piece = self.piece_at_index(source_index);
         let source_color = match source_piece.color() {
             Some(COLOR::WHITE) => COLOR::WHITE,
             Some(COLOR::BLACK) => COLOR::BLACK,
@@ -558,10 +571,11 @@ impl<'a> Board<'a> {
             }
         };
 
-        // println!("making move: {}", move_);
+        // clear the recently removed flag from last turn
+        self.castling_rights.clear_recently_removed(source_color);
 
         // updating halfmove clock for capture
-        if self.piece_at(target_index).not_empty() {
+        if self.piece_at_index(target_index).not_empty() {
             self.halfmove_clock = 0;
         }
 
@@ -603,37 +617,34 @@ impl<'a> Board<'a> {
                 self.remove_piece(SQUARE::H1.index());
                 self.add_piece(SQUARE::G1.index(), PIECE::WhiteKing);
                 self.add_piece(SQUARE::F1.index(), PIECE::WhiteRook);
-                self.castling_rights.white_kingside = false;
-                self.castling_rights.white_queenside = false;
+                self.castling_rights.remove_color(COLOR::WHITE);
             }
             Some(CASTLE::WhiteQueenside) => {
                 self.remove_piece(SQUARE::E1.index());
                 self.remove_piece(SQUARE::A1.index());
                 self.add_piece(SQUARE::C1.index(), PIECE::WhiteKing);
                 self.add_piece(SQUARE::D1.index(), PIECE::WhiteRook);
-                self.castling_rights.white_kingside = false;
-                self.castling_rights.white_queenside = false;
+                self.castling_rights.remove_color(COLOR::WHITE);
             }
             Some(CASTLE::BlackKingside) => {
                 self.remove_piece(SQUARE::E8.index());
                 self.remove_piece(SQUARE::H8.index());
                 self.add_piece(SQUARE::G8.index(), PIECE::BlackKing);
                 self.add_piece(SQUARE::F8.index(), PIECE::BlackRook);
-                self.castling_rights.black_kingside = false;
-                self.castling_rights.black_queenside = false;
+                self.castling_rights.remove_color(COLOR::BLACK);
             }
             Some(CASTLE::BlackQueenside) => {
                 self.remove_piece(SQUARE::E8.index());
                 self.remove_piece(SQUARE::A8.index());
                 self.add_piece(SQUARE::C8.index(), PIECE::BlackKing);
                 self.add_piece(SQUARE::D8.index(), PIECE::BlackRook);
-                self.castling_rights.black_kingside = false;
-                self.castling_rights.black_queenside = false;
+                self.castling_rights.remove_color(COLOR::BLACK);
             }
+
             // if not castling make move as normal
             None => {
                 // remove target for captures
-                if self.piece_at(target_index).not_empty() {
+                if self.piece_at_index(target_index).not_empty() {
                     self.remove_piece(target_index);
                 }
                 // move piece
@@ -657,14 +668,13 @@ impl<'a> Board<'a> {
                 // handle en passant capture
                 if move_.en_passant {
                     // depending on color of moving piece, remove the piece one rank above or below the target square
-                    // println!("En passant capture");
                     match source_color {
                         COLOR::WHITE => {
                             let to_remove_idx = bits_to_index(
                                 south(target_square.bits())
                                     .expect("En passant cannot be on rank 1"),
                             );
-                            if self.piece_at(to_remove_idx) != PIECE::BlackPawn {
+                            if self.piece_at_index(to_remove_idx) != PIECE::BlackPawn {
                                 panic!("En passant capture not on black pawn");
                             }
                             self.remove_piece(to_remove_idx)
@@ -674,36 +684,27 @@ impl<'a> Board<'a> {
                                 north(target_square.bits())
                                     .expect("En passant cannot be on rank 8"),
                             );
-                            if self.piece_at(to_remove_idx) != PIECE::WhitePawn {
+                            if self.piece_at_index(to_remove_idx) != PIECE::WhitePawn {
                                 panic!("En passant capture not on white pawn");
                             }
                             self.remove_piece(to_remove_idx)
                         }
                     }
-                    // println!("Board:\n{}", self);
                 }
 
-                // updating castling rights for king moves
-                if source_piece == PIECE::WhiteKing {
-                    self.castling_rights.white_kingside = false;
-                    self.castling_rights.white_queenside = false;
-                } else if source_piece == PIECE::BlackKing {
-                    self.castling_rights.black_kingside = false;
-                    self.castling_rights.black_queenside = false;
+                // updating castling rights for non-castle king moves
+                if source_piece.piece_type() == PieceType::KING {
+                    self.castling_rights.remove_color(source_color);
                 }
 
-                // updating castling rights for rook moves
-                if source_piece == PIECE::WhiteRook {
-                    if source_square == SQUARE::A1 {
-                        self.castling_rights.white_queenside = false;
-                    } else if source_square == SQUARE::H1 {
-                        self.castling_rights.white_kingside = false;
-                    }
-                } else if source_piece == PIECE::BlackRook {
-                    if source_square == SQUARE::A8 {
-                        self.castling_rights.black_queenside = false;
-                    } else if source_square == SQUARE::H8 {
-                        self.castling_rights.black_kingside = false;
+                // updating castling rights for non-castle rook moves
+                if source_piece.piece_type() == PieceType::ROOK {
+                    match source_square {
+                        SQUARE::A1 => self.castling_rights.set(CASTLE::WhiteQueenside, false),
+                        SQUARE::H1 => self.castling_rights.set(CASTLE::WhiteKingside, false),
+                        SQUARE::A8 => self.castling_rights.set(CASTLE::BlackQueenside, false),
+                        SQUARE::H8 => self.castling_rights.set(CASTLE::BlackKingside, false),
+                        _ => {}
                     }
                 }
             }
@@ -717,14 +718,152 @@ impl<'a> Board<'a> {
 
         // change to_move
         self.to_move = self.to_move.opposite();
-        // println!("board after move\n{}", self);
+
+        // check if board in a state where A1 is empty, but castling rights on wq are still set
+        if self.castling_rights.get(CASTLE::WhiteQueenside) {
+            if self.piece_at(SQUARE::A1) != PIECE::WhiteRook {
+                panic!(
+                    "White queenside castling rights set but no rook on A1! Board:\n{}",
+                    self
+                );
+            }
+        }
     }
 
-    // This is a special functiont hat allows us to make any move specified by the Move struct
-    // This exists so that we can easily unmake moves when we are checking if the king is in check
-    // That way we don't have to make a board copy every time we want to check if a move is valid (in move validator)
-    pub fn unmake_move(_move: Move) {
-        todo!();
+    // This is a special function that allows us to make any move specified by the Move struct
+    // This exists so that we can easily unmake moves when we are checking if the king is in check and for recursive perft testing
+    // That way we don't have to make a board copy every time we want to check if a move is valid or when we do a layer of recursion
+    pub fn unmake_move(&mut self, _move: Move) {
+        self.move_history.pop();
+        let source = _move.source;
+        let target = _move.target;
+        let source_piece = self.piece_at(source);
+        let target_piece = self.piece_at(target);
+        let just_moved_color = target_piece.color().expect("Invalid source piece");
+        let captured_piece = _move.capture;
+        let promotion = _move.promotion;
+        let en_passant = _move.en_passant;
+        let castling = _move.castling;
+
+        // move the piece back
+        self.add_piece(source.index(), target_piece);
+        self.remove_piece(target.index());
+
+        // if non-enpassant capture, add the captured piece back to the board
+        if captured_piece.is_some() && !en_passant {
+            self.add_piece(target.index(), captured_piece.unwrap());
+        }
+
+        // if en passant, add the captured pawn back to the board
+        if en_passant {
+            match just_moved_color {
+                COLOR::WHITE => {
+                    let en_passant_target = bits_to_index(
+                        south(target.bits()).expect("En passant cannot be on rank 1"),
+                    );
+                    self.add_piece(en_passant_target, PIECE::BlackPawn);
+                }
+                COLOR::BLACK => {
+                    let en_passant_target = bits_to_index(
+                        north(target.bits()).expect("En passant cannot be on rank 8"),
+                    );
+                    self.add_piece(en_passant_target, PIECE::WhitePawn);
+                }
+            }
+        }
+
+        // if promotion, demote the piece back to a pawn
+        if promotion.is_some() {
+            self.remove_piece(source.index());
+            self.add_piece(source.index(), PieceType::PAWN.for_color(just_moved_color));
+        }
+
+        // if castling, move the rook back
+        match castling {
+            Some(CASTLE::WhiteKingside) => {
+                self.remove_piece(SQUARE::F1.index());
+                self.add_piece(SQUARE::H1.index(), PIECE::WhiteRook);
+            }
+            Some(CASTLE::WhiteQueenside) => {
+                self.remove_piece(SQUARE::D1.index());
+                self.add_piece(SQUARE::A1.index(), PIECE::WhiteRook);
+            }
+            Some(CASTLE::BlackKingside) => {
+                self.remove_piece(SQUARE::F8.index());
+                self.add_piece(SQUARE::H8.index(), PIECE::BlackRook);
+            }
+            Some(CASTLE::BlackQueenside) => {
+                self.remove_piece(SQUARE::D8.index());
+                self.add_piece(SQUARE::A8.index(), PIECE::BlackRook);
+            }
+            None => {}
+        }
+
+        // give castling rights if castling was undone
+        // We have to be careful to only give back the rights that were recently removed
+        // This is because it could be the case that one rook moved somewhere and then back to orig square
+        if castling.is_some() {
+            match just_moved_color {
+                COLOR::WHITE => {
+                    if self.castling_rights.recently_removed[CASTLE::WhiteKingside as usize] {
+                        self.castling_rights.set(CASTLE::WhiteKingside, true);
+                    }
+                    if self.castling_rights.recently_removed[CASTLE::WhiteQueenside as usize] {
+                        self.castling_rights.set(CASTLE::WhiteQueenside, true);
+                    }
+                }
+                COLOR::BLACK => {
+                    if self.castling_rights.recently_removed[CASTLE::BlackKingside as usize] {
+                        self.castling_rights.set(CASTLE::BlackKingside, true);
+                    }
+                    if self.castling_rights.recently_removed[CASTLE::BlackQueenside as usize] {
+                        self.castling_rights.set(CASTLE::BlackQueenside, true);
+                    }
+                }
+            }
+        }
+
+        // If one or more of our castlingrights were recently removed, give them back
+        // Then set the recently removed flag for current color to false
+        match just_moved_color {
+            COLOR::WHITE => {
+                for i in 0..=1 {
+                    if self.castling_rights.recently_removed[i] {
+                        self.castling_rights.set_index(i, true);
+                    }
+                }
+            }
+            COLOR::BLACK => {
+                for i in 2..=3 {
+                    if self.castling_rights.recently_removed[i] {
+                        self.castling_rights.set_index(i, true);
+                    }
+                }
+            }
+        }
+
+        // if pawn was not moved or piece was not captured, increment halfmove clock
+        if source_piece.piece_type() != PieceType::PAWN
+            || captured_piece.is_none() && self.halfmove_clock > 0
+        {
+            self.halfmove_clock -= 1;
+        }
+
+        if self.to_move == COLOR::WHITE {
+            self.fullmove_number -= 1;
+        }
+
+        self.to_move = self.to_move.opposite();
+
+        // check if board in a state where A1 is empty, but castling rights on wq are still set
+        if self.castling_rights.get(CASTLE::WhiteQueenside) {
+            if self.piece_at(SQUARE::A1) != PIECE::WhiteRook {
+                panic!(
+                    "UNMAKED White queenside castling rights set but no rook on A1! Board:\n{}. Unmake move: {}",
+                    self, _move
+                );
+            }
+        }
     }
 
     // ---------------------------------------------
@@ -765,6 +904,8 @@ impl<'a> Board<'a> {
             if m.promotion.is_some() {
                 promotions += 1;
             }
+
+            // self.make_move(*m);
             let mut board = self.clone();
             board.make_move(*m);
             if MoveValidator::in_check(&board, COLOR::WHITE)
@@ -773,6 +914,7 @@ impl<'a> Board<'a> {
                 checks += 1;
             }
             let (n, c, ca, en, pro, ch) = board.perft(depth - 1, max_depth, move_counter);
+            // self.unmake_move(*m);
             nodes += n;
             captures += c;
             castles += ca;
@@ -805,7 +947,7 @@ impl Display for Board<'_> {
                 let file_index = file as usize;
                 let index = rank_index * 8 + file_index;
 
-                let piece = self.piece_at(index);
+                let piece = self.piece_at_index(index);
 
                 let c = match piece.not_empty() {
                     true => piece as u8 as char,
@@ -820,6 +962,12 @@ impl Display for Board<'_> {
         }
 
         writeln!(f, "  a b c d e f g h")?;
+
+        // print move history
+        write!(f, "Move history: ")?;
+        for (m) in self.move_history.iter() {
+            write!(f, "{} ", m)?;
+        }
 
         Ok(())
     }
