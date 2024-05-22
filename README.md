@@ -42,3 +42,5 @@ Plan for refactoring
 - propagate errors properly instead of just unwrapping everything. use a logging crate to log errors and debug information at different levels. Save it to a logfile.
 - Memory/time/cpu benchmarking and profiling for each function (probably some crate exists for this)
 - go through all function names for major structs and make sure they're named well. ensure consistency with variable names and shorten function bodies to be more readable when necessary.
+- Some better comments/documentation/example diagrams for the really nitty grit bitshifting mechanics. Plus a nice detailed markdown page or comment description of magic bitboards.
+- Save generated magic numbers to cache file and load them from there if they exist.

@@ -1,6 +1,13 @@
-use crate::*;
+mod generator;
 
-#[derive(Debug, Clone)]
+use crate::bitboard::*;
+use crate::enums::*;
+use generator::*;
+use rand::Rng;
+use std::io::{stdout, Write};
+use strum::IntoEnumIterator;
+
+#[derive(Debug)]
 pub struct LookupTable {
     pub pawns: Vec<Vec<u64>>,
     pub knights: Vec<u64>,
@@ -18,7 +25,7 @@ pub struct LookupTable {
 impl LookupTable {
     pub fn new() -> LookupTable {
         print!("Building lookup table...");
-        io::stdout().flush().ok().expect("Could not flush stdout");
+        stdout().flush();
 
         let start = std::time::Instant::now();
         let mut table = LookupTable {
@@ -124,14 +131,9 @@ impl LookupTable {
 
         // iterate over all possible occupancy configurations (2^12 = 4096)
         for occupancy_index in 0..4096 {
-            // println!("\nrook iterate: {}", occupancy_index);
-            // println!("rook binary: {:b}", occupancy_index);
-
             // wrap the occupancy around the square --> first 8 bits are rank, last 8 bits are file
             let rank_bits = occupancy_index >> 6;
             let file_bits = occupancy_index & 0b111111;
-            // print!("rook rank_bits: {:b}\n", rank_bits);
-            // print!("rook file_bits: {:b}\n", file_bits);
 
             // create a bitboard for the occupancy
             let mut bb = Bitboard::new(0);
@@ -167,7 +169,6 @@ impl LookupTable {
             }
 
             rook_occupancies[occupancy_index] = bb.bits();
-            // println!("rook occupancy:\n{}", bb);
         }
 
         rook_occupancies
@@ -178,9 +179,6 @@ impl LookupTable {
 
         // iterate over all possible occupancy configurations (2^12 = 4096)
         for occupancy_index in 0..4096 {
-            // println!("{} bishop iterate: {}", square, occupancy_index);
-            // println!("{} bishop binary: {:b}", square, occupancy_index);
-
             let mut bb = Bitboard::new(0);
             let mut bit_index = 0;
 
@@ -194,7 +192,6 @@ impl LookupTable {
             {
                 topleft += 7;
             }
-            // println!("{} bishop topleft: {}", square, SQUARE::from(topleft));
 
             let mut nw_se = topleft;
 
@@ -206,21 +203,10 @@ impl LookupTable {
                 // incrementally right-shift to check each bit in rank_bits
                 if (occupancy_index >> bit_index & 1 == 1) {
                     bb.set(nw_se);
-                    // println!(
-                    //     "setting: {}, bit index = {}",
-                    //     SQUARE::from(nw_se),
-                    //     bit_index
-                    // );
                 }
                 nw_se -= 7;
                 bit_index += 1;
             }
-
-            // println!(
-            //     "{} bishop iterated down-left to :{}",
-            //     square,
-            //     SQUARE::from(nw_se)
-            // );
 
             // ------------Northeast-Southwest------------
             // find topright edge of square diagonal
@@ -233,8 +219,6 @@ impl LookupTable {
                 topright += 9;
             }
 
-            // println!("{} bishop topright: {}", square, SQUARE::from(topright));
-
             let mut ne_sw = topright;
 
             // now we go down-left until we're at rank1/fileA, setting bits as we go
@@ -245,20 +229,12 @@ impl LookupTable {
                 // incrementally right-shift to check each bit in rank_bits
                 if occupancy_index >> bit_index & 1 == 1 {
                     bb.set(ne_sw);
-                    // println!(
-                    //     "setting: {}, bit index = {}",
-                    //     SQUARE::from(ne_sw),
-                    //     bit_index
-                    // );
                 }
                 ne_sw -= 9;
                 bit_index += 1;
             }
 
             bishop_occupancies[occupancy_index] = bb.bits();
-            // print it
-            // println!("{} bishop iterate: {:b}", square, occupancy_index);
-            // println!("bishop occupancy:\n{}", bb);
         }
 
         bishop_occupancies
@@ -280,9 +256,7 @@ impl LookupTable {
     ) -> bool {
         for occupancy_index in 0..4096 {
             let occupancy = bishop_occupancies[occupancy_index];
-            // println!("occupancy\n: {}", Bitboard::new(occupancy));
-            let moves =
-                LookupTableGenerator::generate_bishop_moves(square, Bitboard::new(occupancy));
+            let moves = Generator::generate_bishop_moves(square, Bitboard::new(occupancy));
 
             // compute this hash: hash = (occupancy * magic_number) >> (64 - 12)
             let hash = (occupancy.wrapping_mul(magic_number) >> (64 - 12)) as usize;
@@ -292,7 +266,6 @@ impl LookupTable {
             let collision = value_at_hash != 0 && value_at_hash != moves.bits();
             if collision {
                 // if a collision occurs then clear array, pick a new magic number and try again
-                // println!("candidate failed: {}", magic_number);
                 self.bishops[square.index()] = vec![0; 4096];
                 return false;
             }
@@ -312,8 +285,7 @@ impl LookupTable {
     ) -> bool {
         for occupancy_index in 0..4096 {
             let occupancy = rook_occupancies[occupancy_index];
-            // println!("occupancy\n: {}", Bitboard::new(occupancy));
-            let moves = LookupTableGenerator::generate_rook_moves(square, Bitboard::new(occupancy));
+            let moves = Generator::generate_rook_moves(square, Bitboard::new(occupancy));
 
             // compute this hash: hash = (occupancy * magic_number) >> (64 - 12)
             let hash = (occupancy.wrapping_mul(magic_number) >> (64 - 12)) as usize;
@@ -324,7 +296,6 @@ impl LookupTable {
 
             if collision {
                 // if a collision occurs then clear array, pick a new magic number and try again
-                // println!("candidate failed: {}", magic_number);
                 self.rooks[square.index()] = vec![0; 4096];
                 return false;
             }
@@ -342,18 +313,18 @@ impl LookupTable {
 
     pub fn build_pawn_moves(&mut self, square: SQUARE) {
         for color in COLOR::iter() {
-            let moves = LookupTableGenerator::generate_pawn_moves(square, color);
+            let moves = Generator::generate_pawn_moves(square, color);
             self.pawns[color.index()][square.index()] = moves.bits();
         }
     }
 
     pub fn build_king_moves(&mut self, square: SQUARE) {
-        let moves = LookupTableGenerator::generate_king_moves(square);
+        let moves = Generator::generate_king_moves(square);
         self.kings[square.index()] = moves.bits();
     }
 
     pub fn build_knight_moves(&mut self, square: SQUARE) {
-        let moves = LookupTableGenerator::generate_knight_moves(square);
+        let moves = Generator::generate_knight_moves(square);
         self.knights[square.index()] = moves.bits();
     }
 
@@ -370,6 +341,7 @@ impl LookupTable {
 
         while !magic_found {
             magic_number = self.generate_magic_number();
+
             // validating simultaneously validates the magic number and computing the moves for each occupancy
             magic_found =
                 self.validate_bishop_magic_number(magic_number, &bishop_occupancies, square)
@@ -387,6 +359,7 @@ impl LookupTable {
 
         while !magic_found {
             magic_number = self.generate_magic_number();
+
             // validationg simultaneously validates the magic number and computing the moves for each occupancy
             magic_found = self.validate_rook_magic_number(magic_number, &rook_occupancies, square)
         }

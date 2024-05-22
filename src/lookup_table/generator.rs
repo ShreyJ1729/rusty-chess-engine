@@ -1,16 +1,13 @@
-use crate::*;
-
-use super::enums::COLOR;
+use crate::{bitboard::*, enums::*, helpers::*};
 
 #[derive(Debug, Clone, Copy)]
-pub struct LookupTableGenerator {}
+pub struct Generator {}
 
-impl LookupTableGenerator {
+impl Generator {
     // --------------------------------------------------
     // ------------------- PAWN MOVES -------------------
     // --------------------------------------------------
 
-    // todo add en passant and promotion
     pub fn generate_pawn_moves(square: SQUARE, color: COLOR) -> Bitboard {
         let source = square.bits();
 
@@ -52,7 +49,6 @@ impl LookupTableGenerator {
     // ------------------ LEAPING MOVES ------------------
     // ---------------------------------------------------
 
-    // todo add castling
     pub fn generate_king_moves(square: SQUARE) -> Bitboard {
         let source = square.bits();
 
@@ -192,10 +188,5 @@ impl LookupTableGenerator {
         }
 
         Bitboard::new(targets)
-    }
-
-    pub fn generate_queen_moves(square: SQUARE, occupancy: Bitboard) -> Bitboard {
-        Self::generate_rook_moves(square, occupancy)
-            | Self::generate_bishop_moves(square, occupancy)
     }
 }

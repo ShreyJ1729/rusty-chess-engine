@@ -1,4 +1,4 @@
-use crate::*;
+use crate::enums::*;
 
 macro_rules! ternary {
     ($c:expr, $v:expr, $v1:expr) => {

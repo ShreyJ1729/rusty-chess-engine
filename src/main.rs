@@ -1,26 +1,17 @@
-use crate::{
-    args::*, bitboard::*, board::*, enums::*, helpers::*, lookip_table_gen::*, lookup_table::*,
-    move_validator::*, r#move::*,
-};
-use rand::Rng;
-use std::collections::HashMap;
-use std::fmt::{Display, Formatter, Result};
-use std::io;
-use std::io::prelude::*;
-use std::ops::*;
-use strum::IntoEnumIterator;
-use strum_macros::Display;
-use strum_macros::EnumIter;
-
 mod args;
 mod bitboard;
 mod board;
 mod enums;
 mod helpers;
-mod lookip_table_gen;
 mod lookup_table;
 mod r#move;
 mod move_validator;
+
+use args::*;
+use board::*;
+use lookup_table::*;
+use std::collections::HashMap;
+use std::io::{Read, Write};
 
 fn main() {
     let args = Args::parse_args();

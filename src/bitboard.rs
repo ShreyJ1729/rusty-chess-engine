@@ -1,4 +1,7 @@
-use crate::*;
+use crate::enums::*;
+use std::fmt::{Display, Formatter, Result};
+use std::ops::*;
+use strum::IntoEnumIterator;
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Bitboard {
@@ -73,7 +76,7 @@ impl Bitboard {
 
 // Bitwise operators
 
-impl std::ops::BitOr for Bitboard {
+impl BitOr for Bitboard {
     type Output = Bitboard;
 
     fn bitor(self, rhs: Bitboard) -> Bitboard {
@@ -83,7 +86,7 @@ impl std::ops::BitOr for Bitboard {
     }
 }
 
-impl std::ops::BitXor for Bitboard {
+impl BitXor for Bitboard {
     type Output = Bitboard;
 
     fn bitxor(self, rhs: Bitboard) -> Bitboard {
@@ -93,7 +96,7 @@ impl std::ops::BitXor for Bitboard {
     }
 }
 
-impl std::ops::BitAnd for Bitboard {
+impl BitAnd for Bitboard {
     type Output = Bitboard;
 
     fn bitand(self, rhs: Bitboard) -> Bitboard {
@@ -103,19 +106,19 @@ impl std::ops::BitAnd for Bitboard {
     }
 }
 
-impl std::ops::BitOrAssign for Bitboard {
+impl BitOrAssign for Bitboard {
     fn bitor_assign(&mut self, rhs: Bitboard) {
         self.bits |= rhs.bits;
     }
 }
 
-impl std::ops::BitXorAssign for Bitboard {
+impl BitXorAssign for Bitboard {
     fn bitxor_assign(&mut self, rhs: Bitboard) {
         self.bits ^= rhs.bits;
     }
 }
 
-impl std::ops::BitAndAssign for Bitboard {
+impl BitAndAssign for Bitboard {
     fn bitand_assign(&mut self, rhs: Bitboard) {
         self.bits &= rhs.bits;
     }

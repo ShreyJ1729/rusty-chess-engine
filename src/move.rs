@@ -1,4 +1,5 @@
-use crate::*;
+use crate::enums::*;
+use std::fmt::{Display, Formatter};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Move {
@@ -38,6 +39,7 @@ impl Display for Move {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let out = format!("{}{}", self.source, self.target);
         write!(f, "{}", out.to_ascii_lowercase())?;
+
         if let Some(promotion) = self.promotion {
             let promotion = match promotion {
                 PieceType::QUEEN => "q",
@@ -47,18 +49,8 @@ impl Display for Move {
                 _ => panic!("Invalid promotion"),
             };
             write!(f, "{}", promotion)?;
-        }
-        // write!(f, " (")?;
-        // if let Some(castling) = self.castling {
-        //     write!(f, " Castling: {}", castling)?;
-        // }
-        // if let Some(capture) = self.capture {
-        //     write!(f, " Capture: {}", capture)?;
-        // }
-        // if self.en_passant {
-        //     write!(f, " En Passant")?;
-        // }
-        // write!(f, ")")?;
+        };
+
         Ok(())
     }
 }
