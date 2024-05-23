@@ -729,50 +729,41 @@ impl<'a> Board<'a> {
         &mut self,
         depth: u8,
         max_depth: u8,
+        parent_move: Option<Move>,
         move_counter: &mut HashMap<String, u64>,
     ) -> (u64, u64, u64, u64, u64, u64) {
-        if depth == 0 {
-            return (1, 0, 0, 0, 0, 0);
-        }
-
         let mut nodes = 0;
         let mut captures = 0;
-        let mut castles = 0;
         let mut en_passants = 0;
+        let mut castles = 0;
         let mut promotions = 0;
         let mut checks = 0;
+
+        if depth == 0 {
+            if let Some(pm) = parent_move {
+                captures += (pm.capture.is_some() | pm.en_passant) as u64;
+                en_passants += pm.en_passant as u64;
+                castles += pm.castling.is_some() as u64;
+                promotions += pm.promotion.is_some() as u64;
+                checks += MoveValidator::either_color_in_check(self) as u64;
+
+                return (1, captures, en_passants, castles, promotions, checks);
+            }
+
+            return (1, 0, 0, 0, 0, 0);
+        }
 
         let moves = self.generate_moves_for_color(self.to_move);
 
         // enumerate m and idx for moves
         for (i, m) in moves.iter().enumerate() {
-            if m.capture.is_some() {
-                captures += 1;
-            }
-            if m.castling.is_some() {
-                castles += 1;
-            }
-            if m.en_passant {
-                en_passants += 1;
-            }
-            if m.promotion.is_some() {
-                promotions += 1;
-            }
-
-            // self.make_move(*m);
             let mut board = self.clone();
             board.make_move(*m);
-            if MoveValidator::in_check(&board, COLOR::WHITE)
-                || MoveValidator::in_check(&board, COLOR::BLACK)
-            {
-                checks += 1;
-            }
-            let (n, c, ca, en, pro, ch) = board.perft(depth - 1, max_depth, move_counter);
-            // self.unmake_move(*m);
+            let (n, c, ca, en, pro, ch) = board.perft(depth - 1, max_depth, Some(*m), move_counter);
             nodes += n;
             captures += c;
-            castles += ca;
             en_passants += en;
+            castles += ca;
             promotions += pro;
             checks += ch;
 
@@ -781,7 +772,7 @@ impl<'a> Board<'a> {
                 move_counter.insert(m.to_string(), n);
             }
         }
-        (nodes, captures, castles, en_passants, promotions, checks)
+        (nodes, captures, en_passants, castles, promotions, checks)
     }
 }
 

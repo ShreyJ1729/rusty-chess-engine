@@ -138,6 +138,10 @@ impl MoveValidator {
         true
     }
 
+    pub fn either_color_in_check(board: &Board) -> bool {
+        Self::in_check(board, COLOR::WHITE) || Self::in_check(board, COLOR::BLACK)
+    }
+
     pub fn in_check(board: &Board, color: COLOR) -> bool {
         let king_square = SQUARE::from_bits(match color {
             COLOR::WHITE => board.white_king.bits(),

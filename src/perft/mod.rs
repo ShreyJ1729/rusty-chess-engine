@@ -16,14 +16,14 @@ pub fn run(depth: u8, fen: String) {
     let start = std::time::Instant::now();
 
     let (nodes, captures, castles, enpassants, promotions, checks) =
-        board.perft(depth, depth, &mut rusty_perft);
+        board.perft(depth, depth, None, &mut rusty_perft);
 
     let elapsed = start.elapsed().as_secs_f64();
 
     println!("--------------------------------------------------------------------");
     println!(
-        "Computed for depth={}:\nNodes: {}, Captures: {}, Castles: {}, Enpassants: {}, Promotions: {}, Checks: {}",
-        depth, nodes.separate_with_commas(), captures.separate_with_commas(), castles.separate_with_commas(), enpassants.separate_with_commas(), promotions.separate_with_commas(), checks.separate_with_commas(),
+        "Computed for depth={}:\nNodes: {}, Captures: {}, Enpassants: {}, Castles: {}, Promotions: {}, Checks: {}",
+        depth, nodes.separate_with_commas(), captures.separate_with_commas(), enpassants.separate_with_commas(), castles.separate_with_commas(), promotions.separate_with_commas(), checks.separate_with_commas(),
     );
     println!(
         "Finished in {:.2} seconds at {} nodes/second",

@@ -35,6 +35,5 @@ pub fn get_perft_results(depth: u8, fen: String) -> HashMap<String, u64> {
         let count = split.next().unwrap().trim().parse::<u64>().unwrap();
         stockfish_perft.insert(move_str.to_string(), count);
     }
-
     stockfish_perft
 }
