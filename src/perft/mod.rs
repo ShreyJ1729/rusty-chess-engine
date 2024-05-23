@@ -1,9 +1,6 @@
-mod stockfish;
-
-use crate::{
-    board::*,
-    lookup_table::{self, *},
-};
+use crate::{board::*, lookup_table::*};
+use ascii_table::AsciiTable;
+use core::ascii;
 use std::collections::HashMap;
 use thousands::Separable;
 
@@ -47,7 +44,7 @@ pub fn run_perft_tests(max_depth: u8) {
     let lookup_table = LookupTable::new();
     let perft_table = load_perft_table("perft.csv");
 
-    println!("len: {}", perft_table.len());
+    let mut all_pass = true;
 
     for row in perft_table {
         // All rows have these fields
@@ -68,104 +65,109 @@ pub fn run_perft_tests(max_depth: u8) {
         let _checks = row.1.get(5).copied().flatten();
         let _checkmates = row.1.get(6).copied().flatten();
 
-        let (pass, nodes, captures, enp, castles, promo, checks) =
-            run_fen(fen, depth, &lookup_table);
+        let (elapsed, nodes, captures, enp, castles, promo, checks, checkmates) =
+            run_fen(fen.clone(), depth, &lookup_table);
 
-        print!("Nodes: {} | ", if pass { PASS } else { FAIL });
+        println!("{}", "-".repeat(80));
+        println!("{}\nDepth = {}", fen, depth);
+        println!("Metric \t\t Calculated \t Expected");
+        println!("------ \t\t ---------- \t --------");
+
+        let (mut n_pass, mut c_pass, mut enp_pass, mut ca_pass, mut p_pass, mut ch_pass) =
+            (true, true, true, true, true, true);
+
+        n_pass = nodes == _nodes.unwrap();
+        println!(
+            "Nodes:\t\t {} \t\t {} \t\t {}",
+            nodes,
+            _nodes.unwrap(),
+            if n_pass { PASS } else { FAIL },
+        );
 
         if let Some(_captures) = _captures {
-            print!(
-                "Captures: {} | ",
-                if captures == _captures { PASS } else { FAIL }
+            c_pass = captures == _captures;
+            println!(
+                "Captures:\t {} \t\t {} \t\t {}",
+                captures,
+                _captures,
+                if c_pass { PASS } else { FAIL },
             );
         }
         if let Some(_enp) = _enp {
-            print!("Enpassants: {} | ", if enp == _enp { PASS } else { FAIL });
+            let enp_pass = enp == _enp;
+            println!(
+                "Enpassants:\t {} \t\t {} \t\t {}",
+                enp,
+                _enp,
+                if enp_pass { PASS } else { FAIL },
+            );
         }
         if let Some(_castles) = _castles {
-            print!(
-                "Castles: {} | ",
-                if castles == _castles { PASS } else { FAIL }
+            ca_pass = castles == _castles;
+            println!(
+                "Castles:\t {} \t\t {} \t\t {}",
+                castles,
+                _castles,
+                if ca_pass { PASS } else { FAIL },
             );
         }
         if let Some(_promo) = _promo {
-            print!(
-                "Promotions: {} | ",
-                if promo == _promo { PASS } else { FAIL }
+            p_pass = promo == _promo;
+            println!(
+                "Promotions:\t {} \t\t {} \t\t {}",
+                promo,
+                _promo,
+                if p_pass { PASS } else { FAIL },
             );
         }
         if let Some(_checks) = _checks {
-            print!("Checks: {} | ", if checks == _checks { PASS } else { FAIL });
-        }
-        if let Some(_checkmates) = _checkmates {
-            print!(
-                "Checkmates: {}",
-                if nodes == _checkmates { PASS } else { FAIL }
+            ch_pass = checks == _checks;
+            println!(
+                "Checks:\t\t {} \t\t {} \t\t {}",
+                checks,
+                _checks,
+                if ch_pass { PASS } else { FAIL },
             );
         }
-        println!();
+        if let Some(_checkmates) = _checkmates {
+            let ch_pass = checkmates == _checkmates;
+            println!(
+                "Checkmates:\t {} \t\t {} \t\t {}",
+                checkmates,
+                _checkmates,
+                if ch_pass { PASS } else { FAIL },
+            );
+        }
+
+        if !(n_pass && c_pass && enp_pass && ca_pass && p_pass && ch_pass) {
+            all_pass = false;
+        }
+
+        println!(
+            "\nFinished in {:.2} seconds at {} nodes/second",
+            elapsed,
+            ((nodes as f64 / elapsed) as i32).separate_with_commas()
+        );
     }
+
+    println!("{}", "-".repeat(80));
+    println!("All tests passed: {}", if all_pass { PASS } else { FAIL });
 }
 
 pub fn run_fen(
     fen: String,
     depth: u8,
     lookup_table: &LookupTable,
-) -> (bool, u64, u64, u64, u64, u64, u64) {
+) -> (f64, u64, u64, u64, u64, u64, u64, u64) {
     let mut board = Board::from_fen(&fen, &lookup_table);
-
-    let mut rusty_perft = HashMap::new();
-    let stockfish_perft = stockfish::get_perft_results(depth, board.to_fen());
-
     let start = std::time::Instant::now();
-    let (nodes, captures, enpassants, castles, promotions, checks) =
-        board.perft(depth, depth, None, &mut rusty_perft);
+
+    let (nodes, captures, enpassants, castles, promotions, checks, checkmates) =
+        board.perft(depth, depth, None);
+
     let elapsed = start.elapsed().as_secs_f64();
 
-    println!("--------------------------------------------------------------------");
-    println!(
-        "depth={} for {}:\nNodes: {}, Captures: {}, Enpassants: {}, Castles: {}, Promotions: {}, Checks: {}",
-        depth, fen, nodes.separate_with_commas(), captures.separate_with_commas(), enpassants.separate_with_commas(), castles.separate_with_commas(), promotions.separate_with_commas(), checks.separate_with_commas(),
-    );
-    println!(
-        "Finished in {:.2} seconds at {} nodes/second",
-        elapsed,
-        ((nodes as f64 / elapsed) as i32).separate_with_commas()
-    );
-    println!("--------------------------------------------------------------------");
-
-    // now we compare the two maps
-    let mut total = 0;
-    let mut pass = true;
-
-    // ensure stockfish moves are in computed moves
-    for (key, value) in &stockfish_perft {
-        total += value;
-        if let Some(rusty_value) = rusty_perft.get(key) {
-            if *value != *rusty_value {
-                println!(
-                    "Mismatch for {}, stockfish: {}, rusty: {}, diff: {}",
-                    key,
-                    value,
-                    rusty_value,
-                    *rusty_value as i32 - *value as i32
-                );
-                pass = false;
-            }
-        } else {
-            println!("{} not found in rusty_perft", key);
-            pass = false;
-        }
-    }
-    // ensure no moves are in computed moves that aren't in stockfish moves
-    for (key, value) in &rusty_perft {
-        if !stockfish_perft.contains_key(key) {
-            println!("{}: {} not found in stockfish_perft", key, value);
-            pass = false;
-        }
-    }
-
     (
-        pass, nodes, captures, enpassants, castles, promotions, checks,
+        elapsed, nodes, captures, enpassants, castles, promotions, checks, checkmates,
     )
 }

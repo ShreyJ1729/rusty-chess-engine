@@ -722,6 +722,12 @@ impl<'a> Board<'a> {
         self.to_move = self.to_move.opposite();
     }
 
+    // is to_move player in checkmate?
+    pub fn in_checkmate(&self) -> bool {
+        let moves = self.generate_moves_for_color(self.to_move);
+        moves.is_empty() && MoveValidator::in_check(&self, self.to_move)
+    }
+
     // ---------------------------------------------
     // ------------------ PERFT --------------------
     // ---------------------------------------------
@@ -731,14 +737,14 @@ impl<'a> Board<'a> {
         depth: u8,
         max_depth: u8,
         parent_move: Option<Move>,
-        move_counter: &mut HashMap<String, u64>,
-    ) -> (u64, u64, u64, u64, u64, u64) {
+    ) -> (u64, u64, u64, u64, u64, u64, u64) {
         let mut nodes = 0;
         let mut captures = 0;
         let mut en_passants = 0;
         let mut castles = 0;
         let mut promotions = 0;
         let mut checks = 0;
+        let mut checkmates = 0;
 
         // Only count leaf nodes
         if depth == 0 {
@@ -748,36 +754,60 @@ impl<'a> Board<'a> {
                 castles += pm.castling.is_some() as u64;
                 promotions += pm.promotion.is_some() as u64;
                 checks += MoveValidator::either_color_in_check(self) as u64;
+                if checks > 0 {
+                    checkmates += self.in_checkmate() as u64;
+                }
 
-                return (1, captures, en_passants, castles, promotions, checks);
+                return (
+                    1,
+                    captures,
+                    en_passants,
+                    castles,
+                    promotions,
+                    checks,
+                    checkmates,
+                );
             }
 
-            return (1, 0, 0, 0, 0, 0);
+            return (1, 0, 0, 0, 0, 0, 0);
         }
 
         let moves = self.generate_moves_for_color(self.to_move);
+
+        if depth == max_depth {
+            print!("(0/{}) |>{}|\r", moves.len(), " ".repeat(moves.len()));
+            std::io::stdout().flush().unwrap();
+        }
 
         for (i, m) in moves.iter().enumerate() {
             let mut board = self.clone();
             board.make_move(*m);
 
-            let (n, c, ca, en, pro, ch) = board.perft(depth - 1, max_depth, Some(*m), move_counter);
+            let (n, c, en, ca, pro, ch, cm) = board.perft(depth - 1, max_depth, Some(*m));
             nodes += n;
             captures += c;
             en_passants += en;
             castles += ca;
             promotions += pro;
             checks += ch;
+            checkmates += cm;
 
             if depth == max_depth {
                 let progress = "=".repeat((i + 1) as usize);
                 let empty = " ".repeat(moves.len() - i - 1);
                 print!("({}/{}) |{}>{}|\r", i + 1, moves.len(), progress, empty);
                 std::io::stdout().flush().unwrap();
-                move_counter.insert(m.to_string(), n);
             }
         }
-        (nodes, captures, en_passants, castles, promotions, checks)
+        (
+            nodes,
+            captures,
+            en_passants,
+            castles,
+            promotions,
+            checks,
+            checkmates,
+        )
     }
 }
 

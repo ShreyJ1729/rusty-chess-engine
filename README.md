@@ -7,7 +7,7 @@ A work in progress chess engine written in Rust.
 ### CLI
 
 ```bash
-cargo run --release -- --mode=[perft|uci|bestmove] --depth=[depth] --fen="[fen]"
+cargo run --release -- --max_depth=[depth] --fen="[fen]"
 ```
 
 ## Overview
@@ -16,21 +16,16 @@ cargo run --release -- --mode=[perft|uci|bestmove] --depth=[depth] --fen="[fen]"
 
 - [x] BitBoard representation
 - [x] FEN parsing
-- [x] Move generation
-- - [x] Move generation for leap pieces (knight, king)
-- - [x] Magic number move generation for sliding pieces (bishop, rook, queen)
-- - [x] Move generation for pawns (double move, capture, and promotion)
-- - [x] Move generation for castling and en passant
-- [x] Move validation - is the move legal? (friendly capture or king in check)
-- [] Endgame Detection (checkmate, stalemate, insufficient material, repetition, 50 move rule) + perft
-- [] Perft testing
-- - [x] Node count
-- - [] Stratified among captures, en passants, promotions, checks, and checkmates using precalculated tables from chessprogramming wiki
+- [x] Move generation with magic bitboards
+- [] Endgame Detection (checkmate, stalemate, insufficient material, repetition, 50 move rule)
+- [] Perft testing suite (all left is checkmate detection)
 - [] Unmake move
 - [] Testing and metrics for each function
 - - [] memory(jemalloc)
 - - [] time
 - - [] cpu
+- CLI using UCI protocol
+- GUI using bevy game engine
 
 ## Resources:
 
@@ -39,14 +34,8 @@ cargo run --release -- --mode=[perft|uci|bestmove] --depth=[depth] --fen="[fen]"
 
 Plan for refactoring
 
-done:
-
-- figure out new file structure and separate out files with many structs and enums
-- Save generated magic numbers to cache file and load them from there if they exist.
-
 todo:
 
-- testing suite with precalculated stratified perft tables from chess programming wiki https://www.chessprogramming.org/Perft_Results
 - Memory/time/cpu benchmarking and profiling for each function (probably some crate exists for this)
 - propagate errors properly instead of just unwrapping everything. use a logging crate to log errors and debug information at different levels. Save it to a logfile.
 

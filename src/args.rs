@@ -19,8 +19,8 @@ pub struct Args {
     )]
     pub fen: String,
 
-    #[arg(short, long, default_value_t = 5)]
-    pub depth: u8,
+    #[arg(short, long, default_value_t = 6)]
+    pub max_depth: u8,
 
     #[arg(long, default_value_t = true)]
     pub debug: bool,
