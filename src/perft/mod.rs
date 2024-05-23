@@ -40,7 +40,7 @@ pub fn load_perft_table(path: &str) -> HashMap<String, Vec<Option<u64>>> {
     map
 }
 
-pub fn run_perft_tests(max_depth: u8) {
+pub fn run_perft_tests(depth: u8) {
     let lookup_table = LookupTable::new();
     let perft_table = load_perft_table("perft.csv");
 
@@ -49,10 +49,11 @@ pub fn run_perft_tests(max_depth: u8) {
     for row in perft_table {
         // All rows have these fields
         let key = row.0;
-        let depth = key.split('|').next().unwrap().parse::<u8>().unwrap();
+        let _depth = key.split('|').next().unwrap().parse::<u8>().unwrap();
         let fen = key.split('|').nth(1).unwrap().to_string();
 
-        if depth > max_depth {
+        // Skip rows that don't match the requested depth
+        if depth != _depth {
             continue;
         }
 
@@ -66,17 +67,17 @@ pub fn run_perft_tests(max_depth: u8) {
         let _checkmates = row.1.get(6).copied().flatten();
 
         let (elapsed, nodes, captures, enp, castles, promo, checks, checkmates) =
-            run_fen(fen.clone(), depth, &lookup_table);
+            get_perft_result_for_fen(fen.clone(), depth, &lookup_table);
 
         println!("{}", "-".repeat(80));
         println!("{}\nDepth = {}", fen, depth);
         println!("Metric \t\t Calculated \t Expected");
         println!("------ \t\t ---------- \t --------");
 
-        let (mut n_pass, mut c_pass, mut enp_pass, mut ca_pass, mut p_pass, mut ch_pass) =
+        let (mut c_pass, mut enp_pass, mut ca_pass, mut p_pass, mut ch_pass, mut cm_pass) =
             (true, true, true, true, true, true);
 
-        n_pass = nodes == _nodes.unwrap();
+        let n_pass = nodes == _nodes.unwrap();
         println!(
             "Nodes:\t\t {} \t\t {} \t\t {}",
             nodes,
@@ -94,7 +95,7 @@ pub fn run_perft_tests(max_depth: u8) {
             );
         }
         if let Some(_enp) = _enp {
-            let enp_pass = enp == _enp;
+            enp_pass = enp == _enp;
             println!(
                 "Enpassants:\t {} \t\t {} \t\t {}",
                 enp,
@@ -130,16 +131,16 @@ pub fn run_perft_tests(max_depth: u8) {
             );
         }
         if let Some(_checkmates) = _checkmates {
-            let ch_pass = checkmates == _checkmates;
+            cm_pass = checkmates == _checkmates;
             println!(
                 "Checkmates:\t {} \t\t {} \t\t {}",
                 checkmates,
                 _checkmates,
-                if ch_pass { PASS } else { FAIL },
+                if cm_pass { PASS } else { FAIL },
             );
         }
 
-        if !(n_pass && c_pass && enp_pass && ca_pass && p_pass && ch_pass) {
+        if !n_pass || !c_pass || !enp_pass || !ca_pass || !p_pass || !ch_pass || !cm_pass {
             all_pass = false;
         }
 
@@ -154,7 +155,7 @@ pub fn run_perft_tests(max_depth: u8) {
     println!("All tests passed: {}", if all_pass { PASS } else { FAIL });
 }
 
-pub fn run_fen(
+pub fn get_perft_result_for_fen(
     fen: String,
     depth: u8,
     lookup_table: &LookupTable,
@@ -163,7 +164,7 @@ pub fn run_fen(
     let start = std::time::Instant::now();
 
     let (nodes, captures, enpassants, castles, promotions, checks, checkmates) =
-        board.perft(depth, depth, None);
+        board.perft(depth, depth, false);
 
     let elapsed = start.elapsed().as_secs_f64();
 

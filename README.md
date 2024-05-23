@@ -17,7 +17,6 @@ cargo run --release -- --max_depth=[depth] --fen="[fen]"
 - [x] BitBoard representation
 - [x] FEN parsing
 - [x] Move generation with magic bitboards
-- [] Endgame Detection (checkmate, stalemate, insufficient material, repetition, 50 move rule)
 - [] Perft testing suite (all left is checkmate detection)
 - [] Unmake move
 - [] Testing and metrics for each function

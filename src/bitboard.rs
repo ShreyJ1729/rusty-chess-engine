@@ -51,25 +51,15 @@ impl Bitboard {
         Some(lsb as usize)
     }
 
-    pub fn indices(&self) -> Vec<usize> {
-        let mut indices = Vec::new();
-        let mut bits = self.bits;
-        while bits != 0 {
-            let lsb = bits.trailing_zeros();
-            indices.push(lsb as usize);
-            bits &= !(1 << lsb);
-        }
-        indices
-    }
-
-    pub fn get_squares(&self) -> Vec<SQUARE> {
-        self.indices()
-            .iter()
-            .map(|&index| SQUARE::from(index))
-            .collect()
-    }
-
     pub fn any(&self) -> bool {
+        self.bits != 0
+    }
+
+    pub fn empty(&self) -> bool {
+        self.bits == 0
+    }
+
+    pub fn not_empty(&self) -> bool {
         self.bits != 0
     }
 }
