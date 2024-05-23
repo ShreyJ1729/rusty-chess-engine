@@ -3,7 +3,7 @@ use crate::board::Board;
 use crate::enums::*;
 
 impl<'a> Board<'a> {
-    pub fn piece_at(&self, square: SQUARE) -> PIECE {
+    pub fn piece_at_square(&self, square: SQUARE) -> PIECE {
         self.piece_at_index(square.index())
     }
 
@@ -84,23 +84,21 @@ impl<'a> Board<'a> {
 
     pub fn occupancy_of_piece(&self, piece: PIECE) -> Bitboard {
         match piece {
-            PIECE::Empty => !self.occupancy(),
-            _ => {
-                self.occupancy_of_color(piece.color().unwrap())
-                    & self.occupancy_of_piecetype(piece.piece_type())
-            }
-        }
-    }
+            PIECE::WhitePawn => self.white_pawns,
+            PIECE::WhiteKnight => self.white_knights,
+            PIECE::WhiteBishop => self.white_bishops,
+            PIECE::WhiteRook => self.white_rooks,
+            PIECE::WhiteQueen => self.white_queens,
+            PIECE::WhiteKing => self.white_king,
 
-    pub fn occupancy_of_piecetype(&self, piece_type: PieceType) -> Bitboard {
-        match piece_type {
-            PieceType::PAWN => self.white_pawns | self.black_pawns,
-            PieceType::KNIGHT => self.white_knights | self.black_knights,
-            PieceType::BISHOP => self.white_bishops | self.black_bishops,
-            PieceType::ROOK => self.white_rooks | self.black_rooks,
-            PieceType::QUEEN => self.white_queens | self.black_queens,
-            PieceType::KING => self.white_king | self.black_king,
-            PieceType::EMPTY => !self.occupancy(),
+            PIECE::BlackPawn => self.black_pawns,
+            PIECE::BlackKnight => self.black_knights,
+            PIECE::BlackBishop => self.black_bishops,
+            PIECE::BlackRook => self.black_rooks,
+            PIECE::BlackQueen => self.black_queens,
+            PIECE::BlackKing => self.black_king,
+
+            PIECE::Empty => !self.occupancy(),
         }
     }
 }

@@ -39,7 +39,7 @@ impl<'a> Board<'a> {
                 castles += m.castling.is_some() as u64;
                 promotions += m.promotion.is_some() as u64;
                 checks += board.in_check(board.to_move) as u64;
-                checkmates += (board.is_game_over() == Some(ENDGAME::Checkmate)) as u64;
+                checkmates += (board.endgame() == Some(ENDGAME::Checkmate)) as u64;
             } else {
                 let (n, c, en, ca, pro, ch, cm) = board.perft(depth - 1, max_depth, node_only);
                 nodes += n;

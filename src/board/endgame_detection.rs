@@ -33,7 +33,7 @@ impl<'a> Board<'a> {
         false
     }
 
-    pub fn is_game_over(&self) -> Option<ENDGAME> {
+    pub fn endgame(&self) -> Option<ENDGAME> {
         let moves = self.generate_moves_for_color(self.to_move);
         let in_check = self.in_check(self.to_move);
         let no_moves = moves.is_empty();

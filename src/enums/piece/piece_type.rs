@@ -20,7 +20,7 @@ pub enum PieceType {
 }
 
 impl PieceType {
-    pub fn for_color(&self, color: COLOR) -> PIECE {
+    pub fn of_color(&self, color: COLOR) -> PIECE {
         match color {
             COLOR::WHITE => match self {
                 PieceType::PAWN => PIECE::WhitePawn,

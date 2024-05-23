@@ -180,7 +180,7 @@ impl<'a> Board<'a> {
                 match move_.promotion {
                     Some(new_piece) => {
                         self.remove_piece(target_index);
-                        self.add_piece(target_index, new_piece.for_color(source_color));
+                        self.add_piece(target_index, new_piece.of_color(source_color));
                     }
                     None => {}
                 }

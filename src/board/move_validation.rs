@@ -8,8 +8,8 @@ impl<'a> Board<'a> {
         let castling = m.castling;
 
         // Get details of the piece that is moving
-        let source_piece = self.piece_at(source);
-        let target_piece = self.piece_at(target);
+        let source_piece = self.piece_at_square(source);
+        let target_piece = self.piece_at_square(target);
 
         let source_color = source_piece.color().expect("source piece is empty");
         let target_color = target_piece.color();
@@ -52,7 +52,7 @@ impl<'a> Board<'a> {
                 COLOR::WHITE => source.north().unwrap(),
                 COLOR::BLACK => source.south().unwrap(),
             };
-            let intermediate_piece = self.piece_at(intermediate_square);
+            let intermediate_piece = self.piece_at_square(intermediate_square);
             let intermediate_empty = intermediate_piece == PIECE::Empty;
 
             // if target or intermediate square is occupied, return false
@@ -78,19 +78,9 @@ impl<'a> Board<'a> {
             }
         }
 
-        // 6. Invalidate moves where king is under check after move
-        let mut board_copy = self.clone();
-        board_copy.make_move(m);
-
-        if board_copy.in_check(source_color) {
-            return false;
-        }
-
         // 7. Check for castling
         if castling.is_some() {
-            assert!(source_piece.piece_type() == PieceType::KING);
-
-            // no castling if king is in check
+            // No castling out of check
             if self.in_check(source_color) {
                 return false;
             }
@@ -117,19 +107,39 @@ impl<'a> Board<'a> {
 
             match castling {
                 Some(CASTLE::WhiteKingside) => {
-                    return !wkc_blocked && !wkc_attacked && self.castling_rights.white_kingside;
+                    return source_color == COLOR::WHITE
+                        && !wkc_blocked
+                        && !wkc_attacked
+                        && self.castling_rights.white_kingside;
                 }
                 Some(CASTLE::WhiteQueenside) => {
-                    return !wqc_blocked && !wqc_attacked && self.castling_rights.white_queenside;
+                    return source_color == COLOR::WHITE
+                        && !wqc_blocked
+                        && !wqc_attacked
+                        && self.castling_rights.white_queenside;
                 }
                 Some(CASTLE::BlackKingside) => {
-                    return !bkc_blocked && !bkc_attacked && self.castling_rights.black_kingside;
+                    return source_color == COLOR::BLACK
+                        && !bkc_blocked
+                        && !bkc_attacked
+                        && self.castling_rights.black_kingside;
                 }
                 Some(CASTLE::BlackQueenside) => {
-                    return !bqc_blocked && !bqc_attacked && self.castling_rights.black_queenside;
+                    return source_color == COLOR::BLACK
+                        && !bqc_blocked
+                        && !bqc_attacked
+                        && self.castling_rights.black_queenside;
                 }
                 _ => {}
             }
+        }
+
+        // 6. Invalidate moves where king is under check after move
+        let mut board_copy = self.clone();
+        board_copy.make_move(m);
+
+        if board_copy.in_check(source_color) {
+            return false;
         }
 
         true
@@ -180,27 +190,27 @@ impl<'a> Board<'a> {
 
         // if any attacks are on opposite color pieces of same piecetype, the square is under attack
         let under_pawn_attack = (pawn_attacks
-            & self.occupancy_of_piece(PieceType::PAWN.for_color(color.opposite())))
+            & self.occupancy_of_piece(PieceType::PAWN.of_color(color.opposite())))
         .any();
 
         let under_knight_attack = (knight_attacks
-            & self.occupancy_of_piece(PieceType::KNIGHT.for_color(color.opposite())))
+            & self.occupancy_of_piece(PieceType::KNIGHT.of_color(color.opposite())))
         .any();
 
         let under_bishop_attack = (bishop_attacks
-            & self.occupancy_of_piece(PieceType::BISHOP.for_color(color.opposite())))
+            & self.occupancy_of_piece(PieceType::BISHOP.of_color(color.opposite())))
         .any();
 
         let under_rook_attack = (rook_attacks
-            & self.occupancy_of_piece(PieceType::ROOK.for_color(color.opposite())))
+            & self.occupancy_of_piece(PieceType::ROOK.of_color(color.opposite())))
         .any();
 
         let under_queen_attack = (queen_attacks
-            & self.occupancy_of_piece(PieceType::QUEEN.for_color(color.opposite())))
+            & self.occupancy_of_piece(PieceType::QUEEN.of_color(color.opposite())))
         .any();
 
         let under_king_attack = (king_attacks
-            & self.occupancy_of_piece(PieceType::KING.for_color(color.opposite())))
+            & self.occupancy_of_piece(PieceType::KING.of_color(color.opposite())))
         .any();
 
         return under_pawn_attack
@@ -209,9 +219,5 @@ impl<'a> Board<'a> {
             || under_rook_attack
             || under_queen_attack
             || under_king_attack;
-    }
-
-    pub fn filter_valid_moves(&self, moves: &mut Vec<Move>) {
-        moves.retain(|m| self.is_move_valid(*m));
     }
 }
