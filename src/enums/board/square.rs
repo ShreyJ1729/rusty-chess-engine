@@ -213,6 +213,34 @@ impl SQUARE {
     pub fn to_fen(&self) -> String {
         format!("{}{}", self.file().to_fen(), self.rank().to_fen())
     }
+
+    pub fn north(&self) -> Option<SQUARE> {
+        match self.rank() {
+            RANK::Rank8 => None,
+            _ => Some(SQUARE::from(self.index() + 8)),
+        }
+    }
+
+    pub fn south(&self) -> Option<SQUARE> {
+        match self.rank() {
+            RANK::Rank1 => None,
+            _ => Some(SQUARE::from(self.index() - 8)),
+        }
+    }
+
+    pub fn east(&self) -> Option<SQUARE> {
+        match self.file() {
+            FILE::FileH => None,
+            _ => Some(SQUARE::from(self.index() + 1)),
+        }
+    }
+
+    pub fn west(&self) -> Option<SQUARE> {
+        match self.file() {
+            FILE::FileA => None,
+            _ => Some(SQUARE::from(self.index() - 1)),
+        }
+    }
 }
 
 impl From<usize> for SQUARE {

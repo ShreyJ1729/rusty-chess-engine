@@ -20,10 +20,6 @@ impl Move {
         capture: Option<PIECE>,
         en_passant: bool,
     ) -> Move {
-        // can't promote to king or pawn
-        assert_ne!(Some(PieceType::KING), promotion);
-        assert_ne!(Some(PieceType::PAWN), promotion);
-
         Move {
             source,
             target,

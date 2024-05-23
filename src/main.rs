@@ -6,12 +6,12 @@ mod helpers;
 mod lookup_table;
 mod r#move;
 mod move_validator;
+mod stockfish;
 
 use args::*;
 use board::*;
 use lookup_table::*;
 use std::collections::HashMap;
-use std::io::{Read, Write};
 
 fn main() {
     let args = Args::parse_args();
@@ -32,15 +32,13 @@ fn run_perft(depth: u8, fen: String) {
 
     println!("{}", board);
 
-    // hashmap of move --> # nodes for stockfish and rusty
-    let mut rusty_moves = HashMap::new();
-    let stockfish_moves = get_stockfish_perft(depth, board.to_fen());
+    let mut rusty_perft = HashMap::new();
+    let stockfish_perft = stockfish::get_perft_results(depth, board.to_fen());
 
     let start = std::time::Instant::now();
 
-    // run perft
     let (nodes, captures, castles, enpassants, promotions, checks) =
-        board.perft(depth, depth, &mut rusty_moves);
+        board.perft(depth, depth, &mut rusty_perft);
 
     let elapsed = start.elapsed().as_secs_f64();
 
@@ -61,9 +59,9 @@ fn run_perft(depth: u8, fen: String) {
     let mut pass = true;
 
     // ensure stockfish moves in computed moves
-    for (key, value) in &stockfish_moves {
+    for (key, value) in &stockfish_perft {
         total += value;
-        if let Some(rusty_value) = rusty_moves.get(key) {
+        if let Some(rusty_value) = rusty_perft.get(key) {
             if *value != *rusty_value {
                 println!(
                     "Mismatch for {}, stockfish: {}, rusty: {}, diff: {}",
@@ -75,14 +73,14 @@ fn run_perft(depth: u8, fen: String) {
                 pass = false;
             }
         } else {
-            println!("{} not found in rusty_moves", key);
+            println!("{} not found in rusty_perft", key);
             pass = false;
         }
     }
     // ensure no moves in computed moves that aren't in stockfish moves
-    for (key, value) in &rusty_moves {
-        if !stockfish_moves.contains_key(key) {
-            println!("{}: {} not found in stockfish_moves", key, value);
+    for (key, value) in &rusty_perft {
+        if !stockfish_perft.contains_key(key) {
+            println!("{}: {} not found in stockfish_perft", key, value);
             pass = false;
         }
     }
@@ -91,47 +89,4 @@ fn run_perft(depth: u8, fen: String) {
     println!("rusty total nodes:\t{}", nodes);
 
     println!("{}", if pass { "PASS" } else { "FAIL" });
-}
-
-fn get_stockfish_perft(depth: u8, fen: String) -> HashMap<String, u64> {
-    let mut stockfish = std::process::Command::new("stockfish")
-        .stdin(std::process::Stdio::piped())
-        .stdout(std::process::Stdio::piped())
-        .spawn()
-        .expect("Failed to start Stockfish");
-
-    let mut stdin = stockfish.stdin.take().unwrap();
-
-    let stockfish_command = format!("position fen {}\ngo perft {}\nquit\n", fen, depth);
-    println!("{}", stockfish_command);
-    stdin
-        .write_all(stockfish_command.as_bytes())
-        .expect("Failed to write to stdin");
-
-    let mut stdout = stockfish.stdout.take().unwrap();
-
-    let mut buffer = String::new();
-
-    stdout
-        .read_to_string(&mut buffer)
-        .expect("Failed to read from stdout");
-
-    println!("{}", buffer);
-
-    let mut lines = buffer.lines();
-    // ignore first line
-    lines.next();
-    // take each of the next line until 2 newlines, and parse by splitting on :
-    let mut stockfish_moves: HashMap<String, u64> = HashMap::new();
-    for line in lines {
-        if line == "" {
-            break;
-        }
-        let mut split = line.split(":");
-        let move_str = split.next().unwrap();
-        let count = split.next().unwrap().trim().parse::<u64>().unwrap();
-        stockfish_moves.insert(move_str.to_string(), count);
-    }
-
-    stockfish_moves
 }

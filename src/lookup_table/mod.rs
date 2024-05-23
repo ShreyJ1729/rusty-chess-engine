@@ -4,6 +4,9 @@ use crate::bitboard::*;
 use crate::enums::*;
 use generator::*;
 use rand::Rng;
+use serde::ser::SerializeStruct;
+use serde::Deserialize;
+use serde::Serialize;
 use std::io::{stdout, Write};
 use strum::IntoEnumIterator;
 
@@ -24,8 +27,12 @@ pub struct LookupTable {
 // todo try reducing bishop to 2048 (11 bits) through skipping bishop square on one of the diagonals
 impl LookupTable {
     pub fn new() -> LookupTable {
+        if let Some(cached_table) = Self::load() {
+            println!("Loaded lookup table from file");
+            return cached_table;
+        }
         print!("Building lookup table...");
-        stdout().flush();
+        stdout().flush().unwrap();
 
         let start = std::time::Instant::now();
         let mut table = LookupTable {
@@ -40,10 +47,26 @@ impl LookupTable {
 
             rng: rand::thread_rng(),
         };
-
         table.build_moves();
         println!("done in {} milliseconds", start.elapsed().as_millis());
+        table.save("lookup_table.bin");
         table
+    }
+
+    pub fn load() -> Option<LookupTable> {
+        let path = "lookup_table.bin";
+        match std::fs::read(path) {
+            Ok(data) => {
+                let table: LookupTable = bincode::deserialize(&data).unwrap();
+                Some(table)
+            }
+            Err(_) => None,
+        }
+    }
+
+    pub fn save(&self, path: &str) {
+        let data = bincode::serialize(self).unwrap();
+        std::fs::write(path, data).expect("Failed to write lookup table to file");
     }
 
     pub fn build_moves(&mut self) {
@@ -365,5 +388,91 @@ impl LookupTable {
         }
 
         self.rook_magic_numbers[square.index()] = magic_number;
+    }
+}
+
+impl Serialize for LookupTable {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut state = serializer.serialize_struct("LookupTable", 7)?;
+        state.serialize_field("pawns", &self.pawns)?;
+        state.serialize_field("knights", &self.knights)?;
+        state.serialize_field("bishops", &self.bishops)?;
+        state.serialize_field("rooks", &self.rooks)?;
+        state.serialize_field("kings", &self.kings)?;
+        state.serialize_field("bishop_magic_numbers", &self.bishop_magic_numbers)?;
+        state.serialize_field("rook_magic_numbers", &self.rook_magic_numbers)?;
+        state.end()
+    }
+}
+
+impl<'de> Deserialize<'de> for LookupTable {
+    fn deserialize<D>(deserializer: D) -> Result<LookupTable, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        struct LookupTableVisitor;
+
+        impl<'de> serde::de::Visitor<'de> for LookupTableVisitor {
+            type Value = LookupTable;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+                formatter.write_str("struct LookupTable")
+            }
+
+            fn visit_seq<A>(self, mut seq: A) -> Result<LookupTable, A::Error>
+            where
+                A: serde::de::SeqAccess<'de>,
+            {
+                let pawns = seq
+                    .next_element()?
+                    .ok_or_else(|| serde::de::Error::invalid_length(0, &self))?;
+                let knights = seq
+                    .next_element()?
+                    .ok_or_else(|| serde::de::Error::invalid_length(1, &self))?;
+                let bishops = seq
+                    .next_element()?
+                    .ok_or_else(|| serde::de::Error::invalid_length(2, &self))?;
+                let rooks = seq
+                    .next_element()?
+                    .ok_or_else(|| serde::de::Error::invalid_length(3, &self))?;
+                let kings = seq
+                    .next_element()?
+                    .ok_or_else(|| serde::de::Error::invalid_length(4, &self))?;
+                let bishop_magic_numbers = seq
+                    .next_element()?
+                    .ok_or_else(|| serde::de::Error::invalid_length(5, &self))?;
+                let rook_magic_numbers = seq
+                    .next_element()?
+                    .ok_or_else(|| serde::de::Error::invalid_length(6, &self))?;
+
+                Ok(LookupTable {
+                    pawns,
+                    knights,
+                    bishops,
+                    rooks,
+                    kings,
+                    bishop_magic_numbers,
+                    rook_magic_numbers,
+                    rng: rand::thread_rng(),
+                })
+            }
+        }
+
+        deserializer.deserialize_struct(
+            "LookupTable",
+            &[
+                "pawns",
+                "knights",
+                "bishops",
+                "rooks",
+                "kings",
+                "bishop_magic_numbers",
+                "rook_magic_numbers",
+            ],
+            LookupTableVisitor,
+        )
     }
 }

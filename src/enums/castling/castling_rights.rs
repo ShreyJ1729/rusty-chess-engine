@@ -2,10 +2,10 @@ use crate::enums::*;
 
 #[derive(Debug, Clone, Copy)]
 pub struct CastlingRights {
-    white_kingside: bool,
-    white_queenside: bool,
-    black_kingside: bool,
-    black_queenside: bool,
+    pub white_kingside: bool,
+    pub white_queenside: bool,
+    pub black_kingside: bool,
+    pub black_queenside: bool,
 }
 
 impl CastlingRights {

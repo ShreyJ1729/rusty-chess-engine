@@ -74,8 +74,6 @@ impl Bitboard {
     }
 }
 
-// Bitwise operators
-
 impl BitOr for Bitboard {
     type Output = Bitboard;
 

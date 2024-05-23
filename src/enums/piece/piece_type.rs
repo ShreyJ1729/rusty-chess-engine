@@ -29,7 +29,7 @@ impl PieceType {
                 PieceType::ROOK => PIECE::WhiteRook,
                 PieceType::QUEEN => PIECE::WhiteQueen,
                 PieceType::KING => PIECE::WhiteKing,
-                PieceType::EMPTY => PIECE::Empty,
+                PieceType::EMPTY => panic!("Empty piece has no color"),
             },
             COLOR::BLACK => match self {
                 PieceType::PAWN => PIECE::BlackPawn,
@@ -38,7 +38,7 @@ impl PieceType {
                 PieceType::ROOK => PIECE::BlackRook,
                 PieceType::QUEEN => PIECE::BlackQueen,
                 PieceType::KING => PIECE::BlackKing,
-                PieceType::EMPTY => PIECE::Empty,
+                PieceType::EMPTY => panic!("Empty piece has no color"),
             },
         }
     }

@@ -236,14 +236,24 @@ impl<'a> Board<'a> {
         self.white_occupancy() | self.black_occupancy()
     }
 
-    pub fn pieces_of_color(&self, color: COLOR) -> Bitboard {
+    pub fn occupancy_of_color(&self, color: COLOR) -> Bitboard {
         match color {
             COLOR::WHITE => self.white_occupancy(),
             COLOR::BLACK => self.black_occupancy(),
         }
     }
 
-    pub fn pieces_of_type(&self, piece_type: PieceType) -> Bitboard {
+    pub fn occupancy_of_piece(&self, piece: PIECE) -> Bitboard {
+        match piece {
+            PIECE::Empty => !self.occupancy(),
+            _ => {
+                self.occupancy_of_color(piece.color().unwrap())
+                    & self.occupancy_of_piecetype(piece.piece_type())
+            }
+        }
+    }
+
+    pub fn occupancy_of_piecetype(&self, piece_type: PieceType) -> Bitboard {
         match piece_type {
             PieceType::PAWN => self.white_pawns | self.black_pawns,
             PieceType::KNIGHT => self.white_knights | self.black_knights,
@@ -253,10 +263,6 @@ impl<'a> Board<'a> {
             PieceType::KING => self.white_king | self.black_king,
             PieceType::EMPTY => !self.occupancy(),
         }
-    }
-
-    pub fn pieces_of_color_and_type(&self, color: COLOR, piece_type: PieceType) -> Bitboard {
-        self.pieces_of_color(color) & self.pieces_of_type(piece_type)
     }
 
     // ---------------------------------------------
@@ -304,15 +310,15 @@ impl<'a> Board<'a> {
                 PieceType::EMPTY => panic!("Cannot generate moves for empty square"),
             };
 
-            // 2. get the indices of the bits in the move_bb (these are the target move squares)
+            // 2. get the squares in the move_bb (these are the target move squares)
             let target_squares = move_bb.get_squares();
 
             // 3. build the moves and push to the moves vector
             for target_square in target_squares {
-                let is_pawn_promotion =
-                    piece_type == PieceType::PAWN && target_square.is_pawn_promote(color);
+                let pawn_move = piece_type == PieceType::PAWN;
+                let is_pawn_promotion = pawn_move && target_square.is_pawn_promote(color);
 
-                let is_en_passant = piece_type == PieceType::PAWN
+                let is_en_passant = pawn_move
                     && match color {
                         COLOR::WHITE => {
                             Some(target_square) == self.en_passant_target
@@ -328,7 +334,13 @@ impl<'a> Board<'a> {
 
                 let capture = match self.piece_at(target_square) {
                     PIECE::Empty => None,
-                    piece => Some(piece),
+                    target_piece => {
+                        if target_piece.color() == Some(color.opposite()) {
+                            Some(target_piece)
+                        } else {
+                            None
+                        }
+                    }
                 };
 
                 // if it's pawn promotion, add four moves (one for each promotion piece)
@@ -418,12 +430,6 @@ impl<'a> Board<'a> {
 
     pub fn generate_moves_for_square(&self, square: SQUARE) -> Vec<Move> {
         let piece = self.piece_at(square);
-        let bb = Bitboard::new(square.bits());
-        println!(
-            "generating moves for square {} with piece {}",
-            square, piece,
-        );
-        println!("bb: {}", bb);
         self.generate_moves_for_piece(piece)
     }
 
@@ -740,9 +746,9 @@ impl<'a> Board<'a> {
 
         // enumerate m and idx for moves
         for (i, m) in moves.iter().enumerate() {
-            // if m.capture.is_some() {
-            //     captures += 1;
-            // }
+            if m.capture.is_some() {
+                captures += 1;
+            }
             if m.castling.is_some() {
                 castles += 1;
             }
@@ -794,23 +800,16 @@ impl Display for Board<'_> {
             for file in FILE::iter() {
                 let file_index = file as usize;
                 let index = rank_index * 8 + file_index;
-
                 let piece = self.piece_at_index(index);
-
                 let c = match piece.not_empty() {
                     true => piece as u8 as char,
                     false => ' ',
                 };
 
-                write!(f, "{}", c)?;
-                write!(f, " ")?;
+                write!(f, "{} ", c)?;
             }
-
             write!(f, "\n")?;
         }
-
-        writeln!(f, "  a b c d e f g h")?;
-
-        Ok(())
+        writeln!(f, "  a b c d e f g h")
     }
 }

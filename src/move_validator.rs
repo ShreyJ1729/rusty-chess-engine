@@ -5,69 +5,72 @@ pub struct MoveValidator {}
 
 impl MoveValidator {
     // checks if a move is valid given board configuration
-    pub fn is_move_valid(board: &Board, m: &Move) -> bool {
+    pub fn is_move_valid(board: &Board, m: Move) -> bool {
         let source = m.source;
         let target = m.target;
         let castling = m.castling;
 
         // Get details of the piece that is moving
-        let source_color = board.piece_at(source).color().expect("source is empty");
-        let target_color = board.piece_at(target).color();
-
         let source_piece = board.piece_at(source);
         let target_piece = board.piece_at(target);
 
-        let target_empty = target_piece.piece_type() == PieceType::EMPTY;
+        let source_color = source_piece.color().expect("source piece is empty");
+        let target_color = target_piece.color();
+
+        let target_empty = target_piece == PIECE::Empty;
         let is_capture = Some(source_color.opposite()) == target_color;
+        let friendly_capture = Some(source_color) == target_color;
 
         let rank_diff = (source.rank() - target.rank()).abs();
         let file_diff = (source.file() - target.file()).abs();
 
-        let same_rank = rank_diff == 0;
-        let same_file = file_diff == 0;
+        let rank_unchanged = rank_diff == 0;
+        let file_unchanged = file_diff == 0;
 
-        let is_pawn = source_piece.piece_type() == PieceType::PAWN;
+        let pawn_move = source_piece.piece_type() == PieceType::PAWN;
+        let pawn_single_push = pawn_move && rank_diff == 1 && file_unchanged;
+        let pawn_double_push = pawn_move && rank_diff == 2 && file_unchanged;
+        let pawn_diagonal_move = pawn_move && file_diff == 1 && rank_diff == 1;
 
-        let is_pawn_diagonal_move = is_pawn && file_diff == 1 && rank_diff == 1;
-
-        let is_pawn_promotion =
-            is_pawn && (target.rank() == RANK::Rank1 || target.rank() == RANK::Rank8);
+        let pawn_promoted =
+            pawn_move && (target.rank() == RANK::Rank1 || target.rank() == RANK::Rank8);
 
         // 0. Assert source piece is not empty
         assert_ne!(source_piece, PIECE::Empty);
 
-        // 1. Check for friendly capture
-        if Some(source_color) == target_color {
+        // 1. Check for friendly capture or king capture
+        let king_capture = target_piece.piece_type() == PieceType::KING;
+        if friendly_capture || king_capture {
             return false;
         }
 
         // 2. Check if pawn single push is legal - can't capture forward
-        if is_pawn && same_file && rank_diff == 1 && !target_empty {
+        if pawn_single_push && is_capture {
             return false;
         }
 
         // 3. Check if pawn double push is legal
-        if is_pawn && same_file && rank_diff == 2 {
+        if pawn_double_push {
             let intermediate_square = match source_color {
-                COLOR::WHITE => SQUARE::from(source.index() + 8),
-                COLOR::BLACK => SQUARE::from(source.index() - 8),
+                COLOR::WHITE => source.north().unwrap(),
+                COLOR::BLACK => source.south().unwrap(),
             };
             let intermediate_piece = board.piece_at(intermediate_square);
-            let intermediate_empty = intermediate_piece.piece_type() == PieceType::EMPTY;
+            let intermediate_empty = intermediate_piece == PIECE::Empty;
 
-            // if one of the two squares in front of the pawn is occupied, the move is illegal
+            // if target or intermediate square is occupied, return false
             if !target_empty || !intermediate_empty {
                 return false;
             }
         }
 
         // 4. Check if the pawn diagonal move is legal (only possible if capture or en passant)
-        if is_pawn_diagonal_move && !is_capture && board.en_passant_target.is_none() {
+        if pawn_diagonal_move && !is_capture && board.en_passant_target.is_none() {
             return false;
         }
 
         // 5. Check for en passant
-        if is_pawn_diagonal_move && !is_capture && board.en_passant_target.is_some() {
+        if pawn_diagonal_move && !is_capture && board.en_passant_target.is_some() {
             let en_passant_target = board
                 .en_passant_target
                 .expect("en passant move but en passant target not set");
@@ -79,76 +82,54 @@ impl MoveValidator {
         }
 
         // 6. Invalidate moves where king is under check after move
-        // we do this by making a copy of the board, making the move, and checking if the king is under attack
         let mut board_copy = board.clone();
-        // if no piece at source, print board and panic
-        if board_copy.piece_at(source).is_empty() {
-            println!("board before move: \n{}", board_copy);
-            println!("move: {}", m);
-            panic!("no piece at source");
-        }
+        board_copy.make_move(m);
 
-        // Make move, then if king under attack after move, return false
-        board_copy.make_move(*m);
         if Self::in_check(&board_copy, source_color) {
             return false;
         }
 
         // 7. Check for castling
-        // this is non-rigorous, since we're relying on data from board generate moves function
-        // which is guaranteed to not generate castling moves if castling rights are false
         if castling.is_some() {
-            // Some basic checks to make sure king is moving and that castling rights are set
             assert!(source_piece.piece_type() == PieceType::KING);
-            assert!(board.castling_rights.any());
 
-            // add rule for can't castle out of check
+            // no castling if king is in check
             if Self::in_check(board, source_color) {
                 return false;
             }
 
-            // for each of the 4 castling moves
-            // these are squares strictly between king and rook (source and target)
-            // todo turn these into constants
-            let wk_side = [SQUARE::F1, SQUARE::G1];
-            let wq_side = [SQUARE::D1, SQUARE::C1, SQUARE::B1];
-            let bk_side = [SQUARE::F8, SQUARE::G8];
-            let bq_side = [SQUARE::D8, SQUARE::C8, SQUARE::B8];
+            let wkc_blocked = (WKC_BITS & board.occupancy().bits()) != 0;
+            let wqc_blocked = (WQC_BITS & board.occupancy().bits()) != 0;
+            let bkc_blocked = (BKC_BITS & board.occupancy().bits()) != 0;
+            let bqc_blocked = (BQC_BITS & board.occupancy().bits()) != 0;
 
-            let wk_side_blocked = wk_side.iter().any(|s| board.piece_at(*s).not_empty());
-            let wq_side_blocked = wq_side.iter().any(|s| board.piece_at(*s).not_empty());
-            let bk_side_blocked = bk_side.iter().any(|s| board.piece_at(*s).not_empty());
-            let bq_side_blocked = bq_side.iter().any(|s| board.piece_at(*s).not_empty());
-
-            let wk_side_attacked = wk_side
+            let wkc_attacked = WKC_SQUARES
                 .iter()
-                .any(|s| Self::is_square_under_attack(board, *s, source_color));
-            let wq_side_attacked = wq_side
+                .any(|s| Self::square_under_attack(board, *s, source_color));
+            let wqc_attacked = WQC_SQUARES
                 .iter()
                 .take(2)
-                .any(|s| Self::is_square_under_attack(board, *s, source_color));
-            let bk_side_attacked = bk_side
+                .any(|s| Self::square_under_attack(board, *s, source_color));
+            let bkc_attacked = BKC_SQUARES
                 .iter()
-                .any(|s| Self::is_square_under_attack(board, *s, source_color));
-            let bq_side_attacked = bq_side
+                .any(|s| Self::square_under_attack(board, *s, source_color));
+            let bqc_attacked = BQC_SQUARES
                 .iter()
                 .take(2)
-                .any(|s| Self::is_square_under_attack(board, *s, source_color));
+                .any(|s| Self::square_under_attack(board, *s, source_color));
 
-            // - ensure squares between source and target are empty
-            // - check if squares between source and target that king moves on are under attack
             match castling {
                 Some(CASTLE::WhiteKingside) => {
-                    return !wk_side_blocked && !wk_side_attacked;
+                    return !wkc_blocked && !wkc_attacked && board.castling_rights.white_kingside;
                 }
                 Some(CASTLE::WhiteQueenside) => {
-                    return !wq_side_blocked && !wq_side_attacked;
+                    return !wqc_blocked && !wqc_attacked && board.castling_rights.white_queenside;
                 }
                 Some(CASTLE::BlackKingside) => {
-                    return !bk_side_blocked && !bk_side_attacked;
+                    return !bkc_blocked && !bkc_attacked && board.castling_rights.black_kingside;
                 }
                 Some(CASTLE::BlackQueenside) => {
-                    return !bq_side_blocked && !bq_side_attacked;
+                    return !bqc_blocked && !bqc_attacked && board.castling_rights.black_queenside;
                 }
                 _ => {}
             }
@@ -163,16 +144,16 @@ impl MoveValidator {
             COLOR::BLACK => board.black_king.bits(),
         });
 
-        Self::is_square_under_attack(board, king_square, color)
+        Self::square_under_attack(board, king_square, color)
     }
 
-    // returns is square under attack for color
-    pub fn is_square_under_attack(board: &Board, square: SQUARE, color: COLOR) -> bool {
+    // returns is square under attack by the opposite color
+    pub fn square_under_attack(board: &Board, square: SQUARE, color: COLOR) -> bool {
         // We do this by placing each of pawn, knight, bishop, rook, queen, and king on the square of interest and computing attacks
         // If any of the target squares is the same piece type as the attacking piece, the king is under attack
 
         // Start with pawns, but remove single and double push moves
-        let pawn_attacks = board.lookup_table.get_pawn_moves(square, color);
+        let pawn_moves = board.lookup_table.get_pawn_moves(square, color);
 
         // for pawns, remove single and double push moves from attacks
         let pawn_single_push = Bitboard::new(match color {
@@ -185,7 +166,7 @@ impl MoveValidator {
         });
 
         // Now we can compute only diagonal pawn moves
-        let pawn_attacks = pawn_attacks & !(pawn_single_push | pawn_double_push);
+        let pawn_attacks = pawn_moves & !(pawn_single_push | pawn_double_push);
 
         // rest are straightforward
         let knight_attacks = board.lookup_table.get_knight_moves(square, color);
@@ -205,27 +186,27 @@ impl MoveValidator {
 
         // if any attacks are on opposite color pieces of same piecetype, the square is under attack
         let under_pawn_attack = (pawn_attacks
-            & board.pieces_of_color_and_type(color.opposite(), PieceType::PAWN))
+            & board.occupancy_of_piece(PieceType::PAWN.for_color(color.opposite())))
         .any();
 
         let under_knight_attack = (knight_attacks
-            & board.pieces_of_color_and_type(color.opposite(), PieceType::KNIGHT))
+            & board.occupancy_of_piece(PieceType::KNIGHT.for_color(color.opposite())))
         .any();
 
         let under_bishop_attack = (bishop_attacks
-            & board.pieces_of_color_and_type(color.opposite(), PieceType::BISHOP))
+            & board.occupancy_of_piece(PieceType::BISHOP.for_color(color.opposite())))
         .any();
 
         let under_rook_attack = (rook_attacks
-            & board.pieces_of_color_and_type(color.opposite(), PieceType::ROOK))
+            & board.occupancy_of_piece(PieceType::ROOK.for_color(color.opposite())))
         .any();
 
         let under_queen_attack = (queen_attacks
-            & board.pieces_of_color_and_type(color.opposite(), PieceType::QUEEN))
+            & board.occupancy_of_piece(PieceType::QUEEN.for_color(color.opposite())))
         .any();
 
         let under_king_attack = (king_attacks
-            & board.pieces_of_color_and_type(color.opposite(), PieceType::KING))
+            & board.occupancy_of_piece(PieceType::KING.for_color(color.opposite())))
         .any();
 
         return under_pawn_attack
@@ -237,6 +218,6 @@ impl MoveValidator {
     }
 
     pub fn filter_valid_moves(board: &Board, moves: &mut Vec<Move>) {
-        moves.retain(|m| Self::is_move_valid(board, m));
+        moves.retain(|m| Self::is_move_valid(board, *m));
     }
 }
