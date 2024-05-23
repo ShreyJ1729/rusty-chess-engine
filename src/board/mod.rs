@@ -1,6 +1,7 @@
 use crate::{bitboard::*, enums::*, helpers::*, lookup_table::*, move_validator::*, r#move::*};
 use std::collections::HashMap;
 use std::fmt::{Display, Formatter, Result};
+use std::io::Write;
 use strum::IntoEnumIterator;
 
 #[derive(Debug, Clone)]
@@ -65,7 +66,7 @@ impl<'a> Board<'a> {
         let mut board = Board::new(lookup_table);
 
         // split the board configuration from metadata
-        let fen = fen.split(" ").into_iter().collect::<Vec<&str>>();
+        let fen = fen.trim().split(" ").into_iter().collect::<Vec<&str>>();
         assert_eq!(fen.len(), 6, "Invalid FEN string: {}", fen.join(" "));
 
         let board_data = fen[0];
@@ -739,6 +740,7 @@ impl<'a> Board<'a> {
         let mut promotions = 0;
         let mut checks = 0;
 
+        // Only count leaf nodes
         if depth == 0 {
             if let Some(pm) = parent_move {
                 captures += (pm.capture.is_some() | pm.en_passant) as u64;
@@ -755,10 +757,10 @@ impl<'a> Board<'a> {
 
         let moves = self.generate_moves_for_color(self.to_move);
 
-        // enumerate m and idx for moves
         for (i, m) in moves.iter().enumerate() {
             let mut board = self.clone();
             board.make_move(*m);
+
             let (n, c, ca, en, pro, ch) = board.perft(depth - 1, max_depth, Some(*m), move_counter);
             nodes += n;
             captures += c;
@@ -768,7 +770,10 @@ impl<'a> Board<'a> {
             checks += ch;
 
             if depth == max_depth {
-                println!("({}/{}) {}: {}", i + 1, moves.len(), m, n);
+                let progress = "=".repeat((i + 1) as usize);
+                let empty = " ".repeat(moves.len() - i - 1);
+                print!("({}/{}) |{}>{}|\r", i + 1, moves.len(), progress, empty);
+                std::io::stdout().flush().unwrap();
                 move_counter.insert(m.to_string(), n);
             }
         }

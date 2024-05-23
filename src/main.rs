@@ -19,6 +19,6 @@ fn main() {
     }
 
     match args.mode {
-        EngineMode::PERFT => perft::run(args.depth, args.fen),
+        EngineMode::PERFT => perft::run_perft_tests(4),
     }
 }
