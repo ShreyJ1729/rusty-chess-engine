@@ -17,8 +17,8 @@ cargo run --release -- --max_depth=[depth] --fen="[fen]"
 - [x] BitBoard representation
 - [x] FEN parsing
 - [x] Move generation with magic bitboards
-- [] Perft testing suite (all left is checkmate detection)
-- [] Unmake move
+- [c] Perft testing suite
+- [] Make-unmake move
 - [] Testing and metrics for each function
 - - [] memory(jemalloc)
 - - [] time
@@ -35,6 +35,8 @@ Plan for refactoring
 
 todo:
 
+- bevy gui
+- figure out how to fix low nps after adding checkmate detection
 - Memory/time/cpu benchmarking and profiling for each function (probably some crate exists for this)
 - propagate errors properly instead of just unwrapping everything. use a logging crate to log errors and debug information at different levels. Save it to a logfile.
 

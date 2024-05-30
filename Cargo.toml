@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 ascii_table = "4.0.3"
+bevy = "0.13.2"
 bincode = "1.3.3"
 clap = { version = "4.2.7", features = ["derive"] }
 csv = "1.3.0"
