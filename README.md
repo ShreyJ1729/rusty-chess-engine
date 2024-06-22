@@ -17,7 +17,7 @@ cargo run --release -- --max_depth=[depth] --fen="[fen]"
 - [x] BitBoard representation
 - [x] FEN parsing
 - [x] Move generation with magic bitboards
-- [c] Perft testing suite
+- [x] Perft testing suite
 - [] Make-unmake move
 - [] Testing and metrics for each function
 - - [] memory(jemalloc)
